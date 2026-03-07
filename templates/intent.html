@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% set progress = 68 %}
+{% block title %}Your Intent · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step done">Address</div>
+    <div class="step done">Role</div>
+    <div class="step active">Intent</div>
+    <div class="step">Contact</div>
+  </div>
+
+  <h1>What Would You Like to Do?</h1>
+  <p class="subtitle">
+    You can enroll with Mass Save right now, learn more at a City event,
+    or ask for help from City staff.
+  </p>
+
+  {% if error %}
+  <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('select_intent') }}">
+    <div class="choices">
+      {% for value, label in intents %}
+      <div>
+        <input type="radio" id="intent_{{ value }}" name="intent" value="{{ value }}">
+        <label class="choice-label" for="intent_{{ value }}">{{ label }}</label>
+      </div>
+      {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary">Continue →</button>
+  </form>
+
+  <div class="alert alert-info" style="margin-top:1.4rem;">
+    <strong>Remember:</strong> Official enrollment happens at
+    <a href="https://www.masssave.com/community-first/lawrence"
+       target="_blank" rel="noopener">masssave.com/Lawrence</a>.
+    The City's registration is separate and optional.
+  </div>
+
+</div>
+{% endblock %}

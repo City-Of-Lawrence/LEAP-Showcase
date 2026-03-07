@@ -1,0 +1,31 @@
+# Virtual environment
+venv/
+.venv/
+
+# Databases & Data
+*.[Ss][Qq][Ll][Ii][Tt][Ee]
+*.[Dd][Bb]
+*.[Cc][Ss][Vv]
+*.[Xx][Ll][Ss][Xx]
+
+# Image and Media files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.mp3
+*.mov
+*.avi
+*.svg
+*.psd
+*.cdr
+
+# System
+__pycache__/
+*.pyc
+*.pyo
+
+# Flask
+instance/
+.env

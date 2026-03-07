@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% set progress = 100 %}
+{% block title %}You're Registered · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align:center;">
+
+  <div style="font-size:3rem; margin-bottom:0.5rem;">✅</div>
+  <h1 style="margin-bottom:0.5rem;">You're All Set!</h1>
+  <p class="subtitle" style="margin-bottom:1.6rem;">
+    Thank you for registering with the City of Lawrence Energy Affordability Program.
+    A City staff member may follow up if you requested assistance.
+  </p>
+
+  <div class="alert alert-info" style="text-align:left; margin-bottom:1.6rem;">
+    <strong>Next step: Enroll with Mass Save</strong><br>
+    To receive no-cost energy upgrades, you must enroll directly with Mass Save.
+    It's free and takes about 5 minutes.
+  </div>
+
+  <a href="{{ masssave_url }}" target="_blank" rel="noopener"
+     class="btn btn-primary" style="font-size:1.05rem; padding: 0.85rem 2rem;">
+    Go to masssave.com/Lawrence →
+  </a>
+
+  <p style="margin-top:1.8rem; font-size:0.83rem; color:#777;">
+    Questions? Call the City at <a href="tel:9783159255">(978) 315-9255</a>
+    or visit City Hall.
+  </p>
+
+</div>
+{% endblock %}

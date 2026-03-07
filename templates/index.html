@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Get Started · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1>No-Cost Energy Upgrades for Lawrence Residents</h1>
+  <p class="subtitle">
+    The City of Lawrence is partnering with Mass Save to bring free energy efficiency
+    upgrades to renters and landlords. Find out if your property qualifies — it takes
+    less than two minutes.
+  </p>
+
+  <div class="alert alert-info">
+    <strong>Did you receive a letter with a QR code?</strong><br>
+    Scan the QR code on your letter to get started with your property pre-identified.
+  </div>
+
+  <p style="margin-bottom:1rem; font-size:0.95rem;">
+    Or enter your street address below to look up your property:
+  </p>
+
+  <a href="{{ url_for('address_search') }}" class="btn btn-primary">
+    Enter My Address →
+  </a>
+
+  <hr style="margin: 1.8rem 0; border: none; border-top: 1px solid #eee;">
+
+  <p style="font-size:0.83rem; color:#666;">
+    <strong>Your privacy matters.</strong>
+    The City uses your address only to connect you with benefits you have already
+    paid for through your utility bills. Registration with the City is optional.
+    Official enrollment occurs at
+    <a href="https://www.masssave.com/community-first/lawrence"
+       target="_blank" rel="noopener">masssave.com/Lawrence</a>.
+  </p>
+</div>
+{% endblock %}

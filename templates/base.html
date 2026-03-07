@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Lawrence Energy Affordability Program{% endblock %}</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f4f6f8;
+      color: #222;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #1a3a5c;   /* Lawrence dark navy */
+      color: white;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header .city-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    header .program-name {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      background: #d0dce8;
+      height: 6px;
+    }
+    .progress-bar .fill {
+      background: #c8392b;   /* Lawrence red */
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    /* ── Main card ── */
+    main {
+      max-width: 640px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.10);
+      padding: 2rem 2.2rem;
+    }
+    h1 {
+      font-size: 1.35rem;
+      color: #1a3a5c;
+      margin-bottom: 0.4rem;
+    }
+    .subtitle {
+      color: #555;
+      font-size: 0.92rem;
+      margin-bottom: 1.6rem;
+      line-height: 1.5;
+    }
+
+    /* ── Forms ── */
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      font-size: 0.93rem;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid #bbb;
+      border-radius: 5px;
+      font-size: 0.95rem;
+      margin-bottom: 1.1rem;
+      transition: border-color .2s;
+    }
+    input:focus { outline: none; border-color: #1a3a5c; }
+
+    /* ── Radio / choice cards ── */
+    .choices { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.4rem; }
+    .choice-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid #dde3ea;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      font-size: 0.95rem;
+    }
+    .choice-label:hover { border-color: #1a3a5c; background: #f0f4f8; }
+    input[type="radio"]:checked + .choice-label {
+      border-color: #1a3a5c;
+      background: #e8f0f8;
+      font-weight: 600;
+    }
+    input[type="radio"] { display: none; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-block;
+      padding: 0.7rem 1.8rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .btn-primary   { background: #c8392b; color: white; }
+    .btn-primary:hover { background: #a62d21; }
+    .btn-secondary { background: #1a3a5c; color: white; }
+    .btn-secondary:hover { background: #122944; }
+    .btn-outline   { background: white; color: #1a3a5c; border: 2px solid #1a3a5c; }
+    .btn-outline:hover { background: #f0f4f8; }
+    .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+
+    /* ── Address card ── */
+    .address-card {
+      background: #e8f4ec;
+      border: 1px solid #9ecfaa;
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .address-card .addr-main { font-size: 1.1rem; font-weight: 700; color: #1a3a5c; }
+    .address-card .addr-meta { font-size: 0.85rem; color: #555; margin-top: 0.3rem; }
+
+    /* ── Search results ── */
+    .result-list { list-style: none; margin-top: 0.8rem; }
+    .result-list li {
+      border-bottom: 1px solid #eee;
+      padding: 0.6rem 0;
+    }
+    .result-list li a {
+      color: #1a3a5c;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .result-list li a:hover { text-decoration: underline; }
+    .result-list .meta { font-size: 0.82rem; color: #777; }
+
+    /* ── Alert / error ── */
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      font-size: 0.92rem;
+    }
+    .alert-error { background: #fde8e6; border: 1px solid #e8a09a; color: #7a1f1a; }
+    .alert-info  { background: #e8f0f8; border: 1px solid #9ab8d8; color: #1a3a5c; }
+
+    /* ── Step indicator ── */
+    .steps {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.8rem;
+      counter-reset: step;
+    }
+    .step {
+      flex: 1;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #aaa;
+      position: relative;
+      padding-top: 0.3rem;
+    }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      display: block;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: #dde3ea;
+      color: #777;
+      font-weight: 700;
+      line-height: 26px;
+      margin: 0 auto 0.3rem;
+    }
+    .step.active::before { background: #c8392b; color: white; }
+    .step.done::before   { background: #2e7d50; color: white; content: "✓"; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.78rem;
+      color: #888;
+    }
+
+    /* ── Admin table ── */
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .admin-table th {
+      background: #1a3a5c; color: white;
+      padding: 0.5rem 0.75rem; text-align: left;
+    }
+    .admin-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #eee; }
+    .admin-table tr:hover td { background: #f5f8fb; }
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .tag-qr      { background: #dff0d8; color: #2e6b3e; }
+    .tag-manual  { background: #d9edf7; color: #1a5276; }
+    .tag-enroll  { background: #fdebd0; color: #784212; }
+    .tag-event   { background: #e8daef; color: #5b2c6f; }
+
+    @media (max-width: 500px) {
+      .card { padding: 1.3rem 1.1rem; }
+      .btn-row { flex-direction: column; }
+      .btn { width: 100%; text-align: center; }
+    }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="city-name">City of Lawrence</div>
+    <div class="program-name">Energy Affordability Program · Mass Save CFP</div>
+  </div>
+</header>
+
+{% if progress is defined %}
+<div class="progress-bar">
+  <div class="fill" style="width:{{ progress }}%"></div>
+</div>
+{% endif %}
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer>
+  City of Lawrence &nbsp;·&nbsp; Office of Planning and Development
+  &nbsp;·&nbsp; Questions? Call (978) 315-9255
+</footer>
+
+</body>
+</html>

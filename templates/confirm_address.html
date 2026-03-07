@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% set progress = 30 %}
+{% block title %}Confirm Address · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step active">Address</div>
+    <div class="step">Role</div>
+    <div class="step">Intent</div>
+    <div class="step">Contact</div>
+  </div>
+
+  <h1>Is This Your Property?</h1>
+  <p class="subtitle">Please confirm the address before we continue.</p>
+
+  <div class="address-card">
+    <div class="addr-main">
+      {{ address }}
+      {% if service_unit %} · {{ service_unit }}{% endif %}
+    </div>
+    {% if prop %}
+    <div class="addr-meta">
+      {% if prop['heating_fuel_description'] %}
+        Heat: {{ prop['heating_fuel_description'] }} &nbsp;|&nbsp;
+      {% endif %}
+      {% if prop['total_occupancy'] %}
+        Units: {{ prop['total_occupancy'] }} &nbsp;|&nbsp;
+      {% endif %}
+      {% if prop['lean_eligibility'] and prop['lean_eligibility'] != 'n/a' %}
+        <strong style="color:#2e7d50;">{{ prop['lean_eligibility'] }}-eligible</strong>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <form method="POST" action="{{ url_for('confirm_address') }}">
+    <div class="btn-row">
+      <button type="submit" name="confirmed" value="yes" class="btn btn-primary">
+        Yes, this is my address →
+      </button>
+      <button type="submit" name="confirmed" value="no" class="btn btn-outline">
+        No, search again
+      </button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}

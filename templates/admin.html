@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div style="max-width:1100px; margin:1.5rem auto; padding:0 1rem;">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <div>
+      <h1 style="font-size:1.3rem; color:#1a3a5c;">Registrations Dashboard</h1>
+      <p style="font-size:0.85rem; color:#666;">{{ total }} total registration(s)</p>
+    </div>
+    <a href="{{ url_for('admin_logout') }}" class="btn btn-outline"
+       style="font-size:0.85rem; padding:0.4rem 1rem;">Sign Out</a>
+  </div>
+
+  {% if rows %}
+  <div style="overflow-x:auto;">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date / Time</th>
+          <th>Address</th>
+          <th>Unit</th>
+          <th>Role</th>
+          <th>Intent</th>
+          <th>Path</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r['id'] }}</td>
+          <td style="white-space:nowrap;">{{ r['registered_at'][:16] }}</td>
+          <td>{{ r['normalized_address'] or '—' }}</td>
+          <td>{{ r['service_unit'] or '—' }}</td>
+          <td>{{ r['role'] or '—' }}</td>
+          <td>
+            {% if r['intent'] == 'enroll' %}
+              <span class="tag tag-enroll">Enroll</span>
+            {% elif r['intent'] == 'event' %}
+              <span class="tag tag-event">Event</span>
+            {% else %}
+              <span class="tag">Assist</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if r['upin_used'] == 'qr' %}
+              <span class="tag tag-qr">QR</span>
+            {% else %}
+              <span class="tag tag-manual">Manual</span>
+            {% endif %}
+          </td>
+          <td>{{ r['contact_name'] or '—' }}</td>
+          <td>{{ r['contact_phone'] or '—' }}</td>
+          <td>{{ r['contact_email'] or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">No registrations yet.</div>
+  {% endif %}
+
+</div>
+{% endblock %}

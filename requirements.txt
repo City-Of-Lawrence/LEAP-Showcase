@@ -1,0 +1,19 @@
+# LEAP Web Portal - Python dependencies
+# Generated from working environment: Python 3.9.19
+# To recreate: pip install -r requirements.txt
+
+argon2-cffi==25.1.0
+argon2-cffi-bindings==25.1.0
+blinker==1.9.0
+cffi==2.0.0
+click==8.1.8
+colorama==0.4.6
+Flask==3.1.3
+importlib_metadata==8.7.1
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+pycparser==2.23
+segno==1.6.6
+Werkzeug==3.1.6
+zipp==3.23.0

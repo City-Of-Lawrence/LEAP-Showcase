@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% set progress = 50 %}
+{% block title %}Your Role · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step done">Address</div>
+    <div class="step active">Role</div>
+    <div class="step">Intent</div>
+    <div class="step">Contact</div>
+  </div>
+
+  <h1>How Are You Connected to This Property?</h1>
+  <p class="subtitle">
+    This helps us give you the right information and event invitations.
+  </p>
+
+  {% if error %}
+  <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('select_role') }}">
+    <div class="choices">
+      {% for value, label in roles %}
+      <div>
+        <input type="radio" id="role_{{ value }}" name="role" value="{{ value }}">
+        <label class="choice-label" for="role_{{ value }}">{{ label }}</label>
+      </div>
+      {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary">Continue →</button>
+  </form>
+
+  <p style="margin-top:1.4rem; font-size:0.82rem; color:#777;">
+    Your role is used only to tailor the guidance we provide.
+    It does not affect your eligibility for Mass Save benefits.
+  </p>
+
+</div>
+{% endblock %}
+
+{% block head %}
+<script>
+  /* Make the whole card-row clickable, not just the radio button */
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".choice-label").forEach(function (lbl) {
+      lbl.addEventListener("click", function () {
+        var radio = document.getElementById(this.getAttribute("for"));
+        if (radio) radio.checked = true;
+      });
+    });
+  });
+</script>
+{% endblock %}

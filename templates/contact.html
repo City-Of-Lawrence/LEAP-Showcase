@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% set progress = 85 %}
+{% block title %}Contact Info · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step done">Address</div>
+    <div class="step done">Role</div>
+    <div class="step done">Intent</div>
+    <div class="step active">Contact</div>
+  </div>
+
+  <h1>Stay in Touch <span style="font-weight:400; font-size:0.9rem; color:#777;">(Optional)</span></h1>
+  <p class="subtitle">
+    Leave your contact information if you would like City staff to follow up.
+    This is completely optional — you can skip this step.
+  </p>
+
+  {% if address %}
+  <div class="address-card" style="margin-bottom:1.2rem;">
+    <div class="addr-main">{{ address }}</div>
+    <div class="addr-meta">Role: {{ role }}</div>
+  </div>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('contact_info') }}">
+    <label for="contact_name">Your Name</label>
+    <input type="text" id="contact_name" name="contact_name"
+           placeholder="First and last name" autocomplete="name">
+
+    <label for="contact_phone">Phone Number</label>
+    <input type="tel" id="contact_phone" name="contact_phone"
+           placeholder="(978) 555-1234" autocomplete="tel">
+
+    <label for="contact_email">Email Address</label>
+    <input type="email" id="contact_email" name="contact_email"
+           placeholder="you@example.com" autocomplete="email">
+
+    <p style="font-size:0.8rem; color:#777; margin-bottom:1.2rem;">
+      Your contact information is used only by City staff to coordinate
+      outreach and support. It is never shared with third parties.
+    </p>
+
+    <div class="btn-row">
+      <button type="submit" class="btn btn-primary">Finish →</button>
+      <button type="submit" class="btn btn-outline"
+              formnovalidate onclick="clearOptional()">
+        Skip this step
+      </button>
+    </div>
+  </form>
+</div>
+
+{% block head %}
+<script>
+function clearOptional() {
+  document.getElementById("contact_name").value  = "";
+  document.getElementById("contact_phone").value = "";
+  document.getElementById("contact_email").value = "";
+}
+</script>
+{% endblock %}
+
+{% endblock %}

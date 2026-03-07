@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Staff Login · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:380px; margin:3rem auto;">
+  <h1>Staff Access</h1>
+  <p class="subtitle">Enter the admin password to view registrations.</p>
+
+  {% if error %}
+  <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('admin_login') }}">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password"
+           autofocus autocomplete="current-password" required>
+    <button type="submit" class="btn btn-secondary" style="width:100%;">
+      Sign In →
+    </button>
+  </form>
+</div>
+{% endblock %}
