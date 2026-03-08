@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Manage Events · Admin{% endblock %}
+
+{% block content %}
+<div style="max-width:900px; margin:1.5rem auto; padding:0 1rem;">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <h1 style="font-size:1.3rem; color:#1a3a5c;">Event Management</h1>
+    <div style="display:flex; gap:0.5rem;">
+      <a href="{{ url_for('admin_event_new') }}" class="btn btn-primary" style="font-size:0.85rem; padding:0.4rem 1rem;">+ New Event</a>
+      <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">← Dashboard</a>
+    </div>
+  </div>
+
+  {% if events %}
+  <div style="overflow-x:auto;">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Location</th>
+          <th>Wards</th>
+          <th>RSVPs / Cap</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in events %}
+        <tr style="{% if e.is_past %}opacity:0.55;{% endif %}">
+          <td><strong>{{ e.name }}</strong></td>
+          <td style="white-space:nowrap;">{{ e.event_date }}</td>
+          <td>{{ e.event_time }}</td>
+          <td>{{ e.location }}</td>
+          <td>{{ e.wards | join(', ') if e.wards else '—' }}</td>
+          <td>
+            <span style="color:{% if e.rsvp_count >= e.capacity %}#c8392b{% else %}#2e7d50{% endif %};">
+              {{ e.rsvp_count }} / {{ e.capacity }}
+            </span>
+          </td>
+          <td>
+            {% if e.status == 'cancelled' %}
+              <span class="tag" style="background:#fde8e6; color:#7a1f1a;">Cancelled</span>
+            {% elif e.is_past %}
+              <span class="tag" style="background:#eee; color:#777;">Past</span>
+            {% else %}
+              <span class="tag tag-qr">Active</span>
+            {% endif %}
+          </td>
+          <td style="white-space:nowrap;">
+            {% if e.status == 'active' and not e.is_past %}
+            <a href="{{ url_for('admin_event_edit', event_id=e.event_id) }}"
+               style="color:#1a3a5c; font-size:0.82rem;">Edit</a>
+            &nbsp;|&nbsp;
+            <form method="POST"
+                  action="{{ url_for('admin_event_cancel', event_id=e.event_id) }}"
+                  style="display:inline"
+                  onsubmit="return confirm('Cancel this event?')">
+              <button type="submit"
+                      style="background:none; border:none; color:#c8392b; cursor:pointer; font-size:0.82rem; padding:0;">
+                Cancel
+              </button>
+            </form>
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">No events yet. Click <strong>+ New Event</strong> to add one.</div>
+  {% endif %}
+
+</div>
+{% endblock %}

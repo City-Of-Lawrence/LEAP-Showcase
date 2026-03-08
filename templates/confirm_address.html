@@ -26,11 +26,9 @@
         Heat: {{ prop['heating_fuel_description'] }} &nbsp;|&nbsp;
       {% endif %}
       {% if prop['total_occupancy'] %}
-        Units: {{ prop['total_occupancy'] }} &nbsp;|&nbsp;
+        Units: {{ prop['total_occupancy'] }}
       {% endif %}
-      {% if prop['lean_eligibility'] and prop['lean_eligibility'] != 'n/a' %}
-        <strong style="color:#2e7d50;">{{ prop['lean_eligibility'] }}-eligible</strong>
-      {% endif %}
+  
     </div>
     {% endif %}
   </div>

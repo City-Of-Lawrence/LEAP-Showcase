@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% set progress = 72 %}
+{% block title %}Upcoming Events · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step done">Address</div>
+    <div class="step done">Role</div>
+    <div class="step done">Property</div>
+    <div class="step active">Intent</div>
+    <div class="step">Contact</div>
+  </div>
+
+  <h1>What Would You Like to Do?</h1>
+  <p class="subtitle">
+    You can enroll with Mass Save now, or join us at an upcoming
+    City information session for landlords.
+  </p>
+
+  <form method="POST" action="{{ url_for('landlord_events') }}">
+
+    {% if events %}
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.8rem;">
+      Upcoming events — RSVP to reserve your spot:
+    </p>
+
+    <div class="choices" style="margin-bottom:1.4rem;">
+      {% for e in events %}
+      <div>
+        <input type="radio" id="event_{{ e.event_id }}"
+               name="event_id" value="{{ e.event_id }}">
+        <label class="choice-label" for="event_{{ e.event_id }}">
+          <div>
+            <strong>{{ e.name }}</strong><br>
+            <span style="font-size:0.87rem; color:#555;">
+              📅 {{ e.event_date }} at {{ e.event_time }}<br>
+              📍 {{ e.location }}<br>
+              {% if e.wards %}
+                🗺 Ward{{ 's' if e.wards|length > 1 else '' }}:
+                {{ e.wards | join(', ') }}<br>
+              {% endif %}
+              <span style="color:{% if e.spots_left <= 5 %}#c8392b{% else %}#2e7d50{% endif %};">
+                {{ e.spots_left }} spot{{ 's' if e.spots_left != 1 else '' }} remaining
+              </span>
+            </span>
+          </div>
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+
+    <p style="font-size:0.85rem; color:#777; margin-bottom:1rem;">
+      — or choose one of the options below —
+    </p>
+    {% else %}
+    <div class="alert alert-info" style="margin-bottom:1.2rem;">
+      No upcoming events are scheduled right now.
+      Check back soon or enroll directly with Mass Save below.
+    </div>
+    {% endif %}
+
+    <div class="choices">
+      <div>
+        <input type="radio" id="intent_enroll" name="intent" value="enroll">
+        <label class="choice-label" for="intent_enroll">
+          I want to enroll in Mass Save now
+        </label>
+      </div>
+      <div>
+        <input type="radio" id="intent_assist" name="intent" value="assistance">
+        <label class="choice-label" for="intent_assist">
+          I need help understanding the program
+        </label>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:1.2rem;">
+      <button type="submit" class="btn btn-primary">Continue →</button>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

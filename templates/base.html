@@ -18,19 +18,24 @@
     header {
       background: #1a3a5c;   /* Lawrence dark navy */
       color: white;
-      padding: 0.9rem 1.5rem;
+      padding: 1.8rem 2.5rem;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.5rem;
+    }
+    header img {
+      filter: drop-shadow(0 0 0 transparent);
+      mix-blend-mode: screen;
     }
     header .city-name {
-      font-size: 1.05rem;
-      font-weight: 600;
+      font-size: 2rem;
+      font-weight: 700;
       line-height: 1.2;
     }
     header .program-name {
-      font-size: 0.85rem;
-      opacity: 0.8;
+      font-size: 1.1rem;
+      opacity: 0.85;
+      margin-top: 0.2rem;
     }
 
     /* ── Progress bar ── */
@@ -233,6 +238,9 @@
 <body>
 
 <header>
+  <img src="{{ url_for('static', filename='Lawrence-Seal.png') }}"
+       alt="City of Lawrence Seal"
+       style="height:110px; width:110px; object-fit:contain; flex-shrink:0; mix-blend-mode:screen;">
   <div>
     <div class="city-name">City of Lawrence</div>
     <div class="program-name">Energy Affordability Program · Mass Save CFP</div>

@@ -32,11 +32,14 @@
 
     <label for="contact_phone">Phone Number</label>
     <input type="tel" id="contact_phone" name="contact_phone"
-           placeholder="(978) 555-1234" autocomplete="tel">
+           placeholder="(978) 555-1234" autocomplete="tel"
+           maxlength="14">
 
     <label for="contact_email">Email Address</label>
     <input type="email" id="contact_email" name="contact_email"
-           placeholder="you@example.com" autocomplete="email">
+           placeholder="you@example.com" autocomplete="email"
+           pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+           title="Please enter a valid email address with @">
 
     <p style="font-size:0.8rem; color:#777; margin-bottom:1.2rem;">
       Your contact information is used only by City staff to coordinate
@@ -60,6 +63,41 @@ function clearOptional() {
   document.getElementById("contact_phone").value = "";
   document.getElementById("contact_email").value = "";
 }
+
+// Auto-format phone as (978) 323-1234
+document.addEventListener("DOMContentLoaded", function () {
+  const phone = document.getElementById("contact_phone");
+
+  phone.addEventListener("input", function (e) {
+    // Strip everything except digits
+    let digits = this.value.replace(/\D/g, "").substring(0, 10);
+    let formatted = "";
+
+    if (digits.length === 0) {
+      formatted = "";
+    } else if (digits.length <= 3) {
+      formatted = "(" + digits;
+    } else if (digits.length <= 6) {
+      formatted = "(" + digits.substring(0, 3) + ") " + digits.substring(3);
+    } else {
+      formatted = "(" + digits.substring(0, 3) + ") " +
+                  digits.substring(3, 6) + "-" +
+                  digits.substring(6);
+    }
+    this.value = formatted;
+  });
+
+  // Only allow digits and control keys
+  phone.addEventListener("keydown", function (e) {
+    const allowed = [
+      "Backspace", "Delete", "Tab", "Escape", "Enter",
+      "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"
+    ];
+    if (allowed.includes(e.key)) return;
+    if (e.key >= "0" && e.key <= "9") return;
+    e.preventDefault();
+  });
+});
 </script>
 {% endblock %}
 

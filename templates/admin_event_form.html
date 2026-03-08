@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if event else 'New' }} Event · Admin{% endblock %}
+
+{% block content %}
+<div style="max-width:600px; margin:1.5rem auto; padding:0 1rem;">
+  <div class="card">
+
+    <h1>{{ 'Edit Event' if event else 'New Event' }}</h1>
+    <p class="subtitle">Fill in the details below. All fields are required.</p>
+
+    <form method="POST">
+
+      <label for="name">Event Name</label>
+      <input type="text" id="name" name="name"
+             value="{{ event.name if event else '' }}"
+             placeholder="e.g. Ward 1 Landlord Information Session"
+             required>
+
+      <div style="display:flex; gap:1rem;">
+        <div style="flex:1;">
+          <label for="event_date">Date</label>
+          <input type="date" id="event_date" name="event_date"
+                 value="{{ event.event_date if event else '' }}"
+                 style="margin-bottom:1.1rem;"
+                 required>
+        </div>
+        <div style="flex:1;">
+          <label for="event_time">Time</label>
+          <input type="time" id="event_time" name="event_time"
+                 value="{{ event.event_time if event else '' }}"
+                 style="margin-bottom:1.1rem;"
+                 required>
+        </div>
+      </div>
+
+      <label for="location">Location</label>
+      <input type="text" id="location" name="location"
+             value="{{ event.location if event else '' }}"
+             placeholder="e.g. Lawrence City Hall, 200 Common St"
+             required>
+
+      <label for="capacity">Capacity (max attendees)</label>
+      <input type="number" id="capacity" name="capacity"
+             value="{{ event.capacity if event else 50 }}"
+             min="1" max="1000"
+             style="width:160px; margin-bottom:1.1rem;"
+             required>
+
+      <label>Wards Targeted <span style="font-weight:400; color:#777;">(select all that apply)</span></label>
+      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.4rem;">
+        {% for w in ['1','2','3','4','5','6'] %}
+        <label style="display:flex; align-items:center; gap:0.4rem;
+                       padding:0.4rem 0.8rem; border:2px solid #dde3ea;
+                       border-radius:5px; cursor:pointer; font-size:0.92rem;"
+               id="ward_label_{{ w }}">
+          <input type="checkbox" name="wards" value="{{ w }}"
+                 {% if w in wards %}checked{% endif %}
+                 onchange="updateWardStyle('{{ w }}')">
+          Ward {{ w }}
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary">
+          {{ 'Save Changes' if event else 'Create Event' }}
+        </button>
+        <a href="{{ url_for('admin_events') }}" class="btn btn-outline">Cancel</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<script>
+function updateWardStyle(w) {
+  const cb  = document.querySelector(`input[name="wards"][value="${w}"]`);
+  const lbl = document.getElementById(`ward_label_${w}`);
+  lbl.style.borderColor  = cb.checked ? '#1a3a5c' : '#dde3ea';
+  lbl.style.background   = cb.checked ? '#e8f0f8' : '';
+  lbl.style.fontWeight   = cb.checked ? '700'     : '400';
+}
+// Init styles on load
+document.addEventListener("DOMContentLoaded", function() {
+  ['1','2','3','4','5','6'].forEach(updateWardStyle);
+});
+</script>
+{% endblock %}

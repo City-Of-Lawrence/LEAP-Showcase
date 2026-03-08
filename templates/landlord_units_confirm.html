@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% set progress = 58 %}
+{% block title %}Confirm Unit Count · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step done">Address</div>
+    <div class="step done">Role</div>
+    <div class="step active">Property</div>
+    <div class="step">Intent</div>
+    <div class="step">Contact</div>
+  </div>
+
+  <h1>Can You Help Us Confirm?</h1>
+  <p class="subtitle">
+    Our records show <strong>{{ known }} unit(s)</strong> at this address,
+    but you entered <strong>{{ reported }} unit(s)</strong>.
+    That's quite a difference — can you confirm your count is correct?
+  </p>
+
+  <div class="alert alert-info">
+    This doesn't affect your eligibility. We just want to make sure our
+    records are up to date so we can plan our outreach correctly.
+  </div>
+
+  <form method="POST" action="{{ url_for('landlord_units_confirm') }}">
+    <div class="choices">
+      <div>
+        <input type="radio" id="yes" name="confirmed" value="yes">
+        <label class="choice-label" for="yes">
+          Yes, I have {{ reported }} units — please update your records
+        </label>
+      </div>
+      <div>
+        <input type="radio" id="no" name="confirmed" value="no">
+        <label class="choice-label" for="no">
+          I may have made a mistake — use your records for now
+        </label>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Continue →</button>
+  </form>
+
+</div>
+{% endblock %}

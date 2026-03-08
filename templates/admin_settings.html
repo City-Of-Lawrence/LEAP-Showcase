@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Settings · Admin{% endblock %}
+
+{% block content %}
+<div style="max-width:500px; margin:1.5rem auto; padding:0 1rem;">
+  <div class="card">
+
+    <h1>Program Settings</h1>
+    <p class="subtitle">Policy values that control app behaviour.</p>
+
+    <form method="POST" action="{{ url_for('admin_settings') }}">
+
+      <label for="events_to_show">
+        Number of upcoming events to show landlords
+      </label>
+      <input type="number" id="events_to_show" name="events_to_show"
+             value="{{ events_to_show }}"
+             min="1" max="10"
+             style="width:120px; margin-bottom:1.1rem;">
+      <p style="font-size:0.82rem; color:#777; margin-top:-0.8rem; margin-bottom:1.2rem;">
+        Default is 2. Only events with available capacity are shown.
+      </p>
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">← Dashboard</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
