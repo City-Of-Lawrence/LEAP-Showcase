@@ -1,55 +1,55 @@
 {% extends "base.html" %}
 {% set progress = 62 %}
-{% block title %}Welcome Back · Lawrence Energy Program{% endblock %}
+{% block title %}{{ t('lrepeat_title') }} · Lawrence Energy Program{% endblock %}
 
 {% block content %}
 <div class="card">
 
   <div class="steps">
-    <div class="step done">Address</div>
-    <div class="step done">Role</div>
-    <div class="step active">Property</div>
-    <div class="step">Intent</div>
-    <div class="step">Contact</div>
+    <div class="step done">{{ t('confirm_step_address') }}</div>
+    <div class="step done">{{ t('confirm_step_role') }}</div>
+    <div class="step active">{{ t('step_property') }}</div>
+    <div class="step">{{ t('confirm_step_intent') }}</div>
+    <div class="step">{{ t('confirm_step_contact') }}</div>
   </div>
 
-  <h1>Welcome Back!</h1>
+  <h1>{{ t('lrepeat_title') }}</h1>
   <p class="subtitle">
-    We see you've visited before for <strong>{{ address }}</strong>.
-    A couple of quick questions to help us serve you better.
+    {{ t('lrepeat_subtitle') }} <strong>{{ address }}</strong>.
+    {{ t('lrepeat_subtitle2') }}
   </p>
 
   <form method="POST" action="{{ url_for('landlord_repeat') }}">
 
     <p style="font-weight:600; margin-bottom:0.5rem;">
-      Have you already enrolled with Mass Save?
+      {{ t('lrepeat_enrolled_prompt') }}
     </p>
     <div class="choices" style="margin-bottom:1.4rem;">
       <div>
         <input type="radio" id="enrolled_yes" name="enrolled" value="yes">
-        <label class="choice-label" for="enrolled_yes">Yes, I've enrolled</label>
+        <label class="choice-label" for="enrolled_yes">{{ t('lrepeat_enrolled_yes') }}</label>
       </div>
       <div>
         <input type="radio" id="enrolled_no" name="enrolled" value="no" checked>
-        <label class="choice-label" for="enrolled_no">Not yet</label>
+        <label class="choice-label" for="enrolled_no">{{ t('lrepeat_enrolled_no') }}</label>
       </div>
     </div>
 
     <p style="font-weight:600; margin-bottom:0.5rem;">
-      Would you like a call back from City staff?
+      {{ t('lrepeat_callback_prompt') }}
     </p>
     <div class="choices" style="margin-bottom:1.4rem;">
       <div>
         <input type="radio" id="callback_yes" name="callback" value="yes">
-        <label class="choice-label" for="callback_yes">Yes, please call me</label>
+        <label class="choice-label" for="callback_yes">{{ t('lrepeat_callback_yes') }}</label>
       </div>
       <div>
         <input type="radio" id="callback_no" name="callback" value="no" checked>
-        <label class="choice-label" for="callback_no">No thanks</label>
+        <label class="choice-label" for="callback_no">{{ t('lrepeat_callback_no') }}</label>
       </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">Continue →</button>
+    <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
   </form>
 
 </div>

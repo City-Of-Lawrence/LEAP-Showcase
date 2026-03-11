@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% set progress = 15 %}
+{% block title %}Find Your Address · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step active">Address</div>
+    <div class="step">Role</div>
+    <div class="step">Intent</div>
+    <div class="step">Contact</div>
+  </div>
+
+  <h1>Find Your Address</h1>
+  <p class="subtitle">
+    Enter your street address (no need to include Lawrence or MA).
+  </p>
+
+  <form method="POST" action="{{ url_for('address_search') }}">
+    <label for="street">Street Address</label>
+    <input type="text" id="street" name="street"
+           placeholder="e.g. 47 Park St"
+           value="{{ query }}"
+           autocomplete="street-address"
+           required>
+    <button type="submit" class="btn btn-primary">Search →</button>
+  </form>
+
+  {% if query and results is defined %}
+    {% if results %}
+      <p style="margin-top:1.4rem; font-size:0.9rem; color:#444;">
+        Showing {{ results|length }} result(s) for <strong>{{ query }}</strong>:
+      </p>
+      <ul class="result-list">
+        {% for r in results %}
+        <li>
+          <a href="{{ url_for('select_address', acct=r['Account_Number'], unit=r['Service_Unit']) }}">
+            {{ r['Service_Address'] }}{% if r['Service_Unit'] %} · {{ r['Service_Unit'] }}{% endif %}
+          </a>
+          <div class="meta">
+            {{ r['Resident_Status'] }}
+            {% if r['Owner_Name'] %} &nbsp;|&nbsp; Owner: {{ r['Owner_Name'] }}{% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="alert alert-error" style="margin-top:1.2rem;">
+        No addresses found for <strong>{{ query }}</strong>.
+        Try a shorter street name, or
+        <a href="tel:9783159255">call (978) 315-9255</a> for help.
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <div class="btn-row" style="margin-top:1.5rem;">
+    <a href="{{ url_for('index') }}" class="btn btn-outline">← Back</a>
+  </div>
+
+</div>
+{% endblock %}

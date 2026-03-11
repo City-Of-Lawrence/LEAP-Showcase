@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% set progress = 10 %}
+{% block title %}{{ t('start_title') }} · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step active">{{ t('step_role') }}</div>
+    <div class="step">{{ t('step_street') }}</div>
+    <div class="step">{{ t('step_address') }}</div>
+    <div class="step">{{ t('step_intent') }}</div>
+    <div class="step">{{ t('step_contact') }}</div>
+  </div>
+
+  <h1>{{ t('start_title') }}</h1>
+  <p class="subtitle">{{ t('start_subtitle') }}</p>
+
+  {% if error %}
+  <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('start_generic') }}">
+    <div class="choices">
+      {% for value, label in roles %}
+      <div>
+        <input type="radio" id="role_{{ value }}" name="role" value="{{ value }}">
+        <label class="choice-label" for="role_{{ value }}">{{ label }}</label>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="btn-row">
+      <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
+      <a href="{{ url_for('index') }}" class="btn btn-outline">{{ t('back_btn') }}</a>
+    </div>
+  </form>
+
+</div>
+{% endblock %}

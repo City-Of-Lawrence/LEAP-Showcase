@@ -1,13 +1,15 @@
 {% extends "base.html" %}
+{% block main_class %}wide{% endblock %}
 {% block title %}Admin Dashboard · Lawrence Energy Program{% endblock %}
 
 {% block content %}
-<div style="max-width:1100px; margin:1.5rem auto; padding:0 1rem;">
 
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
     <div>
       <h1 style="font-size:1.3rem; color:#1a3a5c;">Registrations Dashboard</h1>
-      <p style="font-size:0.85rem; color:#666;">{{ total }} total · {{ flags }} unit flag(s) · {{ callbacks }} callback request(s)</p>
+      <p style="font-size:0.85rem; color:#666; margin-top:0.2rem;">
+        {{ total }} total &nbsp;·&nbsp; {{ flags }} unit flag(s) &nbsp;·&nbsp; {{ callbacks }} callback request(s)
+      </p>
     </div>
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
       <a href="{{ url_for('admin_events') }}"   class="btn btn-secondary" style="font-size:0.85rem; padding:0.4rem 1rem;">Events</a>
@@ -17,60 +19,66 @@
   </div>
 
   {% if rows %}
-  <div style="overflow-x:auto;">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>#</th><th>Date / Time</th><th>Address</th><th>Unit</th>
-          <th>Role</th><th>Intent</th><th>Path</th>
-          <th>Unit Flag</th><th>Enrolled</th><th>Callback</th>
-          <th>Name</th><th>Phone</th><th>Email</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for r in rows %}
-        <tr>
-          <td>{{ r['id'] }}</td>
-          <td style="white-space:nowrap;">{{ r['registered_at'][:16] }}</td>
-          <td>{{ r['normalized_address'] or '—' }}</td>
-          <td>{{ r['service_unit'] or '—' }}</td>
-          <td>{{ r['role'] or '—' }}</td>
-          <td>
-            {% if r['intent'] == 'enroll' %}<span class="tag tag-enroll">Enroll</span>
-            {% elif r['intent'] == 'event' %}<span class="tag tag-event">Event</span>
-            {% elif r['intent'] == 'assistance' %}<span class="tag" style="background:#fef9e7;color:#7d6608;">Assist</span>
-            {% else %}—{% endif %}
-          </td>
-          <td>
-            {% if r['upin_used'] == 'qr' %}<span class="tag tag-qr">QR</span>
-            {% else %}<span class="tag tag-manual">Manual</span>{% endif %}
-          </td>
-          <td>
-            {% if r['unit_count_flag'] == 'confirmed_flag' %}<span class="tag" style="background:#fde8e6;color:#7a1f1a;">⚑ Confirmed</span>
-            {% elif r['unit_count_flag'] == 'soft_flag' %}<span class="tag" style="background:#fef9e7;color:#7d6608;">⚑ Soft</span>
-            {% elif r['unit_count_flag'] == 'ok' %}<span class="tag" style="background:#dff0d8;color:#2e6b3e;">✓</span>
-            {% else %}—{% endif %}
-          </td>
-          <td>
-            {% if r['mass_save_enrolled'] == 'yes' %}<span class="tag tag-qr">Yes</span>
-            {% elif r['mass_save_enrolled'] == 'no' %}No
-            {% else %}—{% endif %}
-          </td>
-          <td>
-            {% if r['needs_callback'] == 'yes' %}<span class="tag tag-enroll">📞 Yes</span>
-            {% else %}—{% endif %}
-          </td>
-          <td>{{ r['contact_name']  or '—' }}</td>
-          <td>{{ r['contact_phone'] or '—' }}</td>
-          <td>{{ r['contact_email'] or '—' }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Date&nbsp;/&nbsp;Time</th>
+        <th>Address</th>
+        <th>Unit</th>
+        <th>Role</th>
+        <th>Intent</th>
+        <th>Path</th>
+        <th>Unit&nbsp;Flag</th>
+        <th>Enrolled</th>
+        <th>Callback</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r['id'] }}</td>
+        <td style="white-space:nowrap;">{{ r['registered_at'][:16] }}</td>
+        <td>{{ r['normalized_address'] or '—' }}</td>
+        <td>{{ r['service_unit'] or '—' }}</td>
+        <td style="white-space:nowrap;">{{ r['role'] or '—' }}</td>
+        <td>
+          {% if r['intent'] == 'enroll' %}<span class="tag tag-enroll">Enroll</span>
+          {% elif r['intent'] == 'event' %}<span class="tag tag-event">Event</span>
+          {% elif r['intent'] == 'assistance' %}<span class="tag" style="background:#fef9e7;color:#7d6608;">Assist</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if r['upin_used'] == 'qr' %}<span class="tag tag-qr">QR</span>
+          {% else %}<span class="tag tag-manual">Manual</span>{% endif %}
+        </td>
+        <td>
+          {% if r['unit_count_flag'] == 'confirmed_flag' %}<span class="tag" style="background:#fde8e6;color:#7a1f1a;">⚑&nbsp;Confirmed</span>
+          {% elif r['unit_count_flag'] == 'soft_flag' %}<span class="tag" style="background:#fef9e7;color:#7d6608;">⚑&nbsp;Soft</span>
+          {% elif r['unit_count_flag'] == 'ok' %}<span class="tag" style="background:#dff0d8;color:#2e6b3e;">✓</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if r['mass_save_enrolled'] == 'yes' %}<span class="tag tag-qr">Yes</span>
+          {% elif r['mass_save_enrolled'] == 'no' %}No
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if r['needs_callback'] == 'yes' %}<span class="tag tag-enroll">📞&nbsp;Yes</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>{{ r['contact_name']  or '—' }}</td>
+        <td style="white-space:nowrap;">{{ r['contact_phone'] or '—' }}</td>
+        <td>{{ r['contact_email'] or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   {% else %}
   <div class="alert alert-info">No registrations yet.</div>
   {% endif %}
 
-</div>
 {% endblock %}

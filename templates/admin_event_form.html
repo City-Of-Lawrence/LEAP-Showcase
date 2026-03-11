@@ -48,7 +48,7 @@
 
       <label>Wards Targeted <span style="font-weight:400; color:#777;">(select all that apply)</span></label>
       <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.4rem;">
-        {% for w in ['1','2','3','4','5','6'] %}
+        {% for w in ['A','B','C','D','E','F'] %}
         <label style="display:flex; align-items:center; gap:0.4rem;
                        padding:0.4rem 0.8rem; border:2px solid #dde3ea;
                        border-radius:5px; cursor:pointer; font-size:0.92rem;"
@@ -84,7 +84,7 @@ function updateWardStyle(w) {
 }
 // Init styles on load
 document.addEventListener("DOMContentLoaded", function() {
-  ['1','2','3','4','5','6'].forEach(updateWardStyle);
+  ['A','B','C','D','E','F'].forEach(updateWardStyle);
 });
 </script>
 {% endblock %}

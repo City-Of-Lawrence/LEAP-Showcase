@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% set progress = 25 %}
+{% block title %}{{ t('street_title') }} · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step done">{{ t('step_role') }}</div>
+    <div class="step active">{{ t('step_street') }}</div>
+    <div class="step">{{ t('step_address') }}</div>
+    <div class="step">{{ t('step_intent') }}</div>
+    <div class="step">{{ t('step_contact') }}</div>
+  </div>
+
+  <h1>{{ t('street_title') }}</h1>
+  <p class="subtitle">
+    {{ t('street_subtitle') }} <strong>Exeter</strong> or <strong>Andover</strong>.
+    {% if role %}<br>{{ t('street_looking_up') }} <strong>{{ role }}</strong>{% endif %}
+  </p>
+
+  {% if error %}
+  <div class="alert alert-error">{{ error | safe }}</div>
+  {% endif %}
+
+  {% if not streets %}
+  <form method="POST" action="{{ url_for('address_street') }}">
+    <label for="street_name">{{ t('street_label') }}</label>
+    <input type="text" id="street_name" name="street_name"
+           value="{{ query or '' }}"
+           placeholder="e.g. Exeter"
+           autocomplete="off"
+           autofocus required>
+    <p style="font-size:0.8rem; color:#888; margin-top:-0.8rem; margin-bottom:1rem;">
+      {{ t('street_hint') }}
+    </p>
+    <div class="btn-row">
+      <button type="submit" class="btn btn-primary">{{ t('street_search_btn') }}</button>
+      <a href="{{ url_for('start_generic') }}" class="btn btn-outline">{{ t('back_btn') }}</a>
+    </div>
+  </form>
+
+  {% else %}
+  <p style="font-weight:600; margin-bottom:0.6rem;">
+    {{ t('street_multiple_found') }} {{ streets|length }}
+    {{ t('street_matching') }} <strong>{{ query }}</strong>.
+    {{ t('street_which_one') }}
+  </p>
+  <form method="POST" action="{{ url_for('address_confirm_street') }}">
+    <div class="choices">
+      {% for s in streets %}
+      <div>
+        <input type="radio" id="street_{{ loop.index }}" name="street_name" value="{{ s }}"
+               {% if loop.first %}checked{% endif %}>
+        <label class="choice-label" for="street_{{ loop.index }}">{{ s }}</label>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="btn-row">
+      <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
+      <a href="{{ url_for('address_street') }}" class="btn btn-outline">{{ t('street_try_again_btn') }}</a>
+    </div>
+  </form>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,30 +1,27 @@
 {% extends "base.html" %}
 {% set progress = 55 %}
-{% block title %}Your Rental Units · Lawrence Energy Program{% endblock %}
+{% block title %}{{ t('lunits_title') }} · Lawrence Energy Program{% endblock %}
 
 {% block content %}
 <div class="card">
 
   <div class="steps">
-    <div class="step done">Address</div>
-    <div class="step done">Role</div>
-    <div class="step active">Property</div>
-    <div class="step">Intent</div>
-    <div class="step">Contact</div>
+    <div class="step done">{{ t('confirm_step_address') }}</div>
+    <div class="step done">{{ t('confirm_step_role') }}</div>
+    <div class="step active">{{ t('step_property') }}</div>
+    <div class="step">{{ t('confirm_step_intent') }}</div>
+    <div class="step">{{ t('confirm_step_contact') }}</div>
   </div>
 
-  <h1>How Many Rental Units Are in This Property?</h1>
-  <p class="subtitle">
-    Please enter the total number of rental units at this address,
-    including any units you occupy yourself.
-  </p>
+  <h1>{{ t('lunits_title') }}</h1>
+  <p class="subtitle">{{ t('lunits_subtitle') }}</p>
 
   {% if error %}
   <div class="alert alert-error">{{ error }}</div>
   {% endif %}
 
   <form method="POST" action="{{ url_for('landlord_units') }}">
-    <label for="unit_count">Number of Rental Units</label>
+    <label for="unit_count">{{ t('lunits_label') }}</label>
     <input type="number" id="unit_count" name="unit_count"
            min="1" max="500"
            placeholder="e.g. 4"
@@ -32,7 +29,7 @@
            required autofocus>
 
     <div class="btn-row" style="margin-top:1.2rem;">
-      <button type="submit" class="btn btn-primary">Continue →</button>
+      <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
     </div>
   </form>
 

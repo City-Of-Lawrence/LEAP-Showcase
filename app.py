@@ -11,6 +11,7 @@ import sqlite3
 import os
 import functools
 from datetime import datetime, timezone
+from translations import t, get_roles, get_intents, get_landlord_intents
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -26,24 +27,31 @@ SECRET_KEY     = os.environ.get("SECRET_KEY",     "dev-secret-change-in-prod")
 MASSSAVE_URL   = "https://www.masssave.com/community-first/lawrence"
 UNIT_COUNT_CONFIRM_MULTIPLIER = 2
 
-ROLES = [
-    ("renter",           "Renter"),
-    ("owner_occupant",   "Owner-Occupant"),
-    ("landlord",         "Landlord"),
-    ("property_manager", "Property Manager"),
-    ("small_business",   "Small Business"),
-]
-
-INTENTS = [
-    ("enroll",     "I want to enroll in Mass Save now"),
-    ("event",      "I want to attend a City information event"),
-    ("assistance", "I need help understanding the program"),
-]
-
 app = Flask(__name__,
             template_folder=os.path.join(BASE_DIR, "templates"),
             static_folder=os.path.join(BASE_DIR, "static"))
 app.secret_key = SECRET_KEY
+
+
+def get_lang():
+    """Return current language from session, default English."""
+    return session.get("lang", "en")
+
+@app.context_processor
+def inject_globals():
+    """Make t() and lang available in every template automatically."""
+    lang = get_lang()
+    return {
+        "t":    lambda key: t(key, lang),
+        "lang": lang,
+    }
+
+@app.route("/lang/<lang>")
+def set_language(lang):
+    """Switch language and return to previous page."""
+    if lang in ("en", "es"):
+        session["lang"] = lang
+    return redirect(request.referrer or url_for("index"))
 
 
 # ------------------------------------------------------------------
@@ -134,7 +142,8 @@ def init_schema():
             event_id       INTEGER NOT NULL REFERENCES events(event_id),
             account_number TEXT NOT NULL,
             upin           TEXT,
-            rsvp_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            rsvp_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            cancelled_at   TIMESTAMP
         )
     """)
 
@@ -181,16 +190,193 @@ def lookup_property(account_number):
         (account_number,)
     ).fetchone()
 
-def search_address(street):
-    pattern = f"%{street.strip().upper()}%"
-    return outreach_db().execute(
-        """SELECT DISTINCT Account_Number, Service_Address, Service_Unit,
-                  Vision_ID, Resident_Status, Owner_Name
-           FROM Outreach_Master_Unified
-           WHERE UPPER(Service_Address) LIKE ?
-           ORDER BY Service_Address, Service_Unit LIMIT 10""",
-        (pattern,)
-    ).fetchall()
+def search_streets_by_role(street_name: str, role: str):
+    """
+    Step 1 — find distinct street names matching input.
+    Returns list of matching street name strings.
+    Role determines which DB(s) to query.
+    """
+    pattern = f"%{street_name.strip().upper()}%"
+
+    streets = set()
+
+    if role == "landlord":
+        rows = master_db().execute(
+            """SELECT DISTINCT normalized_address FROM Assessment_L_Parcels
+               WHERE UPPER(normalized_address) LIKE ?
+               ORDER BY normalized_address LIMIT 200""",
+            (pattern,)
+        ).fetchall()
+        # Extract street names (everything after the first token = house number)
+        for r in rows:
+            parts = r["normalized_address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+        # Fallback to outreach DB if nothing found
+        if not streets:
+            rows = outreach_db().execute(
+                """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+                   WHERE UPPER(Service_Address) LIKE ?
+                   ORDER BY Service_Address LIMIT 200""",
+                (pattern,)
+            ).fetchall()
+            for r in rows:
+                parts = r["Service_Address"].split(" ", 1)
+                if len(parts) == 2:
+                    streets.add(parts[1].strip())
+
+    elif role == "renter":
+        rows = outreach_db().execute(
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               ORDER BY Service_Address LIMIT 200""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+
+    else:  # owner_occupant, property_manager, small_business — try both
+        rows = outreach_db().execute(
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               ORDER BY Service_Address LIMIT 200""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+        # Also check master DB
+        rows = master_db().execute(
+            """SELECT DISTINCT normalized_address FROM Assessment_L_Parcels
+               WHERE UPPER(normalized_address) LIKE ?
+               ORDER BY normalized_address LIMIT 200""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            parts = r["normalized_address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+
+    return sorted(streets)
+
+
+def search_addresses_on_street(street_name: str, role: str):
+    """
+    Step 2 — return all addresses on a confirmed street name.
+    Each result is a dict with: account_number, display_address, service_unit, source
+    """
+    pattern = f"% {street_name.strip().upper()}%"
+    results = []
+    seen = set()
+
+    if role in ("landlord",):
+        rows = master_db().execute(
+            """SELECT account_number, normalized_address, '' AS service_unit
+               FROM Assessment_L_Parcels
+               WHERE UPPER(normalized_address) LIKE ?
+               ORDER BY normalized_address LIMIT 200""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            key = r["account_number"]
+            if key not in seen:
+                seen.add(key)
+                results.append({
+                    "account_number":  r["account_number"],
+                    "display_address": r["normalized_address"],
+                    "service_unit":    r["service_unit"] or "",
+                    "source":          "master",
+                })
+        # Fallback
+        if not results:
+            rows = outreach_db().execute(
+                """SELECT DISTINCT Account_Number, Service_Address, Service_Unit
+                   FROM Outreach_Master_Unified
+                   WHERE UPPER(Service_Address) LIKE ?
+                   ORDER BY Service_Address, Service_Unit LIMIT 500""",
+                (pattern,)
+            ).fetchall()
+            for r in rows:
+                key = r["Account_Number"]
+                if key not in seen:
+                    seen.add(key)
+                    addr = r["Service_Address"]
+                    if r["Service_Unit"]:
+                        addr += f" Unit {r['Service_Unit']}"
+                    results.append({
+                        "account_number":  r["Account_Number"],
+                        "display_address": addr,
+                        "service_unit":    r["Service_Unit"] or "",
+                        "source":          "outreach",
+                    })
+
+    elif role == "renter":
+        rows = outreach_db().execute(
+            """SELECT Service_Address, Service_Unit, Account_Number
+               FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               GROUP BY Service_Address, Service_Unit
+               ORDER BY Service_Address, Service_Unit LIMIT 500""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            key = f"{r['Service_Address']}|{r['Service_Unit']}"
+            if key not in seen:
+                seen.add(key)
+                addr = r["Service_Address"]
+                if r["Service_Unit"]:
+                    addr += f" Unit {r['Service_Unit']}"
+                results.append({
+                    "account_number":  r["Account_Number"],
+                    "display_address": addr,
+                    "service_unit":    r["Service_Unit"] or "",
+                    "source":          "outreach",
+                })
+
+    else:  # others — both DBs, outreach first
+        rows = outreach_db().execute(
+            """SELECT Service_Address, Service_Unit, Account_Number
+               FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               GROUP BY Service_Address, Service_Unit
+               ORDER BY Service_Address, Service_Unit LIMIT 500""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            key = f"{r['Service_Address']}|{r['Service_Unit']}"
+            if key not in seen:
+                seen.add(key)
+                addr = r["Service_Address"]
+                if r["Service_Unit"]:
+                    addr += f" Unit {r['Service_Unit']}"
+                results.append({
+                    "account_number":  r["Account_Number"],
+                    "display_address": addr,
+                    "service_unit":    r["Service_Unit"] or "",
+                    "source":          "outreach",
+                })
+        rows = master_db().execute(
+            """SELECT account_number, normalized_address
+               FROM Assessment_L_Parcels
+               WHERE UPPER(normalized_address) LIKE ?
+               ORDER BY normalized_address LIMIT 200""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            key = r["account_number"]
+            if key not in seen:
+                seen.add(key)
+                results.append({
+                    "account_number":  r["account_number"],
+                    "display_address": r["normalized_address"],
+                    "service_unit":    "",
+                    "source":          "master",
+                })
+
+    return results
 
 def has_prior_registration(account_number):
     row = upin_db().execute(
@@ -198,6 +384,15 @@ def has_prior_registration(account_number):
         (account_number,)
     ).fetchone()
     return row[0] > 0
+
+def get_prior_registration_summary(account_number):
+    """Return role and date of most recent registration for this account."""
+    return upin_db().execute(
+        """SELECT role, registered_at FROM registrations
+           WHERE account_number=?
+           ORDER BY registered_at DESC LIMIT 1""",
+        (account_number,)
+    ).fetchone()
 
 def get_upcoming_events(limit=2):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -266,35 +461,203 @@ def register_qr():
     upin_plain = request.args.get("upin", "").strip().upper()
     if not upin_plain:
         return render_template("error.html",
-            message="No UPIN found. Use your QR code or "
-                    "<a href='/'>enter your address here</a>."), 400
+            message=t("error_upin_missing", get_lang())), 400
     row = lookup_by_upin(upin_plain)
     if not row:
         return render_template("error.html",
-            message="This UPIN is not valid. Please contact City Hall."), 404
+            message=t("error_upin_invalid", get_lang())), 404
 
     account_number = row["account_number"]
     prop = lookup_property(account_number)
+    prior = get_prior_registration_summary(account_number)
+
     session["account_number"]     = account_number
     session["normalized_address"] = row["normalized_address"] or (
                                         prop["normalized_address"] if prop else "")
     session["entry_path"]         = "qr"
     session["upin_used"]          = "qr"
     session["upin_plain"]         = upin_plain
-    session["is_repeat_visit"]    = has_prior_registration(account_number)
+    session["upin_role"]          = "landlord"   # Property UPINs are landlord-only in this prototype
+    session["is_repeat_visit"]    = prior is not None
     session.pop("service_unit", None)
+
+    # Returning visitor — skip full intake, go to welcome-back shortcut
+    if prior:
+        session["prior_role"]      = prior["role"] or ""
+        session["prior_visit_date"] = prior["registered_at"][:10] if prior["registered_at"] else ""
+        return redirect(url_for("welcome_back"))
+
     return render_template("confirm_address.html",
                            address=session["normalized_address"],
                            account_number=account_number, prop=prop)
 
+@app.route("/welcome-back", methods=["GET", "POST"])
+def welcome_back():
+    """Returning visitor via QR — confirm role then go to short action menu."""
+    if not session.get("account_number"):
+        return redirect(url_for("index"))
+
+    upin_role = session.get("upin_role", "")   # set only when entry was via UPIN
+
+    if request.method == "POST":
+        # If role is locked by UPIN, ignore form and use locked role
+        role = upin_role if upin_role else request.form.get("role", "").strip()
+        lang = get_lang()
+        if not upin_role and role not in dict(get_roles(lang)):
+            return render_template("welcome_back.html",
+                                   roles=get_roles(lang),
+                                   upin_role=upin_role,
+                                   address=session.get("normalized_address"),
+                                   prior_role=session.get("prior_role", ""),
+                                   prior_visit_date=session.get("prior_visit_date", ""),
+                                   error=t("error_select_role", lang))
+        session["role"] = role
+        if role == "landlord":
+            return redirect(url_for("landlord_events"))
+        return redirect(url_for("event_select"))
+
+    return render_template("welcome_back.html",
+                           roles=get_roles(get_lang()),
+                           upin_role=upin_role,
+                           address=session.get("normalized_address"),
+                           prior_role=session.get("prior_role", ""),
+                           prior_visit_date=session.get("prior_visit_date", ""))
+
+
+@app.route("/start", methods=["GET", "POST"])
+def start_generic():
+    """Generic path step 1 — role selection before address search."""
+    if request.method == "POST":
+        role = request.form.get("role", "").strip()
+        lang = get_lang()
+        if role not in dict(get_roles(lang)):
+            return render_template("start_generic.html", roles=get_roles(lang),
+                                   error=t("error_select_role", lang))
+        session["role"]            = role
+        session["entry_path"]      = "generic"
+        session["upin_used"]       = "manual"
+        session["is_repeat_visit"] = False
+        return redirect(url_for("address_street"))
+    return render_template("start_generic.html", roles=get_roles(get_lang()))
+
+
+@app.route("/address/street", methods=["GET", "POST"])
+def address_street():
+    """Generic path step 2 — enter street name only."""
+    if not session.get("role"):
+        return redirect(url_for("start_generic"))
+    error = None
+    if request.method == "POST":
+        street_input = request.form.get("street_name", "").strip()
+        if any(c.isdigit() for c in street_input):
+            error = t("error_street_name_only", get_lang())
+        elif not street_input:
+            error = t("error_street_required", get_lang())
+        else:
+            role    = session.get("role", "renter")
+            streets = search_streets_by_role(street_input, role)
+            if not streets:
+                lang = get_lang()
+                return render_template("address_street.html",
+                    role=dict(get_roles(lang)).get(role, ""),
+                    error=t("error_street_not_found", lang)
+                          + " <a href='/address/not-found'>"
+                          + t("error_street_not_found_link", lang) + "</a>.")
+            if len(streets) == 1:
+                session["street_name"] = streets[0]
+                return redirect(url_for("address_pick"))
+            return render_template("address_street.html",
+                                   role=dict(get_roles(get_lang())).get(role, ""),
+                                   streets=streets, query=street_input)
+    return render_template("address_street.html",
+                           role=dict(get_roles(get_lang())).get(session.get("role", ""), ""),
+                           error=error)
+
+
+@app.route("/address/confirm-street", methods=["POST"])
+def address_confirm_street():
+    """User picked from multiple matching street names."""
+    if not session.get("role"):
+        return redirect(url_for("start_generic"))
+    street = request.form.get("street_name", "").strip()
+    if not street:
+        return redirect(url_for("address_street"))
+    session["street_name"] = street
+    return redirect(url_for("address_pick"))
+
+
+@app.route("/address/pick", methods=["GET", "POST"])
+def address_pick():
+    """Generic path step 3 — pick specific address from dropdown."""
+    if not session.get("role") or not session.get("street_name"):
+        return redirect(url_for("address_street"))
+    role        = session["role"]
+    street_name = session["street_name"]
+    addresses   = search_addresses_on_street(street_name, role)
+
+    if request.method == "POST":
+        account_number  = request.form.get("account_number", "").strip()
+        service_unit    = request.form.get("service_unit", "").strip()
+        display_address = request.form.get("display_address", "").strip()
+
+        # Manual free-text entry (non-landlord path)
+        if account_number == "MANUAL":
+            manual_address = request.form.get("manual_address", "").strip()
+            manual_unit    = request.form.get("manual_unit", "").strip()
+            if not manual_address:
+                return render_template("address_pick.html", addresses=addresses,
+                                       street_name=street_name,
+                                       role=dict(get_roles(get_lang())).get(role, ""),
+                                       error=t("error_enter_address", get_lang()))
+            display_address = manual_address
+            if manual_unit:
+                display_address += f" Unit {manual_unit}"
+                service_unit = manual_unit
+            session["account_number"]     = "MANUAL"
+            session["normalized_address"] = display_address
+            session["service_unit"]       = service_unit
+            session["is_repeat_visit"]    = False
+            return redirect(url_for("select_intent"))
+
+        if not account_number:
+            return render_template("address_pick.html", addresses=addresses,
+                                   street_name=street_name,
+                                   role=dict(get_roles(get_lang())).get(role, ""),
+                                   error=t("error_select_address", get_lang()))
+        prop = lookup_property(account_number)
+        session["account_number"]     = account_number
+        session["normalized_address"] = display_address or (
+                                            prop["normalized_address"] if prop else account_number)
+        session["service_unit"]       = service_unit
+        session["is_repeat_visit"]    = has_prior_registration(account_number)
+
+        if session["is_repeat_visit"]:
+            prior = get_prior_registration_summary(account_number)
+            if prior:
+                session["prior_role"]       = prior["role"] or ""
+                session["prior_visit_date"] = prior["registered_at"][:10] if prior["registered_at"] else ""
+            return redirect(url_for("welcome_back"))
+
+        # Landlord gets unit count step; others go to intent
+        if role == "landlord":
+            return redirect(url_for("landlord_units"))
+        return redirect(url_for("select_intent"))
+
+    return render_template("address_pick.html", addresses=addresses,
+                           street_name=street_name,
+                           role=dict(get_roles(get_lang())).get(role, ""),
+                           error=None)
+
+
+@app.route("/address/not-found")
+def address_not_found():
+    return render_template("address_not_found.html")
+
+
 @app.route("/address-search", methods=["GET", "POST"])
 def address_search():
-    results, query = [], ""
-    if request.method == "POST":
-        query = request.form.get("street", "").strip()
-        if query:
-            results = search_address(query)
-    return render_template("address_search.html", results=results, query=query)
+    """Legacy route — redirect to new flow."""
+    return redirect(url_for("start_generic"))
 
 @app.route("/select-address")
 def select_address():
@@ -326,8 +689,14 @@ def confirm_address():
     if not session.get("account_number"):
         return redirect(url_for("index"))
     if request.form.get("confirmed") != "yes":
+        lang = session.get("lang", "en")
         session.clear()
+        session["lang"] = lang
         return redirect(url_for("address_search"))
+    # If role already locked by UPIN, skip role selection entirely
+    if session.get("upin_role"):
+        session["role"] = session["upin_role"]
+        return redirect(url_for("landlord_units"))
     return redirect(url_for("select_role"))
 
 @app.route("/role", methods=["GET", "POST"])
@@ -336,13 +705,15 @@ def select_role():
         return redirect(url_for("index"))
     if request.method == "POST":
         role = request.form.get("role", "").strip()
-        if role not in dict(ROLES):
-            return render_template("role.html", roles=ROLES, error="Please select a role.")
+        lang = get_lang()
+        if role not in dict(get_roles(lang)):
+            return render_template("role.html", roles=get_roles(lang),
+                                   error=t("error_select_role", lang))
         session["role"] = role
         if role == "landlord":
             return redirect(url_for("landlord_units"))
         return redirect(url_for("select_intent"))
-    return render_template("role.html", roles=ROLES)
+    return render_template("role.html", roles=get_roles(get_lang()))
 
 
 # ------------------------------------------------------------------
@@ -361,7 +732,7 @@ def landlord_units():
             reported = int(request.form.get("unit_count", "0").strip())
         except ValueError:
             return render_template("landlord_units.html", known_units=known_units,
-                                   error="Please enter a valid number.")
+                                   error=t("error_valid_number", get_lang()))
         session["unit_count_reported"] = reported
         session["unit_count_known"]    = known_units
         if known_units > 0 and reported > known_units * UNIT_COUNT_CONFIRM_MULTIPLIER:
@@ -403,39 +774,136 @@ def landlord_repeat():
     return render_template("landlord_repeat.html",
                            address=session.get("normalized_address"))
 
+def get_existing_rsvps(upin_plain):
+    """Return set of event_ids this individual UPIN has active (non-cancelled) RSVPs for."""
+    if not upin_plain:
+        return set()
+    rows = upin_db().execute(
+        "SELECT event_id FROM event_rsvps WHERE upin=? AND cancelled_at IS NULL",
+        (upin_plain,)
+    ).fetchall()
+    return {r["event_id"] for r in rows}
+
+
+def cancel_event_rsvp(upin_plain, event_id):
+    """Soft-cancel an existing RSVP by setting cancelled_at timestamp."""
+    if not upin_plain:
+        return
+    upin_db().execute(
+        """UPDATE event_rsvps SET cancelled_at=CURRENT_TIMESTAMP
+           WHERE upin=? AND event_id=? AND cancelled_at IS NULL""",
+        (upin_plain, event_id)
+    )
+    upin_db().commit()
+
 @app.route("/landlord/events", methods=["GET", "POST"])
 def landlord_events():
     if not session.get("account_number"):
         return redirect(url_for("index"))
     n = int(get_setting("events_to_show", "2"))
     events = get_upcoming_events(limit=n)
+    account_number = session["account_number"]
+    upin_plain = session.get("upin_plain", "")
+    existing_rsvps = get_existing_rsvps(upin_plain)
+    already_enrolled = session.get("mass_save_enrolled") == "yes"
+
     events_display = [{
-        "event_id":   e["event_id"],
-        "name":       e["name"],
-        "event_date": e["event_date"],
-        "event_time": e["event_time"],
-        "location":   e["location"],
-        "capacity":   e["capacity"],
-        "rsvp_count": e["rsvp_count"],
-        "spots_left": e["capacity"] - e["rsvp_count"],
-        "wards":      get_event_wards(e["event_id"]),
+        "event_id":      e["event_id"],
+        "name":          e["name"],
+        "event_date":    e["event_date"],
+        "event_time":    e["event_time"],
+        "location":      e["location"],
+        "capacity":      e["capacity"],
+        "rsvp_count":    e["rsvp_count"],
+        "spots_left":    e["capacity"] - e["rsvp_count"],
+        "wards":         get_event_wards(e["event_id"]),
+        "already_rsvpd": e["event_id"] in existing_rsvps,
     } for e in events]
 
     if request.method == "POST":
         event_id_str = request.form.get("event_id", "").strip()
         if event_id_str:
-            rsvp_id = add_event_rsvp(int(event_id_str),
-                                     session["account_number"],
-                                     session.get("upin_plain", ""))
-            session["event_rsvp_id"] = rsvp_id
-            session["intent"]        = "event"
+            event_id_int = int(event_id_str)
+            if event_id_int not in existing_rsvps:
+                rsvp_id = add_event_rsvp(event_id_int, account_number, upin_plain)
+                session["event_rsvp_id"] = rsvp_id
+            else:
+                session["event_rsvp_id"] = event_id_int
         else:
-            session["intent"]        = request.form.get("intent", "enroll")
-        return redirect(url_for("contact_info"))
+            # "Skip" chosen — cancel any existing RSVPs for upcoming events
+            for event in events_display:
+                if event["already_rsvpd"]:
+                    cancel_event_rsvp(upin_plain, event["event_id"])
+            session["no_events_notify"] = not bool(events_display)
+        return redirect(url_for("landlord_intent"))
 
     return render_template("landlord_events.html",
                            events=events_display,
+                           already_enrolled=already_enrolled,
                            address=session.get("normalized_address"))
+
+
+@app.route("/landlord/intent", methods=["GET", "POST"])
+def landlord_intent():
+    """Landlord-specific intent page — simplified choices."""
+    if not session.get("account_number"):
+        return redirect(url_for("index"))
+    lang = get_lang()
+    intents = get_landlord_intents(lang)
+    if request.method == "POST":
+        intent = request.form.get("intent", "").strip()
+        if intent not in dict(intents):
+            return render_template("intent.html", intents=intents,
+                                   error=t("error_select_option", lang))
+        session["intent"] = intent
+        return redirect(url_for("contact_info"))
+    return render_template("intent.html", intents=intents)
+
+@app.route("/events/select", methods=["GET", "POST"])
+def event_select():
+    """Shared event selection for all non-landlord roles."""
+    if not session.get("account_number"):
+        return redirect(url_for("index"))
+
+    n = int(get_setting("events_to_show", "2"))
+    events = get_upcoming_events(limit=n)
+    account_number = session["account_number"]
+    existing_rsvps = get_existing_rsvps(session.get("upin_plain", ""))
+    events_display = [{
+        "event_id":      e["event_id"],
+        "name":          e["name"],
+        "event_date":    e["event_date"],
+        "event_time":    e["event_time"],
+        "location":      e["location"],
+        "capacity":      e["capacity"],
+        "rsvp_count":    e["rsvp_count"],
+        "spots_left":    e["capacity"] - e["rsvp_count"],
+        "wards":         get_event_wards(e["event_id"]),
+        "already_rsvpd": e["event_id"] in existing_rsvps,
+    } for e in events]
+
+    if request.method == "POST":
+        event_id_str = request.form.get("event_id", "").strip()
+        if event_id_str:
+            event_id_int = int(event_id_str)
+            if event_id_int not in existing_rsvps:
+                rsvp_id = add_event_rsvp(event_id_int,
+                                         account_number,
+                                         session.get("upin_plain", ""))
+                session["event_rsvp_id"] = rsvp_id
+            else:
+                session["event_rsvp_id"] = event_id_int
+        # intent already set to 'event' by select_intent
+        # if no events or skipped, flag for contact page notification
+        if not event_id_str:
+            session["no_events_notify"] = True
+        return redirect(url_for("contact_info"))
+
+    return render_template("event_select.html",
+                           events=events_display,
+                           role=dict(get_roles(get_lang())).get(session.get("role", ""), ""),
+                           address=session.get("normalized_address"))
+
 
 @app.route("/intent", methods=["GET", "POST"])
 def select_intent():
@@ -443,15 +911,43 @@ def select_intent():
         return redirect(url_for("index"))
     if request.method == "POST":
         intent = request.form.get("intent", "").strip()
-        if intent not in dict(INTENTS):
-            return render_template("intent.html", intents=INTENTS,
-                                   error="Please select an option.")
+        lang = get_lang()
+        if intent not in dict(get_intents(lang)):
+            return render_template("intent.html", intents=get_intents(lang),
+                                   error=t("error_select_option", lang))
         session["intent"] = intent
+        if intent == "event":
+            n = int(get_setting("events_to_show", "2"))
+            session["no_events_notify"] = len(get_upcoming_events(limit=n)) == 0
+            return redirect(url_for("event_select"))
         return redirect(url_for("contact_info"))
-    return render_template("intent.html", intents=INTENTS)
+    return render_template("intent.html", intents=get_intents(get_lang()))
 
 @app.route("/contact", methods=["GET", "POST"])
 def contact_info():
+    # Special case: address-not-found path — no session required
+    if request.method == "POST" and request.form.get("_path") == "not_found":
+        street_note = request.form.get("street_note", "").strip()
+        save_registration({
+            "account_number":      "NOT_FOUND",
+            "upin_used":           "manual",
+            "normalized_address":  street_note,
+            "service_unit":        "",
+            "role":                "unknown",
+            "intent":              "assistance",
+            "unit_count_reported": None,
+            "unit_count_known":    None,
+            "unit_count_flag":     None,
+            "mass_save_enrolled":  None,
+            "needs_callback":      "yes",
+            "event_rsvp_id":       None,
+            "contact_name":        request.form.get("contact_name", "").strip(),
+            "contact_phone":       request.form.get("contact_phone", "").strip(),
+            "contact_email":       request.form.get("contact_email", "").strip(),
+            "ip_address":          request.remote_addr,
+        })
+        return redirect(url_for("done"))
+
     if not session.get("account_number"):
         return redirect(url_for("index"))
     if request.method == "POST":
@@ -474,13 +970,38 @@ def contact_info():
             "ip_address":          request.remote_addr,
         })
         intent = session.get("intent")
+        lang = session.get("lang", "en")
         session.clear()
+        session["lang"] = lang
         if intent == "enroll":
             return redirect(MASSSAVE_URL)
         return redirect(url_for("done"))
+
+    # Pre-fill contact fields from most recent registration if returning visitor
+    prior_contact = {}
+    if session.get("is_repeat_visit"):
+        prior = upin_db().execute(
+            """SELECT contact_name, contact_phone, contact_email
+               FROM registrations
+               WHERE account_number = ?
+                 AND (contact_name != '' OR contact_phone != '' OR contact_email != '')
+               ORDER BY registered_at DESC LIMIT 1""",
+            (session["account_number"],)
+        ).fetchone()
+        if prior:
+            prior_contact = {
+                "name":  prior["contact_name"]  or "",
+                "phone": prior["contact_phone"] or "",
+                "email": prior["contact_email"] or "",
+            }
+
     return render_template("contact.html",
                            address=session.get("normalized_address"),
-                           role=dict(ROLES).get(session.get("role", ""), ""))
+                           role=dict(get_roles(get_lang())).get(session.get("role", ""), ""),
+                           intent=session.get("intent", ""),
+                           event_rsvp_id=session.get("event_rsvp_id"),
+                           no_events_notify=session.get("no_events_notify", False),
+                           prior_contact=prior_contact)
 
 @app.route("/done")
 def done():

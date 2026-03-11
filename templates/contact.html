@@ -1,56 +1,78 @@
 {% extends "base.html" %}
 {% set progress = 85 %}
-{% block title %}Contact Info · Lawrence Energy Program{% endblock %}
+{% block title %}{{ t('confirm_step_contact') }} · Lawrence Energy Program{% endblock %}
 
 {% block content %}
 <div class="card">
 
   <div class="steps">
-    <div class="step done">Address</div>
-    <div class="step done">Role</div>
-    <div class="step done">Intent</div>
-    <div class="step active">Contact</div>
+    <div class="step done">{{ t('confirm_step_address') }}</div>
+    <div class="step done">{{ t('confirm_step_role') }}</div>
+    <div class="step done">{{ t('confirm_step_intent') }}</div>
+    <div class="step active">{{ t('confirm_step_contact') }}</div>
   </div>
 
-  <h1>Stay in Touch <span style="font-weight:400; font-size:0.9rem; color:#777;">(Optional)</span></h1>
-  <p class="subtitle">
-    Leave your contact information if you would like City staff to follow up.
-    This is completely optional — you can skip this step.
-  </p>
+  {% if intent == 'event' and event_rsvp_id %}
+  <h1>{{ t('contact_title_event_rsvp') }}</h1>
+  <p class="subtitle">{{ t('contact_subtitle_event_rsvp') }}</p>
+
+  {% elif intent == 'event' and no_events_notify %}
+  <h1>{{ t('contact_title_no_events') }}</h1>
+  <p class="subtitle">{{ t('contact_subtitle_no_events') }}</p>
+
+  {% elif intent == 'enroll' %}
+  <h1>{{ t('contact_title_enroll') }}</h1>
+  <p class="subtitle">{{ t('contact_subtitle_enroll') }}</p>
+
+  {% elif intent == 'assistance' %}
+  <h1>{{ t('contact_title_assistance') }}</h1>
+  <p class="subtitle">{{ t('contact_subtitle_assistance') }}</p>
+
+  {% else %}
+  <h1>{{ t('contact_title_generic') }} <span style="font-weight:400; font-size:0.9rem; color:#777;">{{ t('contact_optional_label') }}</span></h1>
+  <p class="subtitle">{{ t('contact_subtitle_generic') }}</p>
+  {% endif %}
 
   {% if address %}
   <div class="address-card" style="margin-bottom:1.2rem;">
     <div class="addr-main">{{ address }}</div>
-    <div class="addr-meta">Role: {{ role }}</div>
+    <div class="addr-meta">{{ t('contact_role_label') }} {{ role }}</div>
+  </div>
+  {% endif %}
+
+  {% if prior_contact %}
+  <div class="alert alert-info" style="margin-bottom:1.2rem;">
+    {{ t('contact_prior_alert') }}
   </div>
   {% endif %}
 
   <form method="POST" action="{{ url_for('contact_info') }}">
-    <label for="contact_name">Your Name</label>
+    <label for="contact_name">{{ t('contact_name_label') }}</label>
     <input type="text" id="contact_name" name="contact_name"
-           placeholder="First and last name" autocomplete="name">
+           placeholder="{{ t('contact_name_placeholder') }}" autocomplete="name"
+           value="{{ prior_contact.name if prior_contact else '' }}">
 
-    <label for="contact_phone">Phone Number</label>
+    <label for="contact_phone">{{ t('contact_phone_label') }}</label>
     <input type="tel" id="contact_phone" name="contact_phone"
            placeholder="(978) 555-1234" autocomplete="tel"
-           maxlength="14">
+           maxlength="14"
+           value="{{ prior_contact.phone if prior_contact else '' }}">
 
-    <label for="contact_email">Email Address</label>
+    <label for="contact_email">{{ t('contact_email_label') }}</label>
     <input type="email" id="contact_email" name="contact_email"
            placeholder="you@example.com" autocomplete="email"
            pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
-           title="Please enter a valid email address with @">
+           value="{{ prior_contact.email if prior_contact else '' }}">
 
     <p style="font-size:0.8rem; color:#777; margin-bottom:1.2rem;">
-      Your contact information is used only by City staff to coordinate
-      outreach and support. It is never shared with third parties.
+      {{ t('contact_privacy_note') }}
     </p>
 
     <div class="btn-row">
-      <button type="submit" class="btn btn-primary">Finish →</button>
+      <button type="submit" class="btn btn-primary">{{ t('contact_finish_btn') }}</button>
       <button type="submit" class="btn btn-outline"
               formnovalidate onclick="clearOptional()">
-        Skip this step
+        {{ t('contact_skip_btn') }}
       </button>
     </div>
   </form>
@@ -64,35 +86,20 @@ function clearOptional() {
   document.getElementById("contact_email").value = "";
 }
 
-// Auto-format phone as (978) 323-1234
 document.addEventListener("DOMContentLoaded", function () {
   const phone = document.getElementById("contact_phone");
-
   phone.addEventListener("input", function (e) {
-    // Strip everything except digits
     let digits = this.value.replace(/\D/g, "").substring(0, 10);
     let formatted = "";
-
-    if (digits.length === 0) {
-      formatted = "";
-    } else if (digits.length <= 3) {
-      formatted = "(" + digits;
-    } else if (digits.length <= 6) {
-      formatted = "(" + digits.substring(0, 3) + ") " + digits.substring(3);
-    } else {
-      formatted = "(" + digits.substring(0, 3) + ") " +
-                  digits.substring(3, 6) + "-" +
-                  digits.substring(6);
-    }
+    if (digits.length === 0)      formatted = "";
+    else if (digits.length <= 3)  formatted = "(" + digits;
+    else if (digits.length <= 6)  formatted = "(" + digits.substring(0, 3) + ") " + digits.substring(3);
+    else                          formatted = "(" + digits.substring(0, 3) + ") " + digits.substring(3, 6) + "-" + digits.substring(6);
     this.value = formatted;
   });
-
-  // Only allow digits and control keys
   phone.addEventListener("keydown", function (e) {
-    const allowed = [
-      "Backspace", "Delete", "Tab", "Escape", "Enter",
-      "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"
-    ];
+    const allowed = ["Backspace","Delete","Tab","Escape","Enter",
+                     "ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"];
     if (allowed.includes(e.key)) return;
     if (e.key >= "0" && e.key <= "9") return;
     e.preventDefault();

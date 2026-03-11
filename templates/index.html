@@ -1,37 +1,66 @@
 {% extends "base.html" %}
-{% block title %}Get Started · Lawrence Energy Program{% endblock %}
+{% block title %}{{ t('index_title') }} · Lawrence Energy Program{% endblock %}
 
 {% block content %}
 <div class="card">
-  <h1>No-Cost Energy Upgrades for Lawrence Residents</h1>
-  <p class="subtitle">
-    The City of Lawrence is partnering with Mass Save to bring free energy efficiency
-    upgrades to renters and landlords. Find out if your property qualifies — it takes
-    less than two minutes.
-  </p>
+  <h1>{{ t('index_title') }}</h1>
+  <p class="subtitle">{{ t('index_subtitle') }}</p>
 
   <div class="alert alert-info">
-    <strong>Did you receive a letter with a QR code?</strong><br>
-    Scan the QR code on your letter to get started with your property pre-identified.
+    <strong>{{ t('index_qr_alert_title') }}</strong><br>
+    {{ t('index_qr_alert_body') }}
   </div>
 
-  <p style="margin-bottom:1rem; font-size:0.95rem;">
-    Or enter your street address below to look up your property:
-  </p>
+  <!-- UPIN entry -->
+  <form method="GET" action="{{ url_for('register_qr') }}" style="margin-bottom:1.4rem;">
+    <label for="upin">
+      {{ t('index_upin_label') }}
+      <span style="font-weight:400; color:#777;">{{ t('index_upin_hint') }}</span>
+    </label>
+    <div style="display:flex; gap:0.5rem; align-items:flex-start; flex-wrap:wrap;">
+      <input type="text" id="upin" name="upin"
+             placeholder="{{ t('index_upin_placeholder') }}"
+             maxlength="12"
+             style="width:200px; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0;"
+             autocomplete="off">
+      <button type="submit" class="btn btn-secondary" style="white-space:nowrap;">
+        {{ t('index_go_btn') }}
+      </button>
+    </div>
+  </form>
 
-  <a href="{{ url_for('address_search') }}" class="btn btn-primary">
-    Enter My Address →
+  <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.4rem; color:#aaa; font-size:0.9rem;">
+    <div style="flex:1; height:1px; background:#dde3ea;"></div>
+    <span>{{ t('index_or') }}</span>
+    <div style="flex:1; height:1px; background:#dde3ea;"></div>
+  </div>
+
+  <p style="margin-bottom:0.75rem; font-size:0.95rem;">
+    {{ t('index_no_letter') }}
+  </p>
+  <a href="{{ url_for('start_generic') }}" class="btn btn-primary">
+    {{ t('index_find_address_btn') }}
   </a>
+  <p style="font-size:0.8rem; color:#888; margin-top:0.5rem; margin-bottom:0;">
+    {{ t('index_address_hint') }}
+  </p>
 
   <hr style="margin: 1.8rem 0; border: none; border-top: 1px solid #eee;">
 
   <p style="font-size:0.83rem; color:#666;">
-    <strong>Your privacy matters.</strong>
-    The City uses your address only to connect you with benefits you have already
-    paid for through your utility bills. Registration with the City is optional.
-    Official enrollment occurs at
+    <strong>{{ t('index_privacy_title') }}</strong>
+    {{ t('index_privacy_body') }}
     <a href="https://www.masssave.com/community-first/lawrence"
        target="_blank" rel="noopener">masssave.com/Lawrence</a>.
   </p>
 </div>
+
+{% block head %}
+<script>
+  document.getElementById("upin").addEventListener("input", function() {
+    this.value = this.value.toUpperCase();
+  });
+</script>
+{% endblock %}
+
 {% endblock %}

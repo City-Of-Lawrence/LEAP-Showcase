@@ -1,22 +1,19 @@
 {% extends "base.html" %}
 {% set progress = 68 %}
-{% block title %}Your Intent · Lawrence Energy Program{% endblock %}
+{% block title %}{{ t('intent_title') }} · Lawrence Energy Program{% endblock %}
 
 {% block content %}
 <div class="card">
 
   <div class="steps">
-    <div class="step done">Address</div>
-    <div class="step done">Role</div>
-    <div class="step active">Intent</div>
-    <div class="step">Contact</div>
+    <div class="step done">{{ t('confirm_step_address') }}</div>
+    <div class="step done">{{ t('confirm_step_role') }}</div>
+    <div class="step active">{{ t('confirm_step_intent') }}</div>
+    <div class="step">{{ t('confirm_step_contact') }}</div>
   </div>
 
-  <h1>What Would You Like to Do?</h1>
-  <p class="subtitle">
-    You can enroll with Mass Save right now, learn more at a City event,
-    or ask for help from City staff.
-  </p>
+  <h1>{{ t('intent_title') }}</h1>
+  <p class="subtitle">{{ t('intent_subtitle') }}</p>
 
   {% if error %}
   <div class="alert alert-error">{{ error }}</div>
@@ -31,14 +28,15 @@
       </div>
       {% endfor %}
     </div>
-    <button type="submit" class="btn btn-primary">Continue →</button>
+    <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
   </form>
 
   <div class="alert alert-info" style="margin-top:1.4rem;">
-    <strong>Remember:</strong> Official enrollment happens at
+    <strong>{{ t('intent_remember_title') }}</strong>
+    {{ t('intent_remember_body') }}
     <a href="https://www.masssave.com/community-first/lawrence"
        target="_blank" rel="noopener">masssave.com/Lawrence</a>.
-    The City's registration is separate and optional.
+    {{ t('intent_remember_suffix') }}
   </div>
 
 </div>

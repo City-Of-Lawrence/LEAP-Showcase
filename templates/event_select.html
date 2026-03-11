@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% set progress = 75 %}
+{% block title %}{{ t('eselect_title') }} · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step done">{{ t('confirm_step_address') }}</div>
+    <div class="step done">{{ t('confirm_step_role') }}</div>
+    <div class="step done">{{ t('confirm_step_intent') }}</div>
+    <div class="step active">{{ t('eselect_step_event') }}</div>
+    <div class="step">{{ t('confirm_step_contact') }}</div>
+  </div>
+
+  <h1>{{ t('eselect_title') }}</h1>
+  <p class="subtitle">{{ t('eselect_subtitle') }}</p>
+
+  <form method="POST" action="{{ url_for('event_select') }}">
+
+    {% if events %}
+    <div class="choices" style="margin-bottom:1.4rem;">
+      {% for e in events %}
+      <div>
+        <input type="radio" id="event_{{ e.event_id }}"
+               name="event_id" value="{{ e.event_id }}"
+               {% if e.already_rsvpd %}checked{% elif loop.first and not events|selectattr('already_rsvpd')|list %}checked{% endif %}>
+        <label class="choice-label" for="event_{{ e.event_id }}"
+               style="{% if e.already_rsvpd %}border-color:#f0ad4e; background:#fffdf0;{% endif %}">
+          <div style="width:100%;">
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <strong>{{ e.name }}</strong>
+              {% if e.already_rsvpd %}
+              <span style="font-size:0.75rem; color:#856404; background:#fff3cd;
+                           border:1px solid #f0ad4e; padding:0.1rem 0.5rem;
+                           border-radius:3px; white-space:nowrap;">
+                ⚠ {{ t('event_already_registered') }}
+              </span>
+              {% endif %}
+            </div>
+            <span style="font-size:0.86rem; color:#555; line-height:1.7;">
+              📅 {{ e.event_date }} at {{ e.event_time }}<br>
+              📍 {{ e.location }}<br>
+              {% if e.wards %}
+                🗺 {{ t('event_wards_label_plural') if e.wards|length > 1 else t('event_wards_label') }}: {{ e.wards|join(', ') }}<br>
+              {% endif %}
+              <span style="color:{% if e.spots_left <= 5 %}#c8392b{% else %}#2e7d50{% endif %}; font-weight:600;">
+                {{ e.spots_left }} {{ t('event_spot_remaining') if e.spots_left == 1 else t('event_spots_remaining') }}
+              </span>
+              {% if e.already_rsvpd %}
+              <br><span style="color:#856404; font-size:0.82rem;">
+                {{ t('event_already_registered_note') }}
+              </span>
+              {% endif %}
+            </span>
+          </div>
+        </label>
+      </div>
+      {% endfor %}
+      <div>
+        <input type="radio" id="event_none" name="event_id" value="">
+        <label class="choice-label" for="event_none">
+          {{ t('eselect_none_option') }}
+        </label>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="alert alert-info" style="margin-bottom:1.4rem;">
+      <strong>{{ t('eselect_no_events_title') }}</strong><br>
+      {{ t('eselect_no_events_body') }}
+    </div>
+    <input type="hidden" name="event_id" value="">
+    {% endif %}
+
+    <div class="btn-row">
+      <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
+      <a href="{{ url_for('select_intent') }}" class="btn btn-outline">← {{ t('back_btn') }}</a>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

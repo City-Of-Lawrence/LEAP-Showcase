@@ -1,28 +1,27 @@
 {% extends "base.html" %}
 {% set progress = 58 %}
-{% block title %}Confirm Unit Count · Lawrence Energy Program{% endblock %}
+{% block title %}{{ t('lunits_confirm_title') }} · Lawrence Energy Program{% endblock %}
 
 {% block content %}
 <div class="card">
 
   <div class="steps">
-    <div class="step done">Address</div>
-    <div class="step done">Role</div>
-    <div class="step active">Property</div>
-    <div class="step">Intent</div>
-    <div class="step">Contact</div>
+    <div class="step done">{{ t('confirm_step_address') }}</div>
+    <div class="step done">{{ t('confirm_step_role') }}</div>
+    <div class="step active">{{ t('step_property') }}</div>
+    <div class="step">{{ t('confirm_step_intent') }}</div>
+    <div class="step">{{ t('confirm_step_contact') }}</div>
   </div>
 
-  <h1>Can You Help Us Confirm?</h1>
+  <h1>{{ t('lunits_confirm_title') }}</h1>
   <p class="subtitle">
-    Our records show <strong>{{ known }} unit(s)</strong> at this address,
-    but you entered <strong>{{ reported }} unit(s)</strong>.
-    That's quite a difference — can you confirm your count is correct?
+    {{ t('lunits_confirm_subtitle_a') }} <strong>{{ known }} {{ t('lunits_confirm_unit_s') }}</strong>
+    {{ t('lunits_confirm_subtitle_b') }} <strong>{{ reported }} {{ t('lunits_confirm_unit_s') }}</strong>.
+    {{ t('lunits_confirm_subtitle_c') }}
   </p>
 
   <div class="alert alert-info">
-    This doesn't affect your eligibility. We just want to make sure our
-    records are up to date so we can plan our outreach correctly.
+    {{ t('lunits_confirm_alert') }}
   </div>
 
   <form method="POST" action="{{ url_for('landlord_units_confirm') }}">
@@ -30,17 +29,17 @@
       <div>
         <input type="radio" id="yes" name="confirmed" value="yes">
         <label class="choice-label" for="yes">
-          Yes, I have {{ reported }} units — please update your records
+          {{ t('lunits_confirm_yes') }} {{ reported }} {{ t('lunits_confirm_yes_suffix') }}
         </label>
       </div>
       <div>
         <input type="radio" id="no" name="confirmed" value="no">
         <label class="choice-label" for="no">
-          I may have made a mistake — use your records for now
+          {{ t('lunits_confirm_no') }}
         </label>
       </div>
     </div>
-    <button type="submit" class="btn btn-primary">Continue →</button>
+    <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
   </form>
 
 </div>
