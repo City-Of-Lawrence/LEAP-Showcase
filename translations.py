@@ -862,6 +862,30 @@ TRANSLATIONS = {
         "en": "No thanks — cancel my reservation",
         "es": "No, gracias — cancelar mi reservación",
     },
+    "levents_returning_title": {
+        "en": "Welcome Back — What Would You Like to Do?",
+        "es": "Bienvenido/a de Nuevo — ¿Qué Desea Hacer?",
+    },
+    "levents_returning_subtitle": {
+        "en": "Would you like to attend an upcoming City information session?",
+        "es": "¿Le gustaría asistir a una próxima sesión informativa de la Ciudad?",
+    },
+    "seal_confirm_msg": {
+        "en": "Return to the home page? Your progress will be lost.",
+        "es": "¿Volver a la página de inicio? Se perderá su progreso.",
+    },
+    "done_rsvp_section_title": {
+        "en": "Your Event Registration",
+        "es": "Su Registro de Evento",
+    },
+    "done_rsvp_cancel_btn": {
+        "en": "Cancel Registration",
+        "es": "Cancelar Registro",
+    },
+    "done_rsvp_cancel_confirm": {
+        "en": "Cancel your registration for this event?",
+        "es": "¿Cancelar su registro para este evento?",
+    },
 }
 
 

@@ -7,11 +7,28 @@
 
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
     <h1 style="font-size:1.3rem; color:#1a3a5c;">Event Management</h1>
-    <div style="display:flex; gap:0.5rem;">
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
       <a href="{{ url_for('admin_event_new') }}" class="btn btn-primary" style="font-size:0.85rem; padding:0.4rem 1rem;">+ New Event</a>
+      <a href="{{ url_for('admin_events_export') }}" class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">⬇ Export</a>
+      <form method="POST" action="{{ url_for('admin_events_import') }}"
+            enctype="multipart/form-data" style="display:inline; margin:0;">
+        <label style="cursor:pointer;">
+          <span class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">⬆ Import</span>
+          <input type="file" name="events_file" accept=".xlsx"
+                 style="display:none;" onchange="this.form.submit()">
+        </label>
+      </form>
       <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">← Dashboard</a>
     </div>
   </div>
+
+  {% if import_result %}
+  <div style="background:#dff0d8; border:1px solid #3c763d; color:#2e5e2e;
+              padding:0.75rem 1.2rem; border-radius:6px; margin-bottom:1rem;
+              font-size:0.9rem;">
+    ✅ {{ import_result }}
+  </div>
+  {% endif %}
 
   {% if events %}
     {% for e in events %}

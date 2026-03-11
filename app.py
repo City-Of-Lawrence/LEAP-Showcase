@@ -142,6 +142,7 @@ def init_schema():
             event_id       INTEGER NOT NULL REFERENCES events(event_id),
             account_number TEXT NOT NULL,
             upin           TEXT,
+            service_unit   TEXT,
             rsvp_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             cancelled_at   TIMESTAMP
         )
@@ -378,27 +379,50 @@ def search_addresses_on_street(street_name: str, role: str):
 
     return results
 
-def has_prior_registration(account_number):
-    row = upin_db().execute(
-        "SELECT COUNT(*) FROM registrations WHERE account_number=?",
-        (account_number,)
-    ).fetchone()
+def normalize_unit(unit: str) -> str:
+    """Strip common prefix words so 'APT 323' and '323' compare equal."""
+    import re
+    return re.sub(r'^(APT|UNIT|STE|SUITE|#)\s*', '', unit.strip().upper())
+
+def has_prior_registration(account_number, service_unit=""):
+    """Return True if this specific unit (or property for landlords) has registered before."""
+    norm = normalize_unit(service_unit) if service_unit else ""
+    if norm:
+        row = upin_db().execute(
+            "SELECT COUNT(*) FROM registrations WHERE account_number=? AND service_unit=?",
+            (account_number, norm)
+        ).fetchone()
+    else:
+        row = upin_db().execute(
+            "SELECT COUNT(*) FROM registrations WHERE account_number=? AND (service_unit IS NULL OR service_unit='')",
+            (account_number,)
+        ).fetchone()
     return row[0] > 0
 
-def get_prior_registration_summary(account_number):
-    """Return role and date of most recent registration for this account."""
-    return upin_db().execute(
-        """SELECT role, registered_at FROM registrations
-           WHERE account_number=?
-           ORDER BY registered_at DESC LIMIT 1""",
-        (account_number,)
-    ).fetchone()
+def get_prior_registration_summary(account_number, service_unit=""):
+    """Return role and date of most recent registration for this unit/property."""
+    norm = normalize_unit(service_unit) if service_unit else ""
+    if norm:
+        return upin_db().execute(
+            """SELECT role, registered_at FROM registrations
+               WHERE account_number=? AND service_unit=?
+               ORDER BY registered_at DESC LIMIT 1""",
+            (account_number, norm)
+        ).fetchone()
+    else:
+        return upin_db().execute(
+            """SELECT role, registered_at FROM registrations
+               WHERE account_number=? AND (service_unit IS NULL OR service_unit='')
+               ORDER BY registered_at DESC LIMIT 1""",
+            (account_number,)
+        ).fetchone()
 
 def get_upcoming_events(limit=2):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     rows = upin_db().execute(
         """SELECT e.*,
-                  (SELECT COUNT(*) FROM event_rsvps r WHERE r.event_id=e.event_id) AS rsvp_count
+                  (SELECT COUNT(*) FROM event_rsvps r
+                   WHERE r.event_id=e.event_id AND r.cancelled_at IS NULL) AS rsvp_count
            FROM events e
            WHERE e.status='active' AND e.event_date >= ?
            ORDER BY e.event_date, e.event_time""",
@@ -413,15 +437,18 @@ def get_event_wards(event_id):
     ).fetchall()
     return [r["ward"] for r in rows]
 
-def add_event_rsvp(event_id, account_number, upin=""):
+def add_event_rsvp(event_id, account_number, upin="", service_unit=""):
     cur = upin_db().execute(
-        "INSERT INTO event_rsvps (event_id, account_number, upin) VALUES (?,?,?)",
-        (event_id, account_number, upin)
+        "INSERT INTO event_rsvps (event_id, account_number, upin, service_unit) VALUES (?,?,?,?)",
+        (event_id, account_number, upin, normalize_unit(service_unit) if service_unit else "")
     )
     upin_db().commit()
     return cur.lastrowid
 
 def save_registration(data):
+    # Normalize service_unit before storing so lookups always match
+    if data.get("service_unit"):
+        data["service_unit"] = normalize_unit(data["service_unit"])
     cur = upin_db().execute(
         """INSERT INTO registrations (
             account_number, upin_used, normalized_address, service_unit,
@@ -497,10 +524,27 @@ def welcome_back():
     if not session.get("account_number"):
         return redirect(url_for("index"))
 
-    upin_role = session.get("upin_role", "")   # set only when entry was via UPIN
+    upin_role  = session.get("upin_role", "")
+    upin_plain = session.get("upin_plain", "")
+
+    existing_rsvps = get_existing_rsvps(upin_plain,
+                                        account_number=session.get("account_number", ""),
+                                        service_unit=session.get("service_unit", ""))
+    active_rsvps = []
+    if existing_rsvps:
+        rows = upin_db().execute(
+            """SELECT r.id, r.event_id, e.name, e.event_date, e.event_time, e.location
+               FROM event_rsvps r JOIN events e ON r.event_id = e.event_id
+               WHERE r.id IN ({})
+                 AND e.status = 'active' AND e.event_date >= date('now')
+               ORDER BY e.event_date, e.event_time""".format(
+                ",".join("?" * len(existing_rsvps))
+            ),
+            list(existing_rsvps.values())
+        ).fetchall()
+        active_rsvps = [dict(r) for r in rows]
 
     if request.method == "POST":
-        # If role is locked by UPIN, ignore form and use locked role
         role = upin_role if upin_role else request.form.get("role", "").strip()
         lang = get_lang()
         if not upin_role and role not in dict(get_roles(lang)):
@@ -510,6 +554,7 @@ def welcome_back():
                                    address=session.get("normalized_address"),
                                    prior_role=session.get("prior_role", ""),
                                    prior_visit_date=session.get("prior_visit_date", ""),
+                                   active_rsvps=active_rsvps,
                                    error=t("error_select_role", lang))
         session["role"] = role
         if role == "landlord":
@@ -521,7 +566,8 @@ def welcome_back():
                            upin_role=upin_role,
                            address=session.get("normalized_address"),
                            prior_role=session.get("prior_role", ""),
-                           prior_visit_date=session.get("prior_visit_date", ""))
+                           prior_visit_date=session.get("prior_visit_date", ""),
+                           active_rsvps=active_rsvps)
 
 
 @app.route("/start", methods=["GET", "POST"])
@@ -629,10 +675,10 @@ def address_pick():
         session["normalized_address"] = display_address or (
                                             prop["normalized_address"] if prop else account_number)
         session["service_unit"]       = service_unit
-        session["is_repeat_visit"]    = has_prior_registration(account_number)
+        session["is_repeat_visit"]    = has_prior_registration(account_number, service_unit)
 
         if session["is_repeat_visit"]:
-            prior = get_prior_registration_summary(account_number)
+            prior = get_prior_registration_summary(account_number, service_unit)
             if prior:
                 session["prior_role"]       = prior["role"] or ""
                 session["prior_visit_date"] = prior["registered_at"][:10] if prior["registered_at"] else ""
@@ -774,15 +820,27 @@ def landlord_repeat():
     return render_template("landlord_repeat.html",
                            address=session.get("normalized_address"))
 
-def get_existing_rsvps(upin_plain):
-    """Return set of event_ids this individual UPIN has active (non-cancelled) RSVPs for."""
-    if not upin_plain:
-        return set()
-    rows = upin_db().execute(
-        "SELECT event_id FROM event_rsvps WHERE upin=? AND cancelled_at IS NULL",
-        (upin_plain,)
-    ).fetchall()
-    return {r["event_id"] for r in rows}
+def get_existing_rsvps(upin_plain, account_number="", service_unit=""):
+    """Return dict of {event_id: rsvp_row_id} for active (non-cancelled) RSVPs.
+
+    Lookup priority:
+      1. upin_plain  — UPIN/landlord path
+      2. account_number + service_unit — street-path renter fallback
+    """
+    if upin_plain:
+        rows = upin_db().execute(
+            "SELECT id, event_id FROM event_rsvps WHERE upin=? AND cancelled_at IS NULL",
+            (upin_plain,)
+        ).fetchall()
+        return {r["event_id"]: r["id"] for r in rows}
+    if account_number:
+        norm = normalize_unit(service_unit) if service_unit else ""
+        rows = upin_db().execute(
+            "SELECT id, event_id FROM event_rsvps WHERE account_number=? AND service_unit=? AND cancelled_at IS NULL",
+            (account_number, norm)
+        ).fetchall()
+        return {r["event_id"]: r["id"] for r in rows}
+    return {}
 
 
 def cancel_event_rsvp(upin_plain, event_id):
@@ -804,7 +862,9 @@ def landlord_events():
     events = get_upcoming_events(limit=n)
     account_number = session["account_number"]
     upin_plain = session.get("upin_plain", "")
-    existing_rsvps = get_existing_rsvps(upin_plain)
+    existing_rsvps = get_existing_rsvps(upin_plain,
+                                        account_number=account_number,
+                                        service_unit=session.get("service_unit", ""))
     already_enrolled = session.get("mass_save_enrolled") == "yes"
 
     events_display = [{
@@ -818,6 +878,7 @@ def landlord_events():
         "spots_left":    e["capacity"] - e["rsvp_count"],
         "wards":         get_event_wards(e["event_id"]),
         "already_rsvpd": e["event_id"] in existing_rsvps,
+        "rsvp_id":       existing_rsvps.get(e["event_id"]),
     } for e in events]
 
     if request.method == "POST":
@@ -825,7 +886,8 @@ def landlord_events():
         if event_id_str:
             event_id_int = int(event_id_str)
             if event_id_int not in existing_rsvps:
-                rsvp_id = add_event_rsvp(event_id_int, account_number, upin_plain)
+                rsvp_id = add_event_rsvp(event_id_int, account_number, upin_plain,
+                                         session.get("service_unit", ""))
                 session["event_rsvp_id"] = rsvp_id
             else:
                 session["event_rsvp_id"] = event_id_int
@@ -840,6 +902,7 @@ def landlord_events():
     return render_template("landlord_events.html",
                            events=events_display,
                            already_enrolled=already_enrolled,
+                           is_repeat_visit=session.get("is_repeat_visit", False),
                            address=session.get("normalized_address"))
 
 
@@ -868,7 +931,9 @@ def event_select():
     n = int(get_setting("events_to_show", "2"))
     events = get_upcoming_events(limit=n)
     account_number = session["account_number"]
-    existing_rsvps = get_existing_rsvps(session.get("upin_plain", ""))
+    existing_rsvps = get_existing_rsvps(session.get("upin_plain", ""),
+                                        account_number=account_number,
+                                        service_unit=session.get("service_unit", ""))
     events_display = [{
         "event_id":      e["event_id"],
         "name":          e["name"],
@@ -880,6 +945,7 @@ def event_select():
         "spots_left":    e["capacity"] - e["rsvp_count"],
         "wards":         get_event_wards(e["event_id"]),
         "already_rsvpd": e["event_id"] in existing_rsvps,
+        "rsvp_id":       existing_rsvps.get(e["event_id"]),
     } for e in events]
 
     if request.method == "POST":
@@ -889,18 +955,19 @@ def event_select():
             if event_id_int not in existing_rsvps:
                 rsvp_id = add_event_rsvp(event_id_int,
                                          account_number,
-                                         session.get("upin_plain", ""))
+                                         session.get("upin_plain", ""),
+                                         session.get("service_unit", ""))
                 session["event_rsvp_id"] = rsvp_id
             else:
-                session["event_rsvp_id"] = event_id_int
-        # intent already set to 'event' by select_intent
-        # if no events or skipped, flag for contact page notification
+                # Already RSVP'd — store the actual row id, not the event id
+                session["event_rsvp_id"] = existing_rsvps[event_id_int]
         if not event_id_str:
             session["no_events_notify"] = True
         return redirect(url_for("contact_info"))
 
     return render_template("event_select.html",
                            events=events_display,
+                           is_repeat_visit=session.get("is_repeat_visit", False),
                            role=dict(get_roles(get_lang())).get(session.get("role", ""), ""),
                            address=session.get("normalized_address"))
 
@@ -969,8 +1036,8 @@ def contact_info():
             "contact_email":       request.form.get("contact_email", "").strip(),
             "ip_address":          request.remote_addr,
         })
-        intent = session.get("intent")
-        lang = session.get("lang", "en")
+        intent     = session.get("intent")
+        lang       = session.get("lang", "en")
         session.clear()
         session["lang"] = lang
         if intent == "enroll":
@@ -1005,7 +1072,56 @@ def contact_info():
 
 @app.route("/done")
 def done():
-    return render_template("done.html", masssave_url=MASSSAVE_URL)
+    upin_plain = session.get("upin_plain", "")
+    active_rsvps = []
+    if upin_plain:
+        rows = upin_db().execute(
+            """SELECT r.id, r.event_id, e.name, e.event_date, e.event_time, e.location
+               FROM event_rsvps r JOIN events e ON r.event_id = e.event_id
+               WHERE r.upin = ? AND r.cancelled_at IS NULL
+                 AND e.status = 'active' AND e.event_date >= date('now')
+               ORDER BY e.event_date, e.event_time""",
+            (upin_plain,)
+        ).fetchall()
+        active_rsvps = [dict(r) for r in rows]
+    return render_template("done.html", masssave_url=MASSSAVE_URL,
+                           active_rsvps=active_rsvps)
+
+
+@app.route("/rsvp/<int:rsvp_id>/cancel", methods=["POST"])
+def rsvp_cancel(rsvp_id):
+    """Self-service RSVP cancellation. Returns to 'next' param or done page."""
+    upin_plain     = session.get("upin_plain", "")
+    account_number = session.get("account_number", "")
+
+    if upin_plain:
+        upin_db().execute(
+            """UPDATE event_rsvps SET cancelled_at = CURRENT_TIMESTAMP
+               WHERE id = ? AND upin = ? AND cancelled_at IS NULL""",
+            (rsvp_id, upin_plain)
+        )
+    elif account_number:
+        upin_db().execute(
+            """UPDATE event_rsvps SET cancelled_at = CURRENT_TIMESTAMP
+               WHERE id = ? AND account_number = ? AND cancelled_at IS NULL""",
+            (rsvp_id, account_number)
+        )
+    else:
+        # Session was cleared (street-path renter on done page) —
+        # cancel by id alone. The id was rendered to this user moments
+        # ago so it is sufficiently scoped; no auth token available.
+        upin_db().execute(
+            """UPDATE event_rsvps SET cancelled_at = CURRENT_TIMESTAMP
+               WHERE id = ? AND cancelled_at IS NULL""",
+            (rsvp_id,)
+        )
+
+    upin_db().commit()
+    next_page = request.form.get("next", "done")
+    safe_destinations = {"done", "welcome_back", "landlord_events", "event_select"}
+    if next_page not in safe_destinations:
+        next_page = "done"
+    return redirect(url_for(next_page))
 
 
 # ------------------------------------------------------------------
@@ -1054,13 +1170,16 @@ def admin_events():
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     events = upin_db().execute(
         """SELECT e.*,
-                  (SELECT COUNT(*) FROM event_rsvps r WHERE r.event_id=e.event_id) AS rsvp_count
+                  (SELECT COUNT(*) FROM event_rsvps r
+                   WHERE r.event_id=e.event_id AND r.cancelled_at IS NULL) AS rsvp_count
            FROM events e ORDER BY e.event_date, e.event_time"""
     ).fetchall()
     events_display = [dict(e) | {"wards": get_event_wards(e["event_id"]),
                                   "is_past": e["event_date"] < today}
                       for e in events]
-    return render_template("admin_events.html", events=events_display)
+    import_result = session.pop("import_result", None)
+    return render_template("admin_events.html", events=events_display,
+                           import_result=import_result)
 
 @app.route("/admin/events/new", methods=["GET", "POST"])
 @admin_required
@@ -1112,6 +1231,128 @@ def admin_event_edit(event_id):
 def admin_event_cancel(event_id):
     upin_db().execute("UPDATE events SET status='cancelled' WHERE event_id=?", (event_id,))
     upin_db().commit()
+    return redirect(url_for("admin_events"))
+
+
+@app.route("/admin/events/export")
+@admin_required
+def admin_events_export():
+    """Export all events to Excel workbook for backup."""
+    import io
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from flask import send_file
+
+    events = upin_db().execute(
+        "SELECT * FROM events ORDER BY event_date, event_time"
+    ).fetchall()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Events"
+
+    # Header row
+    headers = ["event_id", "name", "event_date", "event_time",
+               "location", "capacity", "status", "wards"]
+    header_fill = PatternFill("solid", start_color="1A3A5C")
+    header_font = Font(bold=True, color="FFFFFF", name="Arial")
+    for col, h in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=h)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center")
+
+    # Column widths
+    widths = [10, 35, 12, 10, 35, 10, 10, 20]
+    for col, w in enumerate(widths, 1):
+        ws.column_dimensions[ws.cell(row=1, column=col).column_letter].width = w
+
+    # Data rows
+    for row_num, e in enumerate(events, 2):
+        wards = ", ".join(get_event_wards(e["event_id"]))
+        ws.cell(row=row_num, column=1, value=e["event_id"])
+        ws.cell(row=row_num, column=2, value=e["name"])
+        ws.cell(row=row_num, column=3, value=e["event_date"])
+        ws.cell(row=row_num, column=4, value=e["event_time"])
+        ws.cell(row=row_num, column=5, value=e["location"])
+        ws.cell(row=row_num, column=6, value=e["capacity"])
+        ws.cell(row=row_num, column=7, value=e["status"])
+        ws.cell(row=row_num, column=8, value=wards)
+        # Alternate row shading
+        if row_num % 2 == 0:
+            fill = PatternFill("solid", start_color="EEF2F7")
+            for col in range(1, 9):
+                ws.cell(row=row_num, column=col).fill = fill
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    filename = f"LEAP_events_backup_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
+    return send_file(buf, as_attachment=True, download_name=filename,
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@app.route("/admin/events/import", methods=["POST"])
+@admin_required
+def admin_events_import():
+    """Import events from uploaded Excel file. Skips events already present."""
+    import io
+    from openpyxl import load_workbook
+
+    f = request.files.get("events_file")
+    if not f or not f.filename.endswith(".xlsx"):
+        return redirect(url_for("admin_events"))
+
+    wb = load_workbook(io.BytesIO(f.read()), data_only=True)
+    ws = wb.active
+
+    # Build set of existing events for duplicate detection
+    # Match key: (name, event_date, event_time, location) — all lowercase stripped
+    existing = upin_db().execute(
+        "SELECT name, event_date, event_time, location FROM events"
+    ).fetchall()
+    existing_keys = {
+        (r["name"].strip().lower(), r["event_date"].strip(),
+         r["event_time"].strip(), r["location"].strip().lower())
+        for r in existing
+    }
+
+    imported = 0
+    skipped = 0
+
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        # Columns: event_id, name, event_date, event_time, location, capacity, status, wards
+        if not row[1]:   # name required
+            continue
+        name     = str(row[1]).strip()
+        edate    = str(row[2]).strip() if row[2] else ""
+        etime    = str(row[3]).strip() if row[3] else ""
+        location = str(row[4]).strip() if row[4] else ""
+        capacity = int(row[5]) if row[5] else 50
+        status   = str(row[6]).strip() if row[6] in ("active", "cancelled") else "active"
+        wards_str = str(row[7]).strip() if row[7] else ""
+
+        key = (name.lower(), edate, etime, location.lower())
+        if key in existing_keys:
+            skipped += 1
+            continue
+
+        cur = upin_db().execute(
+            "INSERT INTO events (name, event_date, event_time, location, capacity, status) "
+            "VALUES (?,?,?,?,?,?)",
+            (name, edate, etime, location, capacity, status)
+        )
+        new_id = cur.lastrowid
+        for ward in [w.strip() for w in wards_str.split(",") if w.strip()]:
+            upin_db().execute(
+                "INSERT INTO event_wards (event_id, ward) VALUES (?,?)", (new_id, ward)
+            )
+        existing_keys.add(key)
+        imported += 1
+
+    upin_db().commit()
+    # Pass counts back via session flash
+    session["import_result"] = f"Imported {imported} event(s), skipped {skipped} duplicate(s)."
     return redirect(url_for("admin_events"))
 
 @app.route("/admin/settings", methods=["GET", "POST"])

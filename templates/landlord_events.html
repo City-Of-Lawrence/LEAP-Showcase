@@ -13,15 +13,29 @@
     <div class="step">{{ t('confirm_step_contact') }}</div>
   </div>
 
-  <h1>{{ t('levents_title') }}</h1>
+  <h1>{{ t('levents_returning_title') if is_repeat_visit else t('levents_title') }}</h1>
   <p class="subtitle">
     {% if already_enrolled %}
       {{ t('levents_enrolled_subtitle') }}
+    {% elif is_repeat_visit %}
+      {{ t('levents_returning_subtitle') }}
     {% else %}
       {{ t('levents_section_a_prompt') }}
     {% endif %}
   </p>
 
+  {# ── Cancel forms (one per already-RSVP'd event) — must be outside main form ── #}
+  {% for e in events %}
+  {% if e.already_rsvpd and e.rsvp_id %}
+  <form id="cancel_form_{{ e.event_id }}" method="POST"
+        action="{{ url_for('rsvp_cancel', rsvp_id=e.rsvp_id) }}"
+        style="display:none;">
+    <input type="hidden" name="next" value="landlord_events">
+  </form>
+  {% endif %}
+  {% endfor %}
+
+  {# ── Main event selection form ── #}
   <form method="POST" action="{{ url_for('landlord_events') }}">
 
     {% if events %}
@@ -33,32 +47,39 @@
                  {% if e.already_rsvpd %}checked{% endif %}>
           <label class="choice-label" for="event_{{ e.event_id }}"
                  style="{% if e.already_rsvpd %}border-color:#f0ad4e; background:#fffdf0;{% endif %}">
-            <div style="width:100%;">
-              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-                <strong>{{ e.name }}</strong>
-                {% if e.already_rsvpd %}
-                <span style="font-size:0.75rem; color:#856404; background:#fff3cd;
-                             border:1px solid #f0ad4e; padding:0.1rem 0.5rem;
-                             border-radius:3px; white-space:nowrap;">
-                  ⚠ {{ t('event_already_registered') }}
+            <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                  <strong>{{ e.name }}</strong>
+                  {% if e.already_rsvpd %}
+                  <span style="font-size:0.75rem; color:#856404; background:#fff3cd;
+                               border:1px solid #f0ad4e; padding:0.1rem 0.5rem;
+                               border-radius:3px; white-space:nowrap;">
+                    ⚠ {{ t('event_already_registered') }}
+                  </span>
+                  {% endif %}
+                </div>
+                <span style="font-size:0.86rem; color:#555; line-height:1.7;">
+                  📅 {{ e.event_date }} at {{ e.event_time }}<br>
+                  📍 {{ e.location }}<br>
+                  {% if e.wards %}
+                    🗺 {{ t('event_wards_label_plural') if e.wards|length > 1 else t('event_wards_label') }}: {{ e.wards | join(', ') }}<br>
+                  {% endif %}
+                  <span style="color:{% if e.spots_left <= 5 %}#c8392b{% else %}#2e7d50{% endif %}; font-weight:600;">
+                    {{ e.spots_left }} {{ t('event_spot_remaining') if e.spots_left == 1 else t('event_spots_remaining') }}
+                  </span>
                 </span>
-                {% endif %}
               </div>
-              <span style="font-size:0.86rem; color:#555; line-height:1.7;">
-                📅 {{ e.event_date }} at {{ e.event_time }}<br>
-                📍 {{ e.location }}<br>
-                {% if e.wards %}
-                  🗺 {{ t('event_wards_label_plural') if e.wards|length > 1 else t('event_wards_label') }}: {{ e.wards | join(', ') }}<br>
-                {% endif %}
-                <span style="color:{% if e.spots_left <= 5 %}#c8392b{% else %}#2e7d50{% endif %}; font-weight:600;">
-                  {{ e.spots_left }} {{ t('event_spot_remaining') if e.spots_left == 1 else t('event_spots_remaining') }}
-                </span>
-                {% if e.already_rsvpd %}
-                <br><span style="color:#856404; font-size:0.82rem;">
-                  {{ t('event_already_registered_note') }}
-                </span>
-                {% endif %}
-              </span>
+              {% if e.already_rsvpd and e.rsvp_id %}
+              <button type="button"
+                      onclick="if(confirm('{{ t('done_rsvp_cancel_confirm') }}')) document.getElementById('cancel_form_{{ e.event_id }}').submit();"
+                      style="flex-shrink:0; font-size:0.78rem; padding:0.3rem 0.7rem;
+                             background:white; color:#c8392b; border:1px solid #c8392b;
+                             border-radius:4px; cursor:pointer; white-space:nowrap;
+                             margin-top:0.2rem;">
+                {{ t('done_rsvp_cancel_btn') }}
+              </button>
+              {% endif %}
             </div>
           </label>
         </div>

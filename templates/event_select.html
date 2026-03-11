@@ -16,6 +16,17 @@
   <h1>{{ t('eselect_title') }}</h1>
   <p class="subtitle">{{ t('eselect_subtitle') }}</p>
 
+  {# Hidden cancel forms — must be outside the main form to avoid nesting #}
+  {% for e in events %}
+  {% if e.already_rsvpd and e.rsvp_id %}
+  <form id="cancel-form-{{ e.event_id }}" method="POST"
+        action="{{ url_for('rsvp_cancel', rsvp_id=e.rsvp_id) }}"
+        style="display:none;">
+    <input type="hidden" name="next" value="event_select">
+  </form>
+  {% endif %}
+  {% endfor %}
+
   <form method="POST" action="{{ url_for('event_select') }}">
 
     {% if events %}
@@ -24,7 +35,8 @@
       <div>
         <input type="radio" id="event_{{ e.event_id }}"
                name="event_id" value="{{ e.event_id }}"
-               {% if e.already_rsvpd %}checked{% elif loop.first and not events|selectattr('already_rsvpd')|list %}checked{% endif %}>
+               {% if e.already_rsvpd %}checked
+               {% elif loop.first and not events|selectattr('already_rsvpd')|list and not is_repeat_visit %}checked{% endif %}>
         <label class="choice-label" for="event_{{ e.event_id }}"
                style="{% if e.already_rsvpd %}border-color:#f0ad4e; background:#fffdf0;{% endif %}">
           <div style="width:100%;">
@@ -51,6 +63,17 @@
               <br><span style="color:#856404; font-size:0.82rem;">
                 {{ t('event_already_registered_note') }}
               </span>
+              {% if e.rsvp_id %}
+              <br>
+              <button type="button"
+                      style="margin-top:0.4rem; font-size:0.8rem; color:#c8392b;
+                             background:none; border:1px solid #c8392b;
+                             border-radius:3px; padding:0.15rem 0.5rem;
+                             cursor:pointer;"
+                      onclick="document.getElementById('cancel-form-{{ e.event_id }}').submit()">
+                ✕ Cancel RSVP
+              </button>
+              {% endif %}
               {% endif %}
             </span>
           </div>

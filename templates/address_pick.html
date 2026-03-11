@@ -1,24 +1,23 @@
 {% extends "base.html" %}
 {% set progress = 45 %}
-{% block title %}{{ t('pick_title') }} · Lawrence Energy Program{% endblock %}
+{% block title %}Select Your Address · Lawrence Energy Program{% endblock %}
 
 {% block content %}
 <div class="card">
 
   <div class="steps">
-    <div class="step done">{{ t('step_role') }}</div>
-    <div class="step done">{{ t('step_street') }}</div>
-    <div class="step active">{{ t('step_address') }}</div>
-    <div class="step">{{ t('step_intent') }}</div>
-    <div class="step">{{ t('step_contact') }}</div>
+    <div class="step done">Role</div>
+    <div class="step done">Street</div>
+    <div class="step active">Address</div>
+    <div class="step">Intent</div>
+    <div class="step">Contact</div>
   </div>
 
-  <h1>{{ t('pick_title') }}</h1>
+  <h1>Select Your Address</h1>
   <p class="subtitle">
-    {{ t('pick_found') }} <strong>{{ addresses|length }}</strong>
-    {{ t('pick_address_plural') if addresses|length != 1 else t('pick_address_singular') }}
-    {{ t('pick_on_street') }} <strong>{{ street_name }}</strong>.
-    {% if role %}{{ t('pick_showing_for') }} <strong>{{ role }}</strong>.{% endif %}
+    We found <strong>{{ addresses|length }}</strong> address{{ 'es' if addresses|length != 1 else '' }}
+    on <strong>{{ street_name }}</strong>.
+    {% if role %}Showing results for: <strong>{{ role }}</strong>.{% endif %}
   </p>
 
   {% if error %}
@@ -28,14 +27,14 @@
   {% if addresses %}
   <form method="POST" action="{{ url_for('address_pick') }}">
 
-    <label for="address_select">{{ t('pick_select_label') }}</label>
+    <label for="address_select">Your Address</label>
     <select id="address_select" name="account_number"
             style="width:100%; padding:0.6rem 0.75rem; border:1px solid #bbb;
                    border-radius:5px; font-size:0.95rem; margin-bottom:1.1rem;
                    background:white;"
             onchange="syncUnit(this)"
             required>
-      <option value="">{{ t('pick_select_default') }}</option>
+      <option value="">— Select your address —</option>
       {% for a in addresses %}
       <option value="{{ a.account_number }}"
               data-unit="{{ a.service_unit }}"
@@ -43,71 +42,71 @@
         {{ a.display_address }}
       </option>
       {% endfor %}
-      {% if role != 'Landlord' and role != 'Arrendador/a' %}
+      {% if role != 'Landlord' %}
       <option value="MANUAL" data-unit="" data-display="">
-        {{ t('pick_not_listed') }}
+        My address isn't listed — enter it manually
       </option>
       {% endif %}
     </select>
 
+    <!-- Manual entry fields — shown only when MANUAL is selected -->
     <div id="manual_entry" style="display:none; margin-bottom:1.1rem;">
       <div class="alert alert-info" style="margin-bottom:0.8rem;">
-        {{ t('pick_manual_alert') }}
+        No problem — enter your address below and we'll still connect you
+        with the program.
       </div>
-      <label for="manual_address">{{ t('pick_manual_street_label') }}</label>
+      <label for="manual_address">Street Address</label>
       <input type="text" id="manual_address" name="manual_address"
              placeholder="e.g. 12 Exeter St"
              style="margin-bottom:0.7rem;">
-      <label for="manual_unit">
-        {{ t('pick_manual_unit_label') }}
-        <span style="font-weight:400; color:#777;">{{ t('pick_manual_unit_hint') }}</span>
-      </label>
+      <label for="manual_unit">Unit Number <span style="font-weight:400; color:#777;">(if applicable)</span></label>
       <input type="text" id="manual_unit" name="manual_unit"
              placeholder="e.g. 3B"
              style="margin-bottom:0;">
     </div>
 
+    <!-- Hidden fields populated by JS -->
     <input type="hidden" id="service_unit"    name="service_unit"    value="">
     <input type="hidden" id="display_address" name="display_address" value="">
 
     <div class="btn-row">
-      <button type="submit" class="btn btn-primary">{{ t('pick_confirm_btn') }}</button>
-      <a href="{{ url_for('address_street') }}" class="btn btn-outline">{{ t('back_btn') }}</a>
+      <button type="submit" class="btn btn-primary">This Is My Address →</button>
+      <a href="{{ url_for('address_street') }}" class="btn btn-outline">← Back</a>
     </div>
 
   </form>
 
   {% else %}
-  {% if role != 'Landlord' and role != 'Arrendador/a' %}
+  <!-- No addresses found at all for this street + role -->
+  {% if role != 'Landlord' %}
   <div class="alert alert-info" style="margin-bottom:1.2rem;">
-    {{ t('pick_no_records_alert') }}
+    We don't have records for this street, but you can still register.
+    Enter your address below and we'll connect you with the program.
   </div>
   <form method="POST" action="{{ url_for('address_pick') }}">
     <input type="hidden" name="account_number" value="MANUAL">
 
-    <label for="manual_address_b">{{ t('pick_manual_street_label') }}</label>
+    <label for="manual_address_b">Street Address</label>
     <input type="text" id="manual_address_b" name="manual_address"
            value="{{ street_name }}" placeholder="e.g. 12 Exeter St">
 
-    <label for="manual_unit_b">
-      {{ t('pick_manual_unit_label') }}
-      <span style="font-weight:400; color:#777;">{{ t('pick_manual_unit_hint') }}</span>
-    </label>
-    <input type="text" id="manual_unit_b" name="manual_unit" placeholder="e.g. 3B">
+    <label for="manual_unit_b">Unit Number <span style="font-weight:400; color:#777;">(if applicable)</span></label>
+    <input type="text" id="manual_unit_b" name="manual_unit"
+           placeholder="e.g. 3B">
 
     <input type="hidden" name="service_unit"    value="">
     <input type="hidden" name="display_address" value="">
 
     <div class="btn-row">
-      <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
-      <a href="{{ url_for('address_street') }}" class="btn btn-outline">{{ t('pick_try_street_btn') }}</a>
+      <button type="submit" class="btn btn-primary">Continue →</button>
+      <a href="{{ url_for('address_street') }}" class="btn btn-outline">← Try different street</a>
     </div>
   </form>
   {% else %}
   <div class="alert alert-error">
-    {{ t('pick_no_props_error') }} <strong>{{ street_name }}</strong>.
-    <a href="{{ url_for('address_street') }}">{{ t('pick_try_different') }}</a> or
-    <a href="{{ url_for('address_not_found') }}">{{ t('pick_get_help') }}</a>.
+    No properties found on <strong>{{ street_name }}</strong>.
+    <a href="{{ url_for('address_street') }}">Try a different street</a> or
+    <a href="{{ url_for('address_not_found') }}">get help from an Energy Advocate</a>.
   </div>
   {% endif %}
   {% endif %}
@@ -120,10 +119,12 @@
 function syncUnit(sel) {
   const opt    = sel.options[sel.selectedIndex];
   const manual = document.getElementById("manual_entry");
+
   if (opt.value === "MANUAL") {
     if (manual) manual.style.display = "block";
     document.getElementById("service_unit").value    = "";
     document.getElementById("display_address").value = "";
+    // Remove required from select so manual fields drive submission
     sel.removeAttribute("required");
   } else {
     if (manual) manual.style.display = "none";
@@ -131,5 +132,11 @@ function syncUnit(sel) {
     document.getElementById("display_address").value = opt.dataset.display || "";
   }
 }
+
+// Sync on page load in case browser pre-selects a value (back button / autocomplete)
+window.addEventListener("DOMContentLoaded", function() {
+  const sel = document.getElementById("address_select");
+  if (sel && sel.value) syncUnit(sel);
+});
 </script>
 {% endblock %}

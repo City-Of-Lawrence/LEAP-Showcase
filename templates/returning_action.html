@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% set progress = 50 %}
+{% block title %}{{ t('returning_title') }} · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <h1>{{ t('returning_title') }}</h1>
+  {% if events %}
+  <p class="subtitle">{{ t('returning_subtitle_events') }}</p>
+  {% else %}
+  <p class="subtitle">{{ t('returning_subtitle_no_events') }}</p>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('returning_action') }}">
+
+    {% if events %}
+    <p style="font-weight:700; font-size:0.95rem; color:#1a3a5c; margin-bottom:0.6rem;">
+      {{ t('returning_rsvp_prompt') }}
+    </p>
+    <div class="choices" style="margin-bottom:1.6rem;">
+      {% for e in events %}
+      <div>
+        <input type="radio" id="event_{{ e.event_id }}"
+               name="event_id" value="{{ e.event_id }}">
+        <label class="choice-label" for="event_{{ e.event_id }}">
+          <div>
+            <strong>{{ e.name }}</strong><br>
+            <span style="font-size:0.86rem; color:#555; line-height:1.7;">
+              📅 {{ e.event_date }} at {{ e.event_time }}&nbsp;&nbsp;
+              📍 {{ e.location }}<br>
+              {% if e.wards %}
+                🗺 {{ t('event_wards_label_plural') if e.wards|length > 1 else t('event_wards_label') }}: {{ e.wards|join(', ') }}<br>
+              {% endif %}
+              <span style="color:{% if e.spots_left <= 5 %}#c8392b{% else %}#2e7d50{% endif %}; font-weight:600;">
+                {{ e.spots_left }} {{ t('event_spot_remaining') if e.spots_left == 1 else t('event_spots_remaining') }}
+              </span>
+            </span>
+          </div>
+        </label>
+      </div>
+      {% endfor %}
+      <div>
+        <input type="radio" id="event_none" name="event_id" value="" checked>
+        <label class="choice-label" for="event_none">{{ t('returning_no_event_option') }}</label>
+      </div>
+    </div>
+    <hr style="border:none; border-top:1px solid #e5eaf0; margin-bottom:1.6rem;">
+    {% endif %}
+
+    <p style="font-weight:700; font-size:0.95rem; color:#1a3a5c; margin-bottom:0.6rem;">
+      {{ t('returning_action_prompt') }}
+    </p>
+    <div class="choices" style="margin-bottom:1.4rem;">
+      <div>
+        <input type="radio" id="action_assistance" name="action" value="assistance" checked>
+        <label class="choice-label" for="action_assistance">
+          <div>
+            <strong>{{ t('returning_action_assistance_title') }}</strong><br>
+            <span style="font-size:0.86rem; color:#555;">
+              {{ t('returning_action_assistance_body') }}
+              {% if not events %}
+                {{ t('returning_action_assistance_no_events') }}
+              {% endif %}
+            </span>
+          </div>
+        </label>
+      </div>
+      <div>
+        <input type="radio" id="action_enroll" name="action" value="enroll">
+        <label class="choice-label" for="action_enroll">
+          <div>
+            <strong>{{ t('returning_action_enroll_title') }}</strong><br>
+            <span style="font-size:0.86rem; color:#555;">
+              {{ t('returning_action_enroll_body') }}
+            </span>
+          </div>
+        </label>
+      </div>
+      <div>
+        <input type="radio" id="action_enrolled" name="action" value="enrolled_update">
+        <label class="choice-label" for="action_enrolled">
+          <div>
+            <strong>{{ t('returning_action_enrolled_title') }}</strong><br>
+            <span style="font-size:0.86rem; color:#555;">
+              {{ t('returning_action_enrolled_body') }}
+            </span>
+          </div>
+        </label>
+      </div>
+      <div>
+        <input type="radio" id="action_other" name="action" value="something_else">
+        <label class="choice-label" for="action_other">
+          {{ t('returning_action_other') }}
+        </label>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

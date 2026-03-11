@@ -1,9 +1,12 @@
+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
+
+
 JLXWSVRHE6
 https://www.cityoflawrence.com/leap
 http://localhost:5000/
 
 569Y25GDUY for account 0110 0000 0114 A
-http://localhost:5000/register?upin=569Y25GDUY
+http://localhost:5000/register?upin= 569Y25GDUY
 
 Empty the table of resistartion 
 DELETE FROM registrations
@@ -13,5 +16,55 @@ the official enrollment url to
 
 http://localhost:5000/admin
 
-Ruben:
-https://lawrencema-my.sharepoint.com/my?id=%2Fpersonal%2Fanil%5Fnavkal%5Fcityoflawrence%5Fcom%2FDocuments%2FCFP%20V2%2E0%2FEnergy%20Advocate%2FJob%20descrition%2FApplication%20Data%2FRuben&viewid=fbbf45f4%2Dc68e%2D49ab%2Da0e4%2D95fdf524a244&FolderCTID=0x0120000AA74B7768192E47BC1219C514B3C443
+Sample manula entery
+
+107 HAWTHORNE WAY	APT 306
+106 HAWTHORNE WAY	APT 323
+101 HAWTHORNE WAY	APT 135
+102 HAWTHORNE WAY	APT 131
+107 HAWTHORNE WAY	APT 336
+103 HAWTHORNE WAY	APT 211
+101 HAWTHORNE WAY	APT 125
+102 HAWTHORNE WAY	APT 121
+103 HAWTHORNE WAY	APT 212
+
+Correction to LEAPMailings_clean.sqlite
+0066 0001 0001 A 50 ISLAND ST #1 Vision ID 104743
+60-0-2-A => 0060 0000 0002 AA
+66-5-1-175 => 0066 0001 0001 | 50 ISLAND ST APT 411 BLDG 9, LAWRENCE, MA 01840
+104207	0131 0002 0001 A	131/2/1//	Y	N	BERKELEY ST	131 BERKELEY ST #1
+104208	0131 0002 0002 A	131/2/2//	Y	N	BERKELEY ST	131 BERKELEY ST #2
+104209	0131 0002 0003 A	131/2/3//	Y	N	BERKELEY ST	131 BERKELEY ST #3
+104210	0131 0002 0004 A	131/2/4//	Y	N	BERKELEY ST	131 BERKELEY ST #4
+104211	0131 0002 0005 A	131/2/5//	Y	N	BERKELEY ST	131 BERKELEY ST #5
+104212	0131 0002 0006 A	131/2/6//	Y	N	BERKELEY ST	131 BERKELEY ST #6
+
+131 BERKELEY ST	APT 4	131-44-1-139	131 BERKELEY ST APT 4, LAWRENCE, MA 01841
+131 BERKELEY ST	APT 3	131-44-1-139	131 BERKELEY ST APT 3, LAWRENCE, MA 01841
+131 BERKELEY ST	APT 2	131-44-1-139	131 BERKELEY ST APT 2, LAWRENCE, MA 01841
+131 BERKELEY ST	APT 1	131-44-1-139	PO BOX 138, WOBURN, MA 01801
+131 BERKELEY ST	APT 5	131-44-1-139	131 BERKELEY ST APT 5, LAWRENCE, MA 01841
+==========================
+
+…or create a new repository on the command line
+
+echo "# lean_app" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/EnergizeCoL/lean_app.git
+git push -u origin main
+
+…or push an existing repository from the command line
+
+git remote add origin https://github.com/EnergizeCoL/lean_app.git
+git branch -M main
+git push -u origin main
+
+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
+@#022l&6^man
+
+PS T:\Mass Save\CFP V2.0\SoftwareDevlopment\py\leap_app\.venv> python -m venv "\\handel\ToA\Mass Save\CFP V2.0\SoftwareDevlopment\py\leap_app\.venv" --upgrade
+PS T:\Mass Save\CFP V2.0\SoftwareDevlopment\py\leap_app\.venv> python -m venv "\\handel\ToA\Mass Save\CFP V2.0\SoftwareDevlopment\py\leap_app\.venv" --upgrade^C
+PS T:\Mass Save\CFP V2.0\SoftwareDevlopment\py\leap_app\.venv> & "\\handel\ToA\Mass Save\CFP V2.0\SoftwareDevlopment\py\leap_app\.venv\Scripts\Activate.ps1"

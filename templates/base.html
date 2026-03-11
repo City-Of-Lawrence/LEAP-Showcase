@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -16,7 +16,7 @@
 
     /* ── Header ── */
     header {
-      background: #1a3a5c;
+      background: #1a3a5c;   /* Lawrence dark navy */
       color: white;
       padding: 1.8rem 2.5rem;
       display: flex;
@@ -37,51 +37,67 @@
       opacity: 0.85;
       margin-top: 0.2rem;
     }
-    /* Language toggle */
-    .lang-toggle {
-      margin-left: auto;
-      flex-shrink: 0;
-    }
-    .lang-toggle a {
+
+    /* ── Seal link ── */
+    .seal-link {
       display: inline-block;
-      padding: 0.4rem 1rem;
-      border: 2px solid rgba(255,255,255,0.6);
-      border-radius: 20px;
-      color: white;
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      transition: background 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+      line-height: 0;
+      border-radius: 50%;
+      transition: opacity .2s;
     }
-    .lang-toggle a:hover {
-      background: rgba(255,255,255,0.15);
-      border-color: white;
-    }
+    .seal-link:hover { opacity: 0.8; }
 
     /* ── Progress bar ── */
-    .progress-bar { background: #d0dce8; height: 6px; }
+    .progress-bar {
+      background: #d0dce8;
+      height: 6px;
+    }
     .progress-bar .fill {
-      background: #c8392b;
+      background: #c8392b;   /* Lawrence red */
       height: 100%;
       transition: width 0.3s ease;
     }
 
     /* ── Main content area ── */
-    main { max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
-    main.wide { max-width: 100%; margin: 1.5rem 0; padding: 0 1.5rem; }
+    main {
+      max-width: 640px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    main.wide {
+      max-width: 100%;
+      margin: 1.5rem 0;
+      padding: 0 1.5rem;
+    }
     .card {
       background: white;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,.10);
       padding: 2rem 2.2rem;
     }
-    h1 { font-size: 1.35rem; color: #1a3a5c; margin-bottom: 0.4rem; }
-    .subtitle { color: #555; font-size: 0.92rem; margin-bottom: 1.6rem; line-height: 1.5; }
+    h1 {
+      font-size: 1.35rem;
+      color: #1a3a5c;
+      margin-bottom: 0.4rem;
+    }
+    .subtitle {
+      color: #555;
+      font-size: 0.92rem;
+      margin-bottom: 1.6rem;
+      line-height: 1.5;
+    }
 
     /* ── Forms ── */
-    label { display: block; font-weight: 600; margin-bottom: 0.35rem; font-size: 0.93rem; }
-    input[type="text"], input[type="email"], input[type="tel"] {
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      font-size: 0.93rem;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
       width: 100%;
       padding: 0.6rem 0.75rem;
       border: 1px solid #bbb;
@@ -146,18 +162,35 @@
 
     /* ── Search results ── */
     .result-list { list-style: none; margin-top: 0.8rem; }
-    .result-list li { border-bottom: 1px solid #eee; padding: 0.6rem 0; }
-    .result-list li a { color: #1a3a5c; text-decoration: none; font-weight: 500; }
+    .result-list li {
+      border-bottom: 1px solid #eee;
+      padding: 0.6rem 0;
+    }
+    .result-list li a {
+      color: #1a3a5c;
+      text-decoration: none;
+      font-weight: 500;
+    }
     .result-list li a:hover { text-decoration: underline; }
     .result-list .meta { font-size: 0.82rem; color: #777; }
 
     /* ── Alert / error ── */
-    .alert { padding: 0.75rem 1rem; border-radius: 5px; margin-bottom: 1rem; font-size: 0.92rem; }
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      font-size: 0.92rem;
+    }
     .alert-error { background: #fde8e6; border: 1px solid #e8a09a; color: #7a1f1a; }
     .alert-info  { background: #e8f0f8; border: 1px solid #9ab8d8; color: #1a3a5c; }
 
     /* ── Step indicator ── */
-    .steps { display: flex; gap: 0; margin-bottom: 1.8rem; counter-reset: step; }
+    .steps {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.8rem;
+      counter-reset: step;
+    }
     .step {
       flex: 1;
       text-align: center;
@@ -182,7 +215,12 @@
     .step.done::before   { background: #2e7d50; color: white; content: "✓"; }
 
     /* ── Footer ── */
-    footer { text-align: center; padding: 1.5rem; font-size: 0.78rem; color: #888; }
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.78rem;
+      color: #888;
+    }
 
     /* ── Admin table ── */
     .admin-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; table-layout: auto; }
@@ -206,8 +244,6 @@
     .tag-event   { background: #e8daef; color: #5b2c6f; }
 
     @media (max-width: 500px) {
-      header { padding: 1rem 1rem; }
-      .city-name { font-size: 1.4rem; }
       .card { padding: 1.3rem 1.1rem; }
       .btn-row { flex-direction: column; }
       .btn { width: 100%; text-align: center; }
@@ -218,18 +254,47 @@
 <body>
 
 <header>
-  <img src="{{ url_for('static', filename='Lawrence-Seal.png') }}"
-       alt="City of Lawrence Seal"
-       style="height:110px; width:110px; object-fit:contain; flex-shrink:0; mix-blend-mode:screen;">
-  <div>
+  {# Seal — mid-flow pages get a confirmation dialog, home and done pages go straight home #}
+  {% if progress is defined %}
+  <a href="{{ url_for('index') }}" class="seal-link"
+     onclick="return confirm('{{ t('seal_confirm_msg') }}')">
+    <img src="{{ url_for('static', filename='Lawrence-Seal.png') }}"
+         alt="City of Lawrence Seal"
+         style="height:110px; width:110px; object-fit:contain; mix-blend-mode:screen;">
+  </a>
+  {% else %}
+  <a href="{{ url_for('index') }}" class="seal-link">
+    <img src="{{ url_for('static', filename='Lawrence-Seal.png') }}"
+         alt="City of Lawrence Seal"
+         style="height:110px; width:110px; object-fit:contain; mix-blend-mode:screen;">
+  </a>
+  {% endif %}
+  <div style="flex:1;">
     <div class="city-name">{{ t('city_name') }}</div>
     <div class="program-name">{{ t('program_name') }}</div>
   </div>
-  <div class="lang-toggle">
-    <a href="{{ url_for('set_language', lang=('es' if lang == 'en' else 'en')) }}">
-      {{ t('lang_toggle') }}
-    </a>
+
+  {# Language toggle — hidden on admin pages #}
+  {% if not request.path.startswith('/admin') %}
+  <div style="margin-left:auto; flex-shrink:0;">
+    {% set lang = session.get('lang', 'en') %}
+    {% if lang == 'en' %}
+    <a href="{{ url_for('set_language', lang='es') }}"
+       style="color:white; font-size:0.85rem; font-weight:600;
+              border:1px solid rgba(255,255,255,0.5); border-radius:4px;
+              padding:0.3rem 0.75rem; text-decoration:none;
+              opacity:0.85; white-space:nowrap;"
+       title="Switch to Spanish">🇩🇴 Español</a>
+    {% else %}
+    <a href="{{ url_for('set_language', lang='en') }}"
+       style="color:white; font-size:0.85rem; font-weight:600;
+              border:1px solid rgba(255,255,255,0.5); border-radius:4px;
+              padding:0.3rem 0.75rem; text-decoration:none;
+              opacity:0.85; white-space:nowrap;"
+       title="Switch to English">🇺🇸 English</a>
+    {% endif %}
   </div>
+  {% endif %}
 </header>
 
 {% if progress is defined %}
@@ -243,7 +308,7 @@
 </main>
 
 <footer>
-  {{ t('footer') }}
+  {{ t('footer_text') }}
 </footer>
 
 </body>
