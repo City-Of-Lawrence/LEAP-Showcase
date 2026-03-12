@@ -11,12 +11,12 @@ TRANSLATIONS = {
         "es": "Ciudad de Lawrence",
     },
     "program_name": {
-        "en": "Energy Affordability Program · Mass Save CFP",
-        "es": "Programa de Ahorro de Energía · Mass Save CFP",
+        "en": "Energy Affordability Program · Mass Save - Community First Partnership",
+        "es": "Programa de Ahorro de Energía · Mass Save - Community First Partnership",
     },
     "footer": {
-        "en": "City of Lawrence · Office of Planning and Development · Questions? Call (978) 315-9255",
-        "es": "Ciudad de Lawrence · Oficina de Planificación y Desarrollo · ¿Preguntas? Llame al (978) 315-9255",
+        "en": "Energy Affordability Program · Mass Save - Community First Partnership",
+        "es": "Programa de Asequibilidad de Energía · Mass Save - Community First Partnership",
     },
     "lang_toggle": {
         "en": "Español",
