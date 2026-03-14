@@ -1,0 +1,39 @@
+
+Issued UPIN UFUZLQJERV for account 0102 0000 0030 A
+Issued UPIN 2KZT3TYH3W for account 0241 0002 0002 A
+Issued UPIN 6UEKWH4K8D for account 0157 0000 0081 A
+Issued LEAN-eligible UPIN (OIL) AU9GB9JL68 for account 0079 0000 0080 A
+Issued LMF-eligible UPIN (ELECTRIC) HRUMEHM4RQ for account 0049 0000 0018 A
+
+
+Unit-UPIN issued: C88972UNSG
+  account_number : 0157 0000 0081 A
+  service_unit   :
+  role           : renter
+  ratepayer_id   : 6
+  (No QR code generated -- renter letter QR design is TBD)
+
+Unit-UPIN issued: VP3EJP2PK8
+  account_number : 0079 0000 0080 A
+  service_unit   :
+  role           : renter
+  ratepayer_id   : 7
+  (No QR code generated -- renter letter QR design is TBD)
+
+
+Unit-UPIN issued (SELF-REPORTED -- needs EA resolution):
+  UPIN           : CD8NHDHB4T
+  street_address : 15 No Name Fake Rd
+  service_unit   : Fake 2B
+  role           : renter
+  account_number : SELF_REPORTED
+  ratepayer_id   : 38
+
+Unit-UPIN issued (SELF-REPORTED -- needs EA resolution):
+  UPIN           : V65YQBVMVP
+  street_address : 15 No Name Fake Rd
+  service_unit   :
+  role           : Landlord
+  account_number : SELF_REPORTED
+  ratepayer_id   : 39
+  !! Energy Advocate must verify address and assign real MBLU.

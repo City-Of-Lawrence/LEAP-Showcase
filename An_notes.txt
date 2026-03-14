@@ -62,6 +62,7 @@ git remote add origin https://github.com/EnergizeCoL/lean_app.git
 git branch -M main
 git push -u origin main
 
+EnergizeCoL
 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
 @#022l&6^man
 
