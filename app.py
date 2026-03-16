@@ -161,6 +161,90 @@ def init_schema():
     print("Schema initialised.")
 
 
+def ensure_schema():
+    """
+    Safe schema creation for gunicorn / Render startup.
+    Uses CREATE TABLE IF NOT EXISTS — never drops existing data.
+    Called once at app startup via @app.before_request guard.
+    """
+    conn = sqlite3.connect(DB_UPIN)
+    cur  = conn.cursor()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS registrations (
+            id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+            account_number        TEXT NOT NULL,
+            upin_used             TEXT,
+            normalized_address    TEXT,
+            service_unit          TEXT,
+            role                  TEXT,
+            intent                TEXT,
+            unit_count_reported   INTEGER,
+            unit_count_known      INTEGER,
+            unit_count_flag       TEXT,
+            mass_save_enrolled    TEXT,
+            needs_callback        TEXT,
+            event_rsvp_id         INTEGER,
+            contact_name          TEXT,
+            contact_phone         TEXT,
+            contact_email         TEXT,
+            registered_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            ip_address            TEXT
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS events (
+            event_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT NOT NULL,
+            event_date  TEXT NOT NULL,
+            event_time  TEXT NOT NULL,
+            location    TEXT NOT NULL,
+            capacity    INTEGER NOT NULL DEFAULT 50,
+            status      TEXT NOT NULL DEFAULT 'active'
+                            CHECK(status IN ('active','cancelled')),
+            created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS event_wards (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_id  INTEGER NOT NULL REFERENCES events(event_id),
+            ward      TEXT    NOT NULL
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS event_rsvps (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_id       INTEGER NOT NULL REFERENCES events(event_id),
+            account_number TEXT NOT NULL,
+            upin           TEXT,
+            service_unit   TEXT,
+            rsvp_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            cancelled_at   TIMESTAMP
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS settings (
+            key   TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        )
+    """)
+    cur.execute("INSERT OR IGNORE INTO settings (key,value) VALUES ('events_to_show','2')")
+    conn.commit()
+    conn.close()
+
+
+# Run ensure_schema once at startup (works under both gunicorn and python app.py)
+_schema_ready = False
+
+@app.before_request
+def startup_schema():
+    global _schema_ready
+    if not _schema_ready:
+        ensure_schema()
+        _schema_ready = True
+
+
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
@@ -518,6 +602,70 @@ def register_qr():
                            address=session["normalized_address"],
                            account_number=account_number, prop=prop)
 
+def _complete_renter_upin_login(upin_plain, row):
+    """Shared session setup and redirect for both QR scan and typed renter UPIN paths."""
+    account_number  = row["account_number"]
+    service_unit    = row["service_unit"] or ""
+    normalized_addr = row["normalized_address"] or ""
+
+    prior = get_prior_registration_summary(account_number, service_unit)
+
+    session["account_number"]     = account_number
+    session["service_unit"]       = service_unit
+    session["normalized_address"] = normalized_addr
+    session["role"]               = "renter"
+    session["entry_path"]         = "upin"
+    session["upin_used"]          = "upin"
+    session["upin_plain"]         = upin_plain
+    session["upin_role"]          = "renter"
+    session["is_repeat_visit"]    = prior is not None
+
+    if prior:
+        session["prior_role"]       = prior["role"] or ""
+        session["prior_visit_date"] = (
+            prior["registered_at"][:10] if prior["registered_at"] else ""
+        )
+        return redirect(url_for("welcome_back"))
+
+    return redirect(url_for("event_select"))
+
+
+@app.route("/renter/login", methods=["GET", "POST"])
+def renter_login():
+    """
+    Renter UPIN entry point.
+    GET  with ?upin= — QR scan path: auto-validates and enters flow immediately.
+    GET  without     — shows UPIN entry form for manual typing.
+    POST             — validates UPIN typed into form.
+    'No UPIN' link   — redirects to /renter/start (street path fallback).
+    """
+    error = None
+
+    # QR scan path: UPIN arrives as GET query param — auto-validate, skip form
+    upin_from_qr = request.args.get("upin", "").strip().upper()
+    if request.method == "GET" and upin_from_qr:
+        row = lookup_by_upin(upin_from_qr)
+        if not row or row["upin_type"] != "unit":
+            return render_template("renter_login.html",
+                                   error=t("error_upin_invalid", get_lang()))
+        return _complete_renter_upin_login(upin_from_qr, row)
+
+    # Typed entry path: UPIN submitted via POST form
+    if request.method == "POST":
+        upin_plain = request.form.get("upin", "").strip().upper()
+        lang = get_lang()
+        if not upin_plain:
+            error = t("error_upin_missing", lang)
+        else:
+            row = lookup_by_upin(upin_plain)
+            if not row or row["upin_type"] != "unit":
+                error = t("error_upin_invalid", lang)
+            else:
+                return _complete_renter_upin_login(upin_plain, row)
+
+    return render_template("renter_login.html", error=error)
+
+
 @app.route("/welcome-back", methods=["GET", "POST"])
 def welcome_back():
     """Returning visitor via QR — confirm role then go to short action menu."""
@@ -568,6 +716,20 @@ def welcome_back():
                            prior_role=session.get("prior_role", ""),
                            prior_visit_date=session.get("prior_visit_date", ""),
                            active_rsvps=active_rsvps)
+
+
+@app.route("/renter/start")
+def renter_start():
+    """
+    Street-path entry for renters who have no UPIN.
+    Linked from /renter/login 'no UPIN' fallback.
+    Pre-sets role=renter and skips the role selection screen.
+    """
+    session["role"]            = "renter"
+    session["entry_path"]      = "generic"
+    session["upin_used"]       = "manual"
+    session["is_repeat_visit"] = False
+    return redirect(url_for("address_street"))
 
 
 @app.route("/start", methods=["GET", "POST"])

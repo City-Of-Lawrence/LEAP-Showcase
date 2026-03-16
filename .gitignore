@@ -4,6 +4,9 @@ venv/
 
 # Databases & Data
 *.[Ss][Qq][Ll][Ii][Tt][Ee]
+!upinmgmt.sqlite
+!lawrence_master.sqlite
+!LEAPMailings_clean.sqlite
 *.[Dd][Bb]
 *.[Cc][Ss][Vv]
 *.[Xx][Ll][Ss][Xx]

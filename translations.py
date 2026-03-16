@@ -886,6 +886,31 @@ TRANSLATIONS = {
         "en": "Cancel your registration for this event?",
         "es": "¿Cancelar su registro para este evento?",
     },
+    # ── renter_login.html ────────────────────────────────────────────
+    "renter_login_heading": {
+        "en": "Renter Sign-In",
+        "es": "Acceso para Inquilinos",
+    },
+    "renter_login_subtext": {
+        "en": "Enter the UPIN from your letter or QR code to get started.",
+        "es": "Ingrese el UPIN de su carta o código QR para comenzar.",
+    },
+    "renter_login_upin_label": {
+        "en": "Your UPIN",
+        "es": "Su UPIN",
+    },
+    "renter_login_submit": {
+        "en": "Sign In →",
+        "es": "Ingresar →",
+    },
+    "renter_login_no_upin_text": {
+        "en": "Don't have a UPIN?",
+        "es": "¿No tiene un UPIN?",
+    },
+    "renter_login_no_upin_link": {
+        "en": "Find your address here",
+        "es": "Busque su dirección aquí",
+    },
 }
 
 

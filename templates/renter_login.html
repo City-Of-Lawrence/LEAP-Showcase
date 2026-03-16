@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+
+  <h2>{{ t("renter_login_heading") }}</h2>
+  <p class="subtext">{{ t("renter_login_subtext") }}</p>
+
+  {% if error %}
+  <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('renter_login') }}">
+    <label for="upin">{{ t("renter_login_upin_label") }}</label>
+    <input
+      type="text"
+      id="upin"
+      name="upin"
+      maxlength="10"
+      autocomplete="off"
+      autocapitalize="characters"
+      spellcheck="false"
+      placeholder="XXXXXXXXXX"
+      class="upin-input"
+      autofocus
+    >
+    <button type="submit" class="btn btn-primary">
+      {{ t("renter_login_submit") }}
+    </button>
+  </form>
+
+  <hr>
+
+  <p class="help-text">
+    {{ t("renter_login_no_upin_text") }}
+    <a href="{{ url_for('renter_start') }}">
+      {{ t("renter_login_no_upin_link") }}
+    </a>
+  </p>
+
+</div>
+
+{% endblock %}
