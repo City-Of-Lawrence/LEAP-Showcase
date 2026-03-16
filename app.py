@@ -44,6 +44,7 @@ def inject_globals():
     return {
         "t":    lambda key: t(key, lang),
         "lang": lang,
+        "now":  datetime.now(timezone.utc),
     }
 
 @app.route("/lang/<lang>")

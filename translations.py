@@ -11,8 +11,8 @@ TRANSLATIONS = {
         "es": "Ciudad de Lawrence",
     },
     "program_name": {
-        "en": "Energy Affordability Program · Mass Save - Community First Partnership",
-        "es": "Programa de Ahorro de Energía · Mass Save - Community First Partnership",
+        "en": "Lawrence Energy Affordability Project (LEAP) · Mass Save - Community First Partnership",
+        "es": "Proyecto de Asequibilidad Energética de Lawrence (LEAP) · Mass Save - Community First Partnership",
     },
     "footer": {
         "en": "Energy Affordability Program · Mass Save - Community First Partnership",
@@ -21,6 +21,14 @@ TRANSLATIONS = {
     "lang_toggle": {
         "en": "Español",
         "es": "English",
+    },
+    "demo_banner": {
+        "en": "DEMO SITE",
+        "es": "SITIO DE DEMOSTRACIÓN",
+    },
+    "footer_demo_disclaimer": {
+        "en": "⚠️ DEMO ONLY — Not an official City of Lawrence site. All addresses are fictitious. Data entered is not collected or acted upon.",
+        "es": "⚠️ SOLO DEMOSTRACIÓN — No es un sitio oficial de la Ciudad de Lawrence. Todas las direcciones son ficticias. Los datos ingresados no son recopilados ni procesados.",
     },
 
     # ── ROLES ────────────────────────────────────────────────────────

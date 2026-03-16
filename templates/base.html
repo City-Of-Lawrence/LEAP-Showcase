@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{% block title %}Lawrence Energy Affordability Program{% endblock %}</title>
+  <title>{% block title %}Lawrence Energy Affordability Project (LEAP) — DEMO{% endblock %}</title>
   <style>
     /* ── Reset & base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -276,7 +276,7 @@
 
   {# Language toggle — hidden on admin pages #}
   {% if not request.path.startswith('/admin') %}
-  <div style="margin-left:auto; flex-shrink:0;">
+  <div style="margin-left:auto; flex-shrink:0; text-align:right;">
     {% set lang = session.get('lang', 'en') %}
     {% if lang == 'en' %}
     <a href="{{ url_for('set_language', lang='es') }}"
@@ -293,6 +293,10 @@
               opacity:0.85; white-space:nowrap;"
        title="Switch to English">🇺🇸 English</a>
     {% endif %}
+    <div style="margin-top:0.4rem; font-size:1.05rem; font-weight:800;
+                color:#FF8C00; letter-spacing:0.05em;">
+      {{ t('demo_banner') }}
+    </div>
   </div>
   {% endif %}
 </header>
@@ -308,7 +312,13 @@
 </main>
 
 <footer>
-  {{ t('footer_text') }}
+  {{ t('footer') }}
+  <div style="color:#cc0000; font-weight:600; margin-top:0.4rem;">
+    {{ t('footer_demo_disclaimer') }}
+  </div>
+  <div style="margin-top:0.3rem; color:#aaa;">
+    Last updated: {{ now.strftime('%B %d, %Y') if now is defined else '' }}
+  </div>
 </footer>
 
 </body>
