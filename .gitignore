@@ -20,6 +20,8 @@ venv/
 *.svg
 *.psd
 *.cdr
+!static/Lawrence-Seal.png
+
 
 # System
 __pycache__/
