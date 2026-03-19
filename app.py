@@ -106,7 +106,8 @@ def init_schema():
             contact_phone         TEXT,
             contact_email         TEXT,
             registered_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            ip_address            TEXT
+            ip_address            TEXT,
+            pending_upin          TEXT
         )
     """)
 
@@ -190,9 +191,16 @@ def ensure_schema():
             contact_phone         TEXT,
             contact_email         TEXT,
             registered_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            ip_address            TEXT
+            ip_address            TEXT,
+            pending_upin          TEXT
         )
     """)
+    # Migration guard — adds pending_upin to existing databases without a full reset
+    try:
+        cur.execute("ALTER TABLE registrations ADD COLUMN pending_upin TEXT")
+        conn.commit()
+    except Exception:
+        pass  # Column already exists — safe to ignore
     cur.execute("""
         CREATE TABLE IF NOT EXISTS events (
             event_id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -539,12 +547,14 @@ def save_registration(data):
             account_number, upin_used, normalized_address, service_unit,
             role, intent, unit_count_reported, unit_count_known,
             unit_count_flag, mass_save_enrolled, needs_callback,
-            event_rsvp_id, contact_name, contact_phone, contact_email, ip_address
+            event_rsvp_id, contact_name, contact_phone, contact_email,
+            ip_address, pending_upin
         ) VALUES (
             :account_number, :upin_used, :normalized_address, :service_unit,
             :role, :intent, :unit_count_reported, :unit_count_known,
             :unit_count_flag, :mass_save_enrolled, :needs_callback,
-            :event_rsvp_id, :contact_name, :contact_phone, :contact_email, :ip_address
+            :event_rsvp_id, :contact_name, :contact_phone, :contact_email,
+            :ip_address, :pending_upin
         )""",
         data
     )
@@ -1091,6 +1101,10 @@ def event_select():
     if not session.get("account_number"):
         return redirect(url_for("index"))
 
+    # Zombie gate: street-path renter with no UPIN cannot RSVP
+    if session.get("role") == "renter" and not session.get("upin_plain"):
+        return redirect(url_for("zombie_holding"))
+
     n = int(get_setting("events_to_show", "2"))
     events = get_upcoming_events(limit=n)
     account_number = session["account_number"]
@@ -1181,6 +1195,11 @@ def contact_info():
     if not session.get("account_number"):
         return redirect(url_for("index"))
     if request.method == "POST":
+        # Zombie detection: street-path renter with no UPIN
+        is_zombie = (
+            session.get("role") == "renter"
+            and not session.get("upin_plain")
+        )
         save_registration({
             "account_number":      session["account_number"],
             "upin_used":           session.get("upin_used", "manual"),
@@ -1198,11 +1217,14 @@ def contact_info():
             "contact_phone":       request.form.get("contact_phone", "").strip(),
             "contact_email":       request.form.get("contact_email", "").strip(),
             "ip_address":          request.remote_addr,
+            "pending_upin":        "yes" if is_zombie else None,
         })
-        intent     = session.get("intent")
-        lang       = session.get("lang", "en")
+        lang = session.get("lang", "en")
+        intent = session.get("intent")
         session.clear()
         session["lang"] = lang
+        if is_zombie:
+            return redirect(url_for("zombie_holding"))
         if intent == "enroll":
             return redirect(MASSSAVE_URL)
         return redirect(url_for("done"))
@@ -1249,6 +1271,16 @@ def done():
         active_rsvps = [dict(r) for r in rows]
     return render_template("done.html", masssave_url=MASSSAVE_URL,
                            active_rsvps=active_rsvps)
+
+
+@app.route("/renter/pending")
+def zombie_holding():
+    """
+    Holding screen for street-path renters who have no UPIN yet (Zombies).
+    Shown after contact_info is saved. Session is already cleared at this point —
+    the page is purely informational, no session data required.
+    """
+    return render_template("zombie_holding.html")
 
 
 @app.route("/rsvp/<int:rsvp_id>/cancel", methods=["POST"])
@@ -1312,7 +1344,7 @@ def admin_dashboard():
     rows = upin_db().execute(
         """SELECT id, registered_at, normalized_address, service_unit,
                   role, intent, upin_used, unit_count_flag,
-                  mass_save_enrolled, needs_callback,
+                  mass_save_enrolled, needs_callback, pending_upin,
                   contact_name, contact_phone, contact_email
            FROM registrations ORDER BY registered_at DESC LIMIT 200"""
     ).fetchall()

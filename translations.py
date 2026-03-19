@@ -894,6 +894,50 @@ TRANSLATIONS = {
         "en": "Cancel your registration for this event?",
         "es": "¿Cancelar su registro para este evento?",
     },
+    # ── zombie_holding.html ──────────────────────────────────────────
+    # Shown to street-path renters who completed registration but have no UPIN yet.
+    # They cannot RSVP until a City letter arrives with their personal code.
+    "zombie_title": {
+        "en": "Watch for a Letter from the City",
+        "es": "Espere una Carta de la Ciudad",
+    },
+    "zombie_subtitle": {
+        "en": "Your registration is saved. Because you don't have a personal code yet, we'll mail one to your address. Once it arrives, you can sign up for events and access the full program.",
+        "es": "Su registro ha sido guardado. Como aún no tiene un código personal, se lo enviaremos por correo a su dirección. Cuando llegue, podrá registrarse para eventos y acceder al programa completo.",
+    },
+    "zombie_what_next_heading": {
+        "en": "What happens next?",
+        "es": "¿Qué pasa ahora?",
+    },
+    "zombie_step1": {
+        "en": "The City will mail a letter with your personal code (UPIN) and a QR code to the address you provided.",
+        "es": "La Ciudad enviará una carta con su código personal (UPIN) y un código QR a la dirección que proporcionó.",
+    },
+    "zombie_step2": {
+        "en": "When the letter arrives, scan the QR code or visit this site and enter your UPIN.",
+        "es": "Cuando llegue la carta, escanee el código QR o visite este sitio e ingrese su UPIN.",
+    },
+    "zombie_step3": {
+        "en": "You'll be able to RSVP for City information sessions and complete your enrollment with Mass Save.",
+        "es": "Podrá reservar su lugar en sesiones informativas de la Ciudad y completar su inscripción con Mass Save.",
+    },
+    "zombie_alert": {
+        "en": "💌 Your letter should arrive within 7–10 business days. Keep an eye out for a City of Lawrence envelope.",
+        "es": "💌 Su carta debería llegar en 7 a 10 días hábiles. Esté pendiente de un sobre de la Ciudad de Lawrence.",
+    },
+    "zombie_done_btn": {
+        "en": "Got It — I'll Watch for My Letter",
+        "es": "Entendido — Esperaré Mi Carta",
+    },
+    "zombie_questions": {
+        "en": "Questions? Call the City at",
+        "es": "¿Preguntas? Llame a la Ciudad al",
+    },
+    "zombie_or_visit": {
+        "en": "or visit City Hall.",
+        "es": "o visítenos en el Ayuntamiento.",
+    },
+
     # ── renter_login.html ────────────────────────────────────────────
     "renter_login_heading": {
         "en": "Renter Sign-In",
