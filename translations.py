@@ -894,6 +894,42 @@ TRANSLATIONS = {
         "en": "Cancel your registration for this event?",
         "es": "¿Cancelar su registro para este evento?",
     },
+    # ── address_not_found_confirm.html ──────────────────────────────
+    # Shown when street is not found and role is renter/owner_occupant/small_business.
+    # Resident confirms their manually-entered address before zombie registration.
+    "notfound_confirm_title": {
+        "en": "Is This Your Address?",
+        "es": "¿Es Esta Su Dirección?",
+    },
+    "notfound_confirm_subtitle": {
+        "en": "We couldn't find your street in our records. Please enter your full address below and confirm it's correct — we'll mail your personal code there.",
+        "es": "No encontramos su calle en nuestros registros. Por favor ingrese su dirección completa abajo y confirme que es correcta — le enviaremos su código personal allí.",
+    },
+    "notfound_confirm_address_label": {
+        "en": "Street Address (number and street name)",
+        "es": "Dirección (número y nombre de la calle)",
+    },
+    "notfound_confirm_address_placeholder": {
+        "en": "e.g. 112 Ash St",
+        "es": "ej. 112 Calle Ash",
+    },
+    "notfound_confirm_unit_label": {
+        "en": "Unit Number (if applicable)",
+        "es": "Número de Unidad (si aplica)",
+    },
+    "notfound_confirm_unit_placeholder": {
+        "en": "e.g. Apt 2, Unit 3B",
+        "es": "ej. Apto 2, Unidad 3B",
+    },
+    "notfound_confirm_alert": {
+        "en": "📬 Make sure this address is correct — the City will mail your personal code here. If the letter can't be delivered, we won't be able to reach you.",
+        "es": "📬 Asegúrese de que esta dirección sea correcta — la Ciudad enviará su código personal aquí. Si la carta no puede ser entregada, no podremos contactarle.",
+    },
+    "notfound_confirm_yes_btn": {
+        "en": "Yes, Send My Letter Here →",
+        "es": "Sí, Envíen Mi Carta Aquí →",
+    },
+
     # ── zombie_holding.html ──────────────────────────────────────────
     # Shown to street-path renters who completed registration but have no UPIN yet.
     # They cannot RSVP until a City letter arrives with their personal code.

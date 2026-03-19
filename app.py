@@ -777,11 +777,18 @@ def address_street():
             streets = search_streets_by_role(street_input, role)
             if not streets:
                 lang = get_lang()
-                return render_template("address_street.html",
-                    role=dict(get_roles(lang)).get(role, ""),
-                    error=t("error_street_not_found", lang)
-                          + " <a href='/address/not-found'>"
-                          + t("error_street_not_found_link", lang) + "</a>.")
+                role = session.get("role", "renter")
+                # Landlords and property managers → EA path (assessment DB mismatch)
+                # All others → manual address confirmation → zombie path
+                if role in ("landlord", "property_manager"):
+                    return render_template("address_street.html",
+                        role=dict(get_roles(lang)).get(role, ""),
+                        error=t("error_street_not_found", lang)
+                              + " <a href='/address/not-found'>"
+                              + t("error_street_not_found_link", lang) + "</a>.")
+                # Renter / owner_occupant / small_business → confirm screen
+                session["street_not_found_input"] = street_input
+                return redirect(url_for("address_not_found_confirm"))
             if len(streets) == 1:
                 session["street_name"] = streets[0]
                 return redirect(url_for("address_pick"))
@@ -897,6 +904,57 @@ def address_pick():
 @app.route("/address/not-found")
 def address_not_found():
     return render_template("address_not_found.html")
+
+
+@app.route("/address/not-found-confirm", methods=["GET", "POST"])
+def address_not_found_confirm():
+    """
+    Confirmation screen for renters/owner-occupants/small businesses whose
+    street was not found. They enter their full address; on confirm we save
+    a zombie registration and redirect to the holding screen.
+    """
+    if not session.get("role"):
+        return redirect(url_for("start_generic"))
+
+    if request.method == "POST":
+        manual_address = request.form.get("manual_address", "").strip()
+        manual_unit    = request.form.get("manual_unit", "").strip()
+        if not manual_address:
+            return render_template("address_not_found_confirm.html",
+                                   prefill_address="",
+                                   error=t("error_enter_address", get_lang()))
+        display_address = manual_address
+        if manual_unit:
+            display_address += f" Unit {manual_unit}"
+
+        save_registration({
+            "account_number":      "NOT_FOUND",
+            "upin_used":           "manual",
+            "normalized_address":  display_address,
+            "service_unit":        normalize_unit(manual_unit) if manual_unit else "",
+            "role":                session.get("role", "renter"),
+            "intent":              "pending",
+            "unit_count_reported": None,
+            "unit_count_known":    None,
+            "unit_count_flag":     None,
+            "mass_save_enrolled":  None,
+            "needs_callback":      None,
+            "event_rsvp_id":       None,
+            "contact_name":        "",
+            "contact_phone":       "",
+            "contact_email":       "",
+            "ip_address":          request.remote_addr,
+            "pending_upin":        "yes",
+        })
+        lang = session.get("lang", "en")
+        session.clear()
+        session["lang"] = lang
+        return redirect(url_for("zombie_holding"))
+
+    # GET — prefill with what they typed on the street screen
+    prefill = session.get("street_not_found_input", "")
+    return render_template("address_not_found_confirm.html",
+                           prefill_address=prefill)
 
 
 @app.route("/address-search", methods=["GET", "POST"])
