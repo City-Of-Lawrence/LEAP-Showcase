@@ -836,6 +836,32 @@ def address_pick():
             session["normalized_address"] = display_address
             session["service_unit"]       = service_unit
             session["is_repeat_visit"]    = False
+            # MANUAL renters have no UPIN — save registration immediately and
+            # send to zombie holding so they don't fill out screens they can't complete
+            if session.get("role") == "renter":
+                save_registration({
+                    "account_number":      "MANUAL",
+                    "upin_used":           "manual",
+                    "normalized_address":  display_address,
+                    "service_unit":        normalize_unit(service_unit) if service_unit else "",
+                    "role":                "renter",
+                    "intent":              "pending",
+                    "unit_count_reported": None,
+                    "unit_count_known":    None,
+                    "unit_count_flag":     None,
+                    "mass_save_enrolled":  None,
+                    "needs_callback":      None,
+                    "event_rsvp_id":       None,
+                    "contact_name":        "",
+                    "contact_phone":       "",
+                    "contact_email":       "",
+                    "ip_address":          request.remote_addr,
+                    "pending_upin":        "yes",
+                })
+                lang = session.get("lang", "en")
+                session.clear()
+                session["lang"] = lang
+                return redirect(url_for("zombie_holding"))
             return redirect(url_for("select_intent"))
 
         if not account_number:
