@@ -1397,6 +1397,64 @@ def admin_event_cancel(event_id):
     return redirect(url_for("admin_events"))
 
 
+@app.route("/admin/events/<int:event_id>/attendees")
+@admin_required
+def admin_event_attendees(event_id):
+    """Show all RSVPs for a specific event with contact details."""
+    event = upin_db().execute(
+        "SELECT * FROM events WHERE event_id=?", (event_id,)
+    ).fetchone()
+    if not event:
+        abort(404)
+
+    # Join RSVPs to registrations — LEFT JOIN so RSVPs without a registration row still appear
+    rows = upin_db().execute(
+        """SELECT rv.id          AS rsvp_id,
+                  rv.account_number,
+                  rv.upin,
+                  rv.service_unit,
+                  rv.rsvp_at,
+                  rv.cancelled_at,
+                  r.contact_name,
+                  r.contact_phone,
+                  r.contact_email,
+                  r.normalized_address
+           FROM event_rsvps rv
+           LEFT JOIN registrations r ON r.account_number = rv.account_number
+           WHERE rv.event_id = ?
+           ORDER BY rv.cancelled_at NULLS FIRST, rv.rsvp_at""",
+        (event_id,)
+    ).fetchall()
+
+    attendees = [dict(r) for r in rows]
+
+    # Flag accounts with 2+ cancellations across ALL events — Energy Advocate signal
+    # Only check accounts that appear in this event's list
+    account_numbers = list({a["account_number"] for a in attendees
+                            if a["account_number"] and a["cancelled_at"]})
+    ea_flags = set()
+    for acct in account_numbers:
+        count = upin_db().execute(
+            """SELECT COUNT(*) FROM event_rsvps
+               WHERE account_number=? AND cancelled_at IS NOT NULL""",
+            (acct,)
+        ).fetchone()[0]
+        if count >= 2:
+            ea_flags.add(acct)
+
+    active_count    = sum(1 for a in attendees if not a["cancelled_at"])
+    cancelled_count = sum(1 for a in attendees if a["cancelled_at"])
+    wards           = get_event_wards(event_id)
+
+    return render_template("admin_event_attendees.html",
+                           event=dict(event),
+                           wards=wards,
+                           attendees=attendees,
+                           active_count=active_count,
+                           cancelled_count=cancelled_count,
+                           ea_flags=ea_flags)
+
+
 @app.route("/admin/events/export")
 @admin_required
 def admin_events_export():
