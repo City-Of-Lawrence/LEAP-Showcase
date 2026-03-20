@@ -838,6 +838,10 @@ TRANSLATIONS = {
     },
 
     # ── event_select.html ────────────────────────────────────────────
+    "eselect_address_on_file": {
+        "en": "Mailing address on file:",
+        "es": "Dirección postal registrada:",
+    },
     "eselect_title": {
         "en": "Upcoming Information Sessions",
         "es": "Próximas Sesiones Informativas",

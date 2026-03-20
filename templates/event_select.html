@@ -20,9 +20,7 @@
   {% if address %}
   <div style="background:#eef2f7; border-radius:6px; padding:0.6rem 1rem;
               margin-bottom:1.2rem; font-size:0.88rem; color:#1a3a5c;">
-    📍 <strong>{{ address }}</strong>
-    {% if service_unit %} · Unit <strong>{{ service_unit }}</strong>{% endif %}
-    <span style="color:#555; font-weight:400;"> — {{ t('role_renter') }}</span>
+    📬 {{ t('eselect_address_on_file') }} <strong>{{ address }}{% if service_unit %}, Unit {{ service_unit }}{% endif %}</strong>
   </div>
   {% endif %}
 
