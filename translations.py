@@ -954,8 +954,16 @@ TRANSLATIONS = {
         "es": "Cuando llegue la carta, escanee el código QR o visite este sitio e ingrese su UPIN.",
     },
     "zombie_step3": {
-        "en": "You'll be able to RSVP for City information sessions and complete your enrollment with Mass Save.",
-        "es": "Podrá reservar su lugar en sesiones informativas de la Ciudad y completar su inscripción con Mass Save.",
+        "en": "Once you have your code, you'll be able to register for City information sessions through this portal.",
+        "es": "Una vez que tenga su código, podrá registrarse para sesiones informativas de la Ciudad a través de este portal.",
+    },
+    "zombie_masssave_nudge": {
+        "en": "You can enroll with Mass Save right now — no code needed.",
+        "es": "Puede inscribirse con Mass Save ahora mismo — no necesita ningún código.",
+    },
+    "zombie_masssave_btn": {
+        "en": "Go to Mass Save Now →",
+        "es": "Ir a Mass Save Ahora →",
     },
     "zombie_alert": {
         "en": "💌 Your letter should arrive within 7–10 business days. Keep an eye out for a City of Lawrence envelope.",

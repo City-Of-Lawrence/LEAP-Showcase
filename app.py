@@ -1341,7 +1341,8 @@ def contact_info():
 
 @app.route("/done")
 def done():
-    upin_plain = session.get("upin_plain", "")
+    upin_plain  = session.get("upin_plain", "")
+    is_zombie   = request.args.get("zombie") == "1"
     active_rsvps = []
     if upin_plain:
         rows = upin_db().execute(
@@ -1354,7 +1355,8 @@ def done():
         ).fetchall()
         active_rsvps = [dict(r) for r in rows]
     return render_template("done.html", masssave_url=MASSSAVE_URL,
-                           active_rsvps=active_rsvps)
+                           active_rsvps=active_rsvps,
+                           is_zombie=is_zombie)
 
 
 @app.route("/renter/pending")
