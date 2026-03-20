@@ -35,7 +35,7 @@
 
   {% if address %}
   <div class="address-card" style="margin-bottom:1.2rem;">
-    <div class="addr-main">{{ address }}</div>
+    <div class="addr-main">{{ address }}{% if service_unit %} · Unit {{ service_unit }}{% endif %}</div>
     <div class="addr-meta">{{ t('contact_role_label') }} {{ role }}</div>
   </div>
   {% endif %}

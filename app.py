@@ -589,6 +589,11 @@ def register_qr():
         return render_template("error.html",
             message=t("error_upin_invalid", get_lang())), 404
 
+    # Unit UPINs belong to renters — hand off to renter login flow
+    if row["upin_type"] == "unit":
+        return _complete_renter_upin_login(upin_plain, row)
+
+    # Property UPINs — landlord flow
     account_number = row["account_number"]
     prop = lookup_property(account_number)
     prior = get_prior_registration_summary(account_number)
@@ -599,7 +604,7 @@ def register_qr():
     session["entry_path"]         = "qr"
     session["upin_used"]          = "qr"
     session["upin_plain"]         = upin_plain
-    session["upin_role"]          = "landlord"   # Property UPINs are landlord-only in this prototype
+    session["upin_role"]          = "landlord"
     session["is_repeat_visit"]    = prior is not None
     session.pop("service_unit", None)
 
@@ -1230,7 +1235,8 @@ def event_select():
                            events=events_display,
                            is_repeat_visit=session.get("is_repeat_visit", False),
                            role=dict(get_roles(get_lang())).get(session.get("role", ""), ""),
-                           address=session.get("normalized_address"))
+                           address=session.get("normalized_address"),
+                           service_unit=session.get("service_unit", ""))
 
 
 @app.route("/intent", methods=["GET", "POST"])
@@ -1333,6 +1339,7 @@ def contact_info():
 
     return render_template("contact.html",
                            address=session.get("normalized_address"),
+                           service_unit=session.get("service_unit", ""),
                            role=dict(get_roles(get_lang())).get(session.get("role", ""), ""),
                            intent=session.get("intent", ""),
                            event_rsvp_id=session.get("event_rsvp_id"),
