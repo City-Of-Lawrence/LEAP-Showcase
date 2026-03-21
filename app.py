@@ -20,79 +20,70 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # ------------------------------------------------------------------
 # Config
 # ------------------------------------------------------------------
-MASSSAVE_URL                 = "https://www.masssave.com/community-first/lawrence"
+MASSSAVE_URL                  = "https://www.masssave.com/community-first/lawrence"
 UNIT_COUNT_CONFIRM_MULTIPLIER = 2
 
 # ------------------------------------------------------------------
-# App factory
+# App
 # ------------------------------------------------------------------
+app = Flask(__name__,
+            template_folder=os.path.join(BASE_DIR, "templates"),
+            static_folder=os.path.join(BASE_DIR, "static"))
 
-def create_app():
-    app = Flask(__name__,
-                template_folder=os.path.join(BASE_DIR, "templates"),
-                static_folder=os.path.join(BASE_DIR, "static"))
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-prod")
 
-    app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-prod")
+app.config["ADMIN_PASSWORD"]                = os.environ.get("ADMIN_PASSWORD", "leapadmin2026")
+app.config["MASSSAVE_URL"]                  = MASSSAVE_URL
+app.config["UNIT_COUNT_CONFIRM_MULTIPLIER"] = UNIT_COUNT_CONFIRM_MULTIPLIER
 
-    # Expose config values that routes need at runtime
-    app.config["ADMIN_PASSWORD"]               = os.environ.get("ADMIN_PASSWORD", "leapadmin2026")
-    app.config["MASSSAVE_URL"]                 = MASSSAVE_URL
-    app.config["UNIT_COUNT_CONFIRM_MULTIPLIER"] = UNIT_COUNT_CONFIRM_MULTIPLIER
+# ------------------------------------------------------------------
+# DB teardown
+# ------------------------------------------------------------------
+@app.teardown_appcontext
+def close_dbs(exc):
+    for attr in list(vars(g)):
+        if attr.startswith("_db_"):
+            getattr(g, attr).close()
 
-    # ------------------------------------------------------------------
-    # DB teardown — close all open connections at end of each request
-    # ------------------------------------------------------------------
-    from schema import DB_UPIN, DB_MASTER, DB_OUTREACH
+# ------------------------------------------------------------------
+# Schema — run once at startup (safe, never drops data)
+# ------------------------------------------------------------------
+from schema import ensure_schema
+_schema_ready = False
 
-    @app.teardown_appcontext
-    def close_dbs(exc):
-        for attr in list(vars(g)):
-            if attr.startswith("_db_"):
-                getattr(g, attr).close()
+@app.before_request
+def startup_schema():
+    global _schema_ready
+    if not _schema_ready:
+        ensure_schema()
+        _schema_ready = True
 
-    # ------------------------------------------------------------------
-    # Schema — run once at startup (safe, never drops data)
-    # ------------------------------------------------------------------
-    from schema import ensure_schema
-    _schema_ready = {"done": False}
+# ------------------------------------------------------------------
+# Template globals
+# ------------------------------------------------------------------
+from helpers import get_lang
 
-    @app.before_request
-    def startup_schema():
-        if not _schema_ready["done"]:
-            ensure_schema()
-            _schema_ready["done"] = True
+@app.context_processor
+def inject_globals():
+    lang = get_lang()
+    return {
+        "t":    lambda key: t(key, lang),
+        "lang": lang,
+        "now":  datetime.now(timezone.utc),
+    }
 
-    # ------------------------------------------------------------------
-    # Template globals — t() and lang available in every template
-    # ------------------------------------------------------------------
-    from helpers import get_lang
+# ------------------------------------------------------------------
+# Register blueprints
+# ------------------------------------------------------------------
+from routes.public import public
+from routes.admin  import admin
 
-    @app.context_processor
-    def inject_globals():
-        lang = get_lang()
-        return {
-            "t":    lambda key: t(key, lang),
-            "lang": lang,
-            "now":  datetime.now(timezone.utc),
-        }
-
-    # ------------------------------------------------------------------
-    # Register blueprints
-    # ------------------------------------------------------------------
-    from routes.public import public
-    from routes.admin  import admin
-
-    app.register_blueprint(public)
-    app.register_blueprint(admin)
-
-    return app
-
+app.register_blueprint(public)
+app.register_blueprint(admin)
 
 # ------------------------------------------------------------------
 # Dev entrypoint
 # ------------------------------------------------------------------
-app = create_app()
-
 if __name__ == "__main__":
     from schema import init_schema
     init_schema()
