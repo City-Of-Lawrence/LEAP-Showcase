@@ -12,7 +12,7 @@ Shared helpers in helpers.py, DB/schema management in schema.py.
 
 import os
 from datetime import datetime, timezone
-from flask import Flask, g, session
+from flask import Flask, g, session, send_file
 from translations import t
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -80,6 +80,22 @@ from routes.admin  import admin
 
 app.register_blueprint(public)
 app.register_blueprint(admin)
+
+# ------------------------------------------------------------------
+# TEMPORARY — DB dump download route
+# PURPOSE: One-time download of hosted upinmgmt.sqlite as SQL dump
+#          so local machine can be reseeded from Render (master).
+# REMOVE THIS ROUTE AND THE send_file IMPORT after download is done.
+# ------------------------------------------------------------------
+@app.route('/admin/download-db-dump')
+def download_db_dump():
+    dump_path = '/data/upin_dump.sql'
+    if not os.path.exists(dump_path):
+        return "Dump file not found. Run the dump script in Render shell first.", 404
+    return send_file(dump_path,
+                     as_attachment=True,
+                     download_name='upin_dump.sql',
+                     mimetype='text/plain')
 
 # ------------------------------------------------------------------
 # Dev entrypoint
