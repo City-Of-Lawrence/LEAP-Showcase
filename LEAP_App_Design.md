@@ -1,8 +1,8 @@
 # LEAP Portal — Technical Design Document
-## lean_app (app.py + templates)
+## lean_app (Blueprint architecture)
 ### City of Lawrence · Community First Partnership
 
-*Prepared: March 19, 2026*
+*Prepared: March 19, 2026 · Updated: March 21, 2026*
 *Author: Anil Geo, Advisor to the Mayor for Energy, Environment & Sustainability*
 *Companion document: UPINmgmt_Technical_Context.md*
 
@@ -39,15 +39,47 @@ This document covers the architecture, data flows, registration paths, and desig
 | Password hashing | Argon2 (for UPIN verification) |
 | Translations | Custom `translations.py` (EN + Dominican Spanish) |
 | Excel export/import | openpyxl |
+| Code architecture | Flask Blueprints (`public`, `admin`) |
 | Version control | GitHub (`EnergizeCoL/lean_app`, master branch) |
+| Start command | `gunicorn app:app` (Render dashboard + Procfile) |
 
 ---
 
-## 3. Database Architecture
+## 3. Code Architecture
+
+As of March 21, 2026 the codebase uses Flask Blueprints. `app.py` is ~80 lines.
+
+| File | Purpose |
+|---|---|
+| `app.py` | App creation, config, blueprint registration, DB teardown, schema startup |
+| `schema.py` | DB connection helpers (`upin_db`, `master_db`, `outreach_db`), `ensure_schema()`, `init_schema()` |
+| `helpers.py` | All shared helper functions (lookups, search, registration, events) |
+| `routes/public.py` | Blueprint `"public"` — all resident-facing routes |
+| `routes/admin.py` | Blueprint `"admin"`, `url_prefix="/admin"` — all admin routes |
+| `routes/__init__.py` | Package marker |
+| `translations.py` | EN/ES string dictionary |
+| `templates/` | Jinja2 HTML templates |
+| `static/` | CSS, images |
+
+### URL naming convention
+All `url_for()` calls use blueprint-prefixed endpoint names:
+- Resident routes: `url_for("public.index")`, `url_for("public.event_select")`, etc.
+- Admin routes: `url_for("admin.admin_dashboard")`, `url_for("admin.admin_events")`, etc.
+- Static files: `url_for("static", filename=...)` — no prefix
+
+### Config values
+Passed via `app.config` dict:
+- `app.config["ADMIN_PASSWORD"]` — read from `ADMIN_PASSWORD` env var
+- `app.config["MASSSAVE_URL"]` — Mass Save CFP landing page URL
+- `app.config["UNIT_COUNT_CONFIRM_MULTIPLIER"]` — threshold for unit count flag (default: 2)
+
+---
+
+## 4. Database Architecture
 
 The app connects to three SQLite databases at runtime. All are stored on a persistent Render disk at `/data/`.
 
-### 3.1 upinmgmt.sqlite (`DB_UPIN`)
+### 4.1 upinmgmt.sqlite (`DB_UPIN`)
 The primary operational database. Owned by this app for read/write of registrations, events, and RSVPs. UPINs are read-only from this app's perspective — they are generated and managed by the UPINmgmt offline system.
 
 **Tables (owned by lean_app):**
@@ -126,7 +158,7 @@ role                TEXT
 status              TEXT     -- 'active' or 'revoked'
 ```
 
-### 3.2 lawrence_master.sqlite (`DB_MASTER`)
+### 4.2 lawrence_master.sqlite (`DB_MASTER`)
 Read-only. Contains Lawrence property assessment data from the City Assessor's office.
 
 **Key table: `Assessment_L_Parcels`**
@@ -138,7 +170,7 @@ Read-only. Contains Lawrence property assessment data from the City Assessor's o
 - `owner_1_name` — property owner name
 - `vision_id` — secondary ID from Vision Government Solutions CAMA
 
-### 3.3 LEAPMailings_clean.sqlite (`DB_OUTREACH`)
+### 4.3 LEAPMailings_clean.sqlite (`DB_OUTREACH`)
 Read-only. Contains National Grid outreach data — ratepayer service addresses and unit information. Sanitized version of the raw outreach data (duplicates removed).
 
 **Key table: `Outreach_Master_Unified`**
@@ -149,29 +181,29 @@ Read-only. Contains National Grid outreach data — ratepayer service addresses 
 
 ---
 
-## 4. UPIN Architecture
+## 5. UPIN Architecture
 
 UPINs are the primary identifier for properties and units. They are generated offline by UPINmgmt and never created by this app.
 
-### 4.1 UPIN Types
+### 5.1 UPIN Types
 | Type | Identifies | Used by |
 |---|---|---|
 | `property` | A parcel (building) | Landlords |
 | `unit` | A specific unit within a parcel | Renters |
 
-### 4.2 UPIN Lookup
+### 5.2 UPIN Lookup
 `lookup_by_upin(upin_plain)` iterates all active UPINs and uses Argon2 to verify the hash. Plain-text UPINs are never stored — only the hash exists in the database.
 
-### 4.3 Entry Points
+### 5.3 Entry Points
 - **Home page UPIN box** → `/register` → checks `upin_type` → routes to landlord or renter flow
 - **QR code scan** → `/register?upin=XXXX` → same routing
 - **Renter login page** → `/renter/login` → only accepts `upin_type='unit'`
 
 ---
 
-## 5. Registration Flows
+## 6. Registration Flows
 
-### 5.1 Entry Paths
+### 6.1 Entry Paths
 
 ```
 Home page
@@ -186,25 +218,25 @@ Home page
                                     └── Address not found → Confirm screen → Zombie
 ```
 
-### 5.2 Landlord Flow (UPIN path)
+### 6.2 Landlord Flow (UPIN path)
 ```
 /register → confirm_address → landlord_units → [landlord_units_confirm?]
          → [landlord_repeat? if returning] → landlord_events → landlord_intent
          → contact → done
 ```
 
-### 5.3 Landlord Flow (street path)
+### 6.3 Landlord Flow (street path)
 ```
 /start → address_street → address_pick → landlord_units → landlord_events
        → landlord_intent → contact → done
 ```
 
-### 5.4 Renter Flow (UPIN path — full citizen)
+### 6.4 Renter Flow (UPIN path — full citizen)
 ```
 /renter/login → event_select [with address banner] → contact → done
 ```
 
-### 5.5 Renter Flow (street path — zombie)
+### 6.5 Renter Flow (street path — zombie)
 ```
 /renter/start → address_street
   ├── Street found → address_pick
@@ -215,7 +247,7 @@ Home page
   └── Street not found → address_not_found_confirm → zombie saved → zombie_holding
 ```
 
-### 5.6 Zombie Flow
+### 6.6 Zombie Flow
 ```
 zombie_holding
   ├── "Go to Mass Save Now" → masssave.com (new tab)
@@ -224,7 +256,7 @@ zombie_holding
 Later: resident receives letter → returns with UPIN → graduates to full citizen
 ```
 
-### 5.7 Returning Visitor Flow
+### 6.7 Returning Visitor Flow
 ```
 Any UPIN entry → has_prior_registration() = True
   → welcome_back → [action menu]
@@ -234,60 +266,66 @@ Any UPIN entry → has_prior_registration() = True
 
 ---
 
-## 6. Zombie State
+## 7. Zombie State
 
-### 6.1 Definition
+### 7.1 Definition
 A **Zombie** is a street-path renter who has completed portal registration but has no UPIN yet. They exist in the database but cannot RSVP for events until they receive a City letter with their UPIN.
 
-### 6.2 Zombie Registration Records
+### 7.2 Zombie Registration Records
 All zombie registrations share these characteristics:
 - `pending_upin = 'yes'`
 - `intent = 'pending'` (no intent collected)
 - `account_number` = `'MANUAL'` (address in DB but not listed) or `'NOT_FOUND'` (street not found)
 - No contact info collected for MANUAL path (session cleared before contact screen)
 
-### 6.3 Zombie States
+### 7.3 Zombie States
 | Value | Meaning |
 |---|---|
 | `NULL` | Normal registration — full citizen |
 | `'yes'` | Zombie — awaiting letter |
-| `'graduated'` | Was zombie, returned with UPIN (not yet implemented) |
+| `'graduated'` | Was zombie, returned with UPIN and graduated |
 
-### 6.4 RSVP Gate
+### 7.4 RSVP Gate
 `event_select` checks: `if role == 'renter' and not upin_plain → redirect to zombie_holding`
 
-### 6.5 Graduation (not yet built)
-When a zombie returns with their UPIN, `_complete_renter_upin_login()` should:
-1. Query registrations for matching address + service_unit where `pending_upin='yes'`
-2. Update that row: `pending_upin='graduated'`
-3. Carry forward any contact info from original zombie record if new record has none
+### 7.5 Graduation ✅ (built March 20, 2026)
+When a zombie returns with their UPIN, `_complete_renter_upin_login()`:
+1. Queries registrations for matching `normalized_address` + `service_unit` where `pending_upin='yes'`
+2. Updates that row: `pending_upin='graduated'`
+3. Carries forward contact info from zombie record into session keys (`zombie_contact_name/phone/email`)
+4. Sets `session["graduated_zombie"] = True`
+5. `event_select` shows a green "Welcome back!" banner for graduated zombies
+6. `contact_info` pre-fills from zombie contact data if no repeat-visit record exists
 
 ---
 
-## 7. Admin Panel
+## 8. Admin Panel
 
-### 7.1 Routes
+### 8.1 Routes
 | Route | Purpose |
 |---|---|
 | `/admin` | Registrations dashboard — 200 most recent |
+| `/admin/export/zombies` | CSV export of all `pending_upin='yes'` rows for UPINmgmt CLI option 15 Path B |
 | `/admin/events` | Event management — create, edit, cancel |
 | `/admin/events/<id>/attendees` | Per-event RSVP list with EA flag |
 | `/admin/settings` | Portal configuration |
 | `/admin/events/export` | Excel export of all events |
 | `/admin/events/import` | Excel import of events |
 
-### 7.2 Admin Dashboard Columns
+### 8.2 Admin Dashboard Columns
 `#` · `Date/Time` · `Address` · `Unit` · `Role` · `Intent` · `Path` · `Unit Flag` · `Mass Save: Enrolled?` · `Pending UPIN` · `Callback` · `Name` · `Phone` · `Email`
 
-### 7.3 Energy Advocate Flag
+### 8.3 Energy Advocate Flag
 On the attendee list page: if any registrant has 2+ cancelled RSVPs across ALL events, a yellow EA banner appears and that registrant gets an EA badge. Signal: repeated cancellations may indicate a barrier to participation that needs human follow-up.
 
-### 7.4 Pending UPIN Badge
-`⏳ Awaiting` — amber badge on admin dashboard for registrations where `pending_upin='yes'`. Identifies zombies needing letter issuance via UPINmgmt CLI option 15 Path B.
+### 8.4 Pending UPIN Badges
+- `⏳ Awaiting` — amber badge for `pending_upin='yes'`. Identifies zombies needing letter issuance via UPINmgmt CLI option 15 Path B.
+- `✓ Graduated` — green badge for `pending_upin='graduated'`. Zombie has returned with UPIN.
+- Dashboard stats line shows zombie count. Amber `⬇ Export Zombie Queue (N)` button appears when count > 0.
 
 ---
 
-## 8. Translation System
+## 9. Translation System
 
 All resident-facing strings are stored in `translations.py` as a dict of `{key: {en: ..., es: ...}}`. Spanish is Dominican Spanish register (usted forms throughout).
 
@@ -302,7 +340,7 @@ get_landlord_intents(lang)  # Simplified intent list for landlord flow
 
 ---
 
-## 9. Session Architecture
+## 10. Session Architecture
 
 Flask sessions (cookie-based) carry registration state between screens. Key session variables:
 
@@ -322,12 +360,16 @@ Flask sessions (cookie-based) carry registration state between screens. Key sess
 | `pending_upin` | NOT in session — DB only | admin dashboard |
 | `lang` | set_language | All templates via inject_globals |
 | `admin_logged_in` | admin_login | admin_required decorator |
+| `graduated_zombie` | `_complete_renter_upin_login()` | event_select banner, contact pre-fill |
+| `zombie_contact_name` | `_complete_renter_upin_login()` | contact pre-fill carry-forward |
+| `zombie_contact_phone` | `_complete_renter_upin_login()` | contact pre-fill carry-forward |
+| `zombie_contact_email` | `_complete_renter_upin_login()` | contact pre-fill carry-forward |
 
 **Session clearing:** `session.clear()` is called after `contact_info` POST (after save_registration). `lang` is preserved across the clear. `upin_plain` is NOT preserved (fixed March 11 — was causing session bleed between visitors).
 
 ---
 
-## 10. Key Helper Functions
+## 11. Key Helper Functions
 
 | Function | Purpose |
 |---|---|
@@ -348,7 +390,7 @@ Flask sessions (cookie-based) carry registration state between screens. Key sess
 
 ---
 
-## 11. Schema Migration Strategy
+## 12. Schema Migration Strategy
 
 `ensure_schema()` uses `CREATE TABLE IF NOT EXISTS` — safe for production, never drops data. New columns are added via `ALTER TABLE` guards:
 
@@ -364,13 +406,13 @@ except Exception:
 
 ---
 
-## 12. Known Gaps and Deferred Work
+## 13. Known Gaps and Deferred Work
 
 | Item | Priority | Notes |
 |---|---|---|
-| Admin zombie queue export | High | CSV download for UPINmgmt CLI option 15 Path B |
-| Zombie graduation | High | Recognize returning zombie with UPIN |
-| Landlord street search — both DBs in parallel | Medium | Currently outreach DB is fallback only |
+| ~~Admin zombie queue export~~ | ✅ Done | CSV download at `/admin/export/zombies` |
+| ~~Zombie graduation~~ | ✅ Done | Built March 20 — graduated badge, contact carry-forward |
+| Landlord street search — both DBs in parallel | Medium | Currently outreach DB is fallback only — next session |
 | Render cold start latency | Medium | Free tier spins down after 15 min inactivity |
 | Stakeholder emails | When ready | Drafts complete, need phone number |
 | Event attendance tracking | Low | Check-in mechanism not yet designed |
@@ -379,7 +421,7 @@ except Exception:
 
 ---
 
-## 13. Design Principles
+## 14. Design Principles
 
 1. **Never block a resident.** No dead ends. Every path has a forward exit.
 2. **Collect only what is necessary.** No income, SSN, utility account numbers.
@@ -393,4 +435,4 @@ except Exception:
 
 *City of Lawrence, Massachusetts · LEAP Portal · Pro bono development*
 *Anil Geo, Advisor to the Mayor for Energy, Environment & Sustainability*
-*Design document prepared March 19, 2026*
+*Design document prepared March 19, 2026 · Updated March 21, 2026*
