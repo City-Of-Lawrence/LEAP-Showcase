@@ -36,3 +36,10 @@ instance/
 *.zip
 qr_gallery2.html
 qr_exports/
+*.lnk
+*.code-workspace
+ResetDeployedDbusingConsole.txt
+
+*.lnk
+*.code-workspace
+ResetDeployedDbusingConsole.txt

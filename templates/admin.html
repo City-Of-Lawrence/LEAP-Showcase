@@ -9,9 +9,17 @@
       <h1 style="font-size:1.3rem; color:#1a3a5c;">Registrations Dashboard</h1>
       <p style="font-size:0.85rem; color:#666; margin-top:0.2rem;">
         {{ total }} total &nbsp;·&nbsp; {{ flags }} unit flag(s) &nbsp;·&nbsp; {{ callbacks }} callback request(s)
+        {% if zombies %}&nbsp;·&nbsp; <span style="color:#856404; font-weight:600;">⏳ {{ zombies }} awaiting UPIN</span>{% endif %}
       </p>
     </div>
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+      {% if zombies %}
+      <a href="{{ url_for('admin_export_zombies') }}" class="btn btn-secondary"
+         style="font-size:0.85rem; padding:0.4rem 1rem; background:#fff3cd; color:#856404;
+                border:1px solid #f0ad4e;">
+        ⬇ Export Zombie Queue ({{ zombies }})
+      </a>
+      {% endif %}
       <a href="{{ url_for('admin_events') }}"   class="btn btn-secondary" style="font-size:0.85rem; padding:0.4rem 1rem;">Events</a>
       <a href="{{ url_for('admin_settings') }}" class="btn btn-outline"   style="font-size:0.85rem; padding:0.4rem 1rem;">Settings</a>
       <a href="{{ url_for('admin_logout') }}"   class="btn btn-outline"   style="font-size:0.85rem; padding:0.4rem 1rem;">Sign Out</a>
@@ -70,6 +78,8 @@
         <td>
           {% if r['pending_upin'] == 'yes' %}
             <span class="tag" style="background:#fff3cd; color:#856404;">⏳ Awaiting</span>
+          {% elif r['pending_upin'] == 'graduated' %}
+            <span class="tag" style="background:#dff0d8; color:#2e6b3e;">✓ Graduated</span>
           {% else %}—{% endif %}
         </td>
         <td>

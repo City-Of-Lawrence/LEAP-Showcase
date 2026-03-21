@@ -16,6 +16,18 @@
   <h1>{{ t('eselect_title') }}</h1>
   <p class="subtitle">{{ t('eselect_subtitle') }}</p>
 
+  {# Graduated zombie welcome banner — shown when a returning zombie logs in with their new UPIN #}
+  {% if graduated_zombie %}
+  <div style="background:#d4edda; border:1px solid #c3e6cb; border-radius:6px;
+              padding:0.75rem 1rem; margin-bottom:1.2rem; font-size:0.9rem; color:#155724;">
+    🎉 <strong>Welcome back!</strong>
+    We've linked your registration to your new code.
+    {% if zombie_has_contact %}
+    Your contact information has been carried forward — you can confirm it on the next page.
+    {% endif %}
+  </div>
+  {% endif %}
+
   {# Address confirmation banner — shown for renter UPIN path #}
   {% if address %}
   <div style="background:#eef2f7; border-radius:6px; padding:0.6rem 1rem;
