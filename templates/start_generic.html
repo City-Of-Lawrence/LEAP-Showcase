@@ -20,7 +20,7 @@
   <div class="alert alert-error">{{ error }}</div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('start_generic') }}">
+  <form method="POST" action="{{ url_for('public.start_generic') }}">
     <div class="choices">
       {% for value, label in roles %}
       <div>
@@ -31,7 +31,7 @@
     </div>
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
-      <a href="{{ url_for('index') }}" class="btn btn-outline">{{ t('back_btn') }}</a>
+      <a href="{{ url_for('public.index') }}" class="btn btn-outline">{{ t('back_btn') }}</a>
     </div>
   </form>
 

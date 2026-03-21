@@ -32,7 +32,7 @@
     {% endif %}
   </div>
 
-  <form method="POST" action="{{ url_for('confirm_address') }}">
+  <form method="POST" action="{{ url_for('public.confirm_address') }}">
     <div class="btn-row">
       <button type="submit" name="confirmed" value="yes" class="btn btn-primary">
         {{ t('confirm_yes_btn') }}

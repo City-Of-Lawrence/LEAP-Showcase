@@ -15,7 +15,7 @@
   <div class="alert alert-error">{{ error }}</div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('welcome_back') }}">
+  <form method="POST" action="{{ url_for('public.welcome_back') }}">
 
     <p style="font-weight:600; font-size:0.97rem; color:#1a3a5c; margin-bottom:0.75rem;">
       {% if upin_role %}

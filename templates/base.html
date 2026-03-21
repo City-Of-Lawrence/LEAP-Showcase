@@ -256,14 +256,14 @@
 <header>
   {# Seal — mid-flow pages get a confirmation dialog, home and done pages go straight home #}
   {% if progress is defined %}
-  <a href="{{ url_for('index') }}" class="seal-link"
+  <a href="{{ url_for('public.index') }}" class="seal-link"
      onclick="return confirm('{{ t('seal_confirm_msg') }}')">
     <img src="{{ url_for('static', filename='Lawrence-Seal.png') }}"
          alt="City of Lawrence Seal"
          style="height:110px; width:110px; object-fit:contain; mix-blend-mode:screen;">
   </a>
   {% else %}
-  <a href="{{ url_for('index') }}" class="seal-link">
+  <a href="{{ url_for('public.index') }}" class="seal-link">
     <img src="{{ url_for('static', filename='Lawrence-Seal.png') }}"
          alt="City of Lawrence Seal"
          style="height:110px; width:110px; object-fit:contain; mix-blend-mode:screen;">
@@ -279,14 +279,14 @@
   <div style="margin-left:auto; flex-shrink:0; text-align:right;">
     {% set lang = session.get('lang', 'en') %}
     {% if lang == 'en' %}
-    <a href="{{ url_for('set_language', lang='es') }}"
+    <a href="{{ url_for('public.set_language', lang='es') }}"
        style="color:white; font-size:0.85rem; font-weight:600;
               border:1px solid rgba(255,255,255,0.5); border-radius:4px;
               padding:0.3rem 0.75rem; text-decoration:none;
               opacity:0.85; white-space:nowrap;"
        title="Switch to Spanish">🇩🇴 Español</a>
     {% else %}
-    <a href="{{ url_for('set_language', lang='en') }}"
+    <a href="{{ url_for('public.set_language', lang='en') }}"
        style="color:white; font-size:0.85rem; font-weight:600;
               border:1px solid rgba(255,255,255,0.5); border-radius:4px;
               padding:0.3rem 0.75rem; text-decoration:none;

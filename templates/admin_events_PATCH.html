@@ -26,17 +26,17 @@
 <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
 
   <!-- Existing New Event button — keep as-is, shown here for context -->
-  <a href="{{ url_for('admin_event_new') }}" class="btn btn-primary">+ New Event</a>
+  <a href="{{ url_for('admin.admin_event_new') }}" class="btn btn-primary">+ New Event</a>
 
   <!-- Export button -->
-  <a href="{{ url_for('admin_events_export') }}"
+  <a href="{{ url_for('admin.admin_events_export') }}"
      class="btn btn-outline"
      style="text-decoration:none;">
     ⬇ Export to Excel
   </a>
 
   <!-- Import form -->
-  <form method="POST" action="{{ url_for('admin_events_import') }}"
+  <form method="POST" action="{{ url_for('admin.admin_events_import') }}"
         enctype="multipart/form-data"
         style="display:inline; margin:0;">
     <label style="cursor:pointer;">

@@ -17,7 +17,7 @@
     Enter your street address (no need to include Lawrence or MA).
   </p>
 
-  <form method="POST" action="{{ url_for('address_search') }}">
+  <form method="POST" action="{{ url_for('public.address_search') }}">
     <label for="street">Street Address</label>
     <input type="text" id="street" name="street"
            placeholder="e.g. 47 Park St"
@@ -35,7 +35,7 @@
       <ul class="result-list">
         {% for r in results %}
         <li>
-          <a href="{{ url_for('select_address', acct=r['Account_Number'], unit=r['Service_Unit']) }}">
+          <a href="{{ url_for('public.select_address', acct=r['Account_Number'], unit=r['Service_Unit']) }}">
             {{ r['Service_Address'] }}{% if r['Service_Unit'] %} · {{ r['Service_Unit'] }}{% endif %}
           </a>
           <div class="meta">
@@ -55,7 +55,7 @@
   {% endif %}
 
   <div class="btn-row" style="margin-top:1.5rem;">
-    <a href="{{ url_for('index') }}" class="btn btn-outline">← Back</a>
+    <a href="{{ url_for('public.index') }}" class="btn btn-outline">← Back</a>
   </div>
 
 </div>

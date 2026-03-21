@@ -8,7 +8,7 @@
     <h1>Program Settings</h1>
     <p class="subtitle">Policy values that control app behaviour.</p>
 
-    <form method="POST" action="{{ url_for('admin_settings') }}">
+    <form method="POST" action="{{ url_for('admin.admin_settings') }}">
 
       <label for="events_to_show">
         Number of upcoming events to show landlords
@@ -23,7 +23,7 @@
 
       <div class="btn-row">
         <button type="submit" class="btn btn-primary">Save Settings</button>
-        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">← Dashboard</a>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline">← Dashboard</a>
       </div>
 
     </form>

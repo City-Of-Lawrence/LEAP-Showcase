@@ -24,7 +24,7 @@
   {% endif %}
 
   {% if not streets %}
-  <form method="POST" action="{{ url_for('address_street') }}">
+  <form method="POST" action="{{ url_for('public.address_street') }}">
     <label for="street_name">{{ t('street_label') }}</label>
     <input type="text" id="street_name" name="street_name"
            value="{{ query or '' }}"
@@ -36,7 +36,7 @@
     </p>
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">{{ t('street_search_btn') }}</button>
-      <a href="{{ url_for('start_generic') }}" class="btn btn-outline">{{ t('back_btn') }}</a>
+      <a href="{{ url_for('public.start_generic') }}" class="btn btn-outline">{{ t('back_btn') }}</a>
     </div>
   </form>
 
@@ -46,7 +46,7 @@
     {{ t('street_matching') }} <strong>{{ query }}</strong>.
     {{ t('street_which_one') }}
   </p>
-  <form method="POST" action="{{ url_for('address_confirm_street') }}">
+  <form method="POST" action="{{ url_for('public.address_confirm_street') }}">
     <div class="choices">
       {% for s in streets %}
       <div>
@@ -58,7 +58,7 @@
     </div>
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
-      <a href="{{ url_for('address_street') }}" class="btn btn-outline">{{ t('street_try_again_btn') }}</a>
+      <a href="{{ url_for('public.address_street') }}" class="btn btn-outline">{{ t('street_try_again_btn') }}</a>
     </div>
   </form>
   {% endif %}

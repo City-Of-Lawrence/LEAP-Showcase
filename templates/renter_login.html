@@ -10,7 +10,7 @@
   <div class="alert alert-error">{{ error }}</div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('renter_login') }}">
+  <form method="POST" action="{{ url_for('public.renter_login') }}">
     <label for="upin">{{ t("renter_login_upin_label") }}</label>
     <input
       type="text"
@@ -33,7 +33,7 @@
 
   <p class="help-text">
     {{ t("renter_login_no_upin_text") }}
-    <a href="{{ url_for('renter_start') }}">
+    <a href="{{ url_for('public.renter_start') }}">
       {{ t("renter_login_no_upin_link") }}
     </a>
   </p>

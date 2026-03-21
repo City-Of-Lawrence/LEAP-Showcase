@@ -19,7 +19,7 @@
   <div class="alert alert-error">{{ error }}</div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('select_intent') }}">
+  <form method="POST" action="{{ url_for('public.select_intent') }}">
     <div class="choices">
       {% for value, label in intents %}
       <div>

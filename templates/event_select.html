@@ -40,14 +40,14 @@
   {% for e in events %}
   {% if e.already_rsvpd and e.rsvp_id %}
   <form id="cancel-form-{{ e.event_id }}" method="POST"
-        action="{{ url_for('rsvp_cancel', rsvp_id=e.rsvp_id) }}"
+        action="{{ url_for('public.rsvp_cancel', rsvp_id=e.rsvp_id) }}"
         style="display:none;">
     <input type="hidden" name="next" value="event_select">
   </form>
   {% endif %}
   {% endfor %}
 
-  <form method="POST" action="{{ url_for('event_select') }}">
+  <form method="POST" action="{{ url_for('public.event_select') }}">
 
     {% if events %}
     <div class="choices" style="margin-bottom:1.4rem;">
@@ -118,7 +118,7 @@
 
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
-      <a href="{{ url_for('select_intent') }}" class="btn btn-outline">← {{ t('back_btn') }}</a>
+      <a href="{{ url_for('public.select_intent') }}" class="btn btn-outline">← {{ t('back_btn') }}</a>
     </div>
 
   </form>

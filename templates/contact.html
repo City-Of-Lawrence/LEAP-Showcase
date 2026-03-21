@@ -46,7 +46,7 @@
   </div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('contact_info') }}">
+  <form method="POST" action="{{ url_for('public.contact_info') }}">
     <label for="contact_name">{{ t('contact_name_label') }}</label>
     <input type="text" id="contact_name" name="contact_name"
            placeholder="{{ t('contact_name_placeholder') }}" autocomplete="name"

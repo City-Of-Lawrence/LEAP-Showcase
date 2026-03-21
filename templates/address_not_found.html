@@ -14,7 +14,7 @@
     {{ t('notfound_alert_suffix') }}
   </div>
 
-  <form method="POST" action="{{ url_for('contact_info') }}">
+  <form method="POST" action="{{ url_for('public.contact_info') }}">
     <input type="hidden" name="_path" value="not_found">
 
     <label for="contact_name">{{ t('contact_name_label') }}</label>
@@ -39,7 +39,7 @@
 
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">{{ t('notfound_callback_btn') }}</button>
-      <a href="{{ url_for('index') }}" class="btn btn-outline">{{ t('notfound_start_over_btn') }}</a>
+      <a href="{{ url_for('public.index') }}" class="btn btn-outline">{{ t('notfound_start_over_btn') }}</a>
     </div>
   </form>
 

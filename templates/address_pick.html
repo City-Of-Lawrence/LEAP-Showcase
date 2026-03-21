@@ -25,7 +25,7 @@
   {% endif %}
 
   {% if addresses %}
-  <form method="POST" action="{{ url_for('address_pick') }}">
+  <form method="POST" action="{{ url_for('public.address_pick') }}">
 
     <label for="address_select">Your Address</label>
     <select id="address_select" name="account_number"
@@ -71,7 +71,7 @@
 
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">This Is My Address →</button>
-      <a href="{{ url_for('address_street') }}" class="btn btn-outline">← Back</a>
+      <a href="{{ url_for('public.address_street') }}" class="btn btn-outline">← Back</a>
     </div>
 
   </form>
@@ -83,7 +83,7 @@
     We don't have records for this street, but you can still register.
     Enter your address below and we'll connect you with the program.
   </div>
-  <form method="POST" action="{{ url_for('address_pick') }}">
+  <form method="POST" action="{{ url_for('public.address_pick') }}">
     <input type="hidden" name="account_number" value="MANUAL">
 
     <label for="manual_address_b">Street Address</label>
@@ -99,14 +99,14 @@
 
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">Continue →</button>
-      <a href="{{ url_for('address_street') }}" class="btn btn-outline">← Try different street</a>
+      <a href="{{ url_for('public.address_street') }}" class="btn btn-outline">← Try different street</a>
     </div>
   </form>
   {% else %}
   <div class="alert alert-error">
     No properties found on <strong>{{ street_name }}</strong>.
-    <a href="{{ url_for('address_street') }}">Try a different street</a> or
-    <a href="{{ url_for('address_not_found') }}">get help from an Energy Advocate</a>.
+    <a href="{{ url_for('public.address_street') }}">Try a different street</a> or
+    <a href="{{ url_for('public.address_not_found') }}">get help from an Energy Advocate</a>.
   </div>
   {% endif %}
   {% endif %}

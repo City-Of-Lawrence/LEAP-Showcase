@@ -20,7 +20,7 @@
   <div class="alert alert-error">{{ error }}</div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('landlord_units') }}">
+  <form method="POST" action="{{ url_for('public.landlord_units') }}">
     <label for="unit_count">{{ t('lunits_label') }}</label>
     <input type="number" id="unit_count" name="unit_count"
            min="1" max="500"

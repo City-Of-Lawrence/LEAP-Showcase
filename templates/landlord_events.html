@@ -28,7 +28,7 @@
   {% for e in events %}
   {% if e.already_rsvpd and e.rsvp_id %}
   <form id="cancel_form_{{ e.event_id }}" method="POST"
-        action="{{ url_for('rsvp_cancel', rsvp_id=e.rsvp_id) }}"
+        action="{{ url_for('public.rsvp_cancel', rsvp_id=e.rsvp_id) }}"
         style="display:none;">
     <input type="hidden" name="next" value="landlord_events">
   </form>
@@ -36,7 +36,7 @@
   {% endfor %}
 
   {# ── Main event selection form ── #}
-  <form method="POST" action="{{ url_for('landlord_events') }}">
+  <form method="POST" action="{{ url_for('public.landlord_events') }}">
 
     {% if events %}
       <div class="choices">

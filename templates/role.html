@@ -21,7 +21,7 @@
   <div class="alert alert-error">{{ error }}</div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('select_role') }}">
+  <form method="POST" action="{{ url_for('public.select_role') }}">
     <div class="choices">
       {% for value, label in roles %}
       <div>
