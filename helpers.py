@@ -34,7 +34,40 @@ def get_setting(key, default=""):
 # ------------------------------------------------------------------
 
 def lookup_by_upin(upin_plain):
+    """
+    Fast UPIN lookup using HMAC index column.
+
+    Strategy:
+      1. Compute HMAC-SHA256 of the submitted plaintext UPIN.
+      2. SELECT the single row where upin_hmac matches — O(1) indexed lookup.
+      3. Verify Argon2 on that one row only as a second-factor integrity check.
+
+    Falls back to the legacy full-table Argon2 scan ONLY if UPIN_HMAC_KEY is
+    not set — keeps the app working during the migration window.
+    """
+    import os, hmac, hashlib
     from argon2 import PasswordHasher, exceptions
+
+    hmac_key = os.environ.get("UPIN_HMAC_KEY", "").encode()
+
+    if hmac_key:
+        # Fast path: HMAC index lookup
+        digest = hmac.new(hmac_key, upin_plain.encode(), hashlib.sha256).hexdigest()
+        row = upin_db().execute(
+            "SELECT * FROM upin WHERE upin_hmac=? AND status='active'",
+            (digest,)
+        ).fetchone()
+        if not row:
+            return None
+        # Argon2 integrity check on the single matched row
+        ph = PasswordHasher()
+        try:
+            ph.verify(row["upin_hash"], upin_plain)
+            return row
+        except Exception:
+            return None
+
+    # Slow fallback: full table scan (pre-migration only)
     ph = PasswordHasher()
     for row in upin_db().execute("SELECT * FROM upin WHERE status='active'"):
         try:
