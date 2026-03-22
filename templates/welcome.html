@@ -34,8 +34,23 @@
         ✏️ {{ t('fuel_correct_btn') }}
       </button>
     </div>
-    {# Inline correction dropdown — hidden until button clicked #}
-    <div id="fuel-correction" style="display:none; margin-top:0.6rem;
+    {% endif %}
+  </div>
+
+  {# Civic context note #}
+  <p style="font-size:0.85rem; color:#555; margin-bottom:1.5rem; line-height:1.6;">
+    {{ t('welcome_civic_note') }}
+  </p>
+
+  <p class="subtitle" style="margin-bottom:1.2rem;">
+    <strong>{{ t('welcome_question') }}</strong>
+  </p>
+
+  <form method="POST" action="{{ url_for('public.welcome') }}">
+
+    {# Fuel correction dropdown — inside form so it submits correctly #}
+    {% if assessed_fuel %}
+    <div id="fuel-correction" style="display:none; margin-bottom:1.2rem;
          background:#fff8f8; border:1px solid #f5c6c6; border-radius:4px;
          padding:0.6rem 0.8rem;">
       <div style="font-size:0.85rem; font-weight:600; margin-bottom:0.4rem; color:#7a1f1a;">
@@ -59,18 +74,6 @@
       </div>
     </div>
     {% endif %}
-  </div>
-
-  {# Civic context note #}
-  <p style="font-size:0.85rem; color:#555; margin-bottom:1.5rem; line-height:1.6;">
-    {{ t('welcome_civic_note') }}
-  </p>
-
-  <p class="subtitle" style="margin-bottom:1.2rem;">
-    <strong>{{ t('welcome_question') }}</strong>
-  </p>
-
-  <form method="POST" action="{{ url_for('public.welcome') }}">
 
     <div class="choices" style="margin-bottom:1.4rem;">
 
