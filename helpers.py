@@ -113,18 +113,17 @@ def search_streets_by_role(street_name: str, role: str):
             parts = r["normalized_address"].split(" ", 1)
             if len(parts) == 2:
                 streets.add(parts[1].strip())
-        # Fallback to outreach DB if nothing found
-        if not streets:
-            rows = outreach_db().execute(
-                """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
-                   WHERE UPPER(Service_Address) LIKE ?
-                   ORDER BY Service_Address LIMIT 200""",
-                (pattern,)
-            ).fetchall()
-            for r in rows:
-                parts = r["Service_Address"].split(" ", 1)
-                if len(parts) == 2:
-                    streets.add(parts[1].strip())
+        # Always query outreach DB in parallel — not a fallback
+        rows = outreach_db().execute(
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               ORDER BY Service_Address LIMIT 200""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
 
     elif role == "renter":
         rows = outreach_db().execute(
@@ -190,28 +189,27 @@ def search_addresses_on_street(street_name: str, role: str):
                     "service_unit":    r["service_unit"] or "",
                     "source":          "master",
                 })
-        # Fallback
-        if not results:
-            rows = outreach_db().execute(
-                """SELECT DISTINCT Account_Number, Service_Address, Service_Unit
-                   FROM Outreach_Master_Unified
-                   WHERE UPPER(Service_Address) LIKE ?
-                   ORDER BY Service_Address, Service_Unit LIMIT 500""",
-                (pattern,)
-            ).fetchall()
-            for r in rows:
-                key = r["Account_Number"]
-                if key not in seen:
-                    seen.add(key)
-                    addr = r["Service_Address"]
-                    if r["Service_Unit"]:
-                        addr += f" Unit {r['Service_Unit']}"
-                    results.append({
-                        "account_number":  r["Account_Number"],
-                        "display_address": addr,
-                        "service_unit":    r["Service_Unit"] or "",
-                        "source":          "outreach",
-                    })
+        # Always query outreach DB in parallel — not a fallback
+        rows = outreach_db().execute(
+            """SELECT DISTINCT Account_Number, Service_Address, Service_Unit
+               FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               ORDER BY Service_Address, Service_Unit LIMIT 500""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            key = r["Account_Number"]
+            if key not in seen:
+                seen.add(key)
+                addr = r["Service_Address"]
+                if r["Service_Unit"]:
+                    addr += f" Unit {r['Service_Unit']}"
+                results.append({
+                    "account_number":  r["Account_Number"],
+                    "display_address": addr,
+                    "service_unit":    r["Service_Unit"] or "",
+                    "source":          "outreach",
+                })
 
     elif role == "renter":
         rows = outreach_db().execute(

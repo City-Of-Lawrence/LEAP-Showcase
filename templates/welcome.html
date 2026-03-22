@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% set progress = 55 %}
+{% block title %}{{ t('welcome_title') }} · Lawrence Energy Program{% endblock %}
+
+{% block content %}
+<div class="card">
+
+  <div class="steps">
+    <div class="step done">{{ t('confirm_step_address') }}</div>
+    <div class="step done">{{ t('confirm_step_role') }}</div>
+    <div class="step active">{{ t('confirm_step_intent') }}</div>
+    <div class="step">{{ t('confirm_step_contact') }}</div>
+  </div>
+
+  <h1>{{ t('welcome_title') }}</h1>
+
+  {# Address confirmation banner #}
+  <div style="background:#eef2f7; border-radius:6px; padding:0.75rem 1rem;
+              margin-bottom:1.5rem; font-size:0.9rem; color:#1a3a5c;">
+    📬 {{ t('welcome_address_confirmed') }}
+    <strong>{{ address }}{% if service_unit %}, Unit {{ service_unit }}{% endif %}</strong>
+  </div>
+
+  {# Civic context note #}
+  <p style="font-size:0.85rem; color:#555; margin-bottom:1.5rem; line-height:1.6;">
+    {{ t('welcome_civic_note') }}
+  </p>
+
+  <p class="subtitle" style="margin-bottom:1.2rem;">
+    <strong>{{ t('welcome_question') }}</strong>
+  </p>
+
+  <form method="POST" action="{{ url_for('public.welcome') }}">
+
+    <div class="choices" style="margin-bottom:1.4rem;">
+
+      {# Option 1 — Attend an event #}
+      <div>
+        <input type="radio" id="choice_event" name="choice" value="event" checked>
+        <label class="choice-label" for="choice_event">
+          <div style="width:100%;">
+            <div style="font-weight:600; margin-bottom:0.25rem;">
+              📅 {{ t('welcome_event_title') }}
+            </div>
+            <div style="font-size:0.86rem; color:#555; line-height:1.5;">
+              {{ t('welcome_event_body') }}
+            </div>
+          </div>
+        </label>
+      </div>
+
+      {# Option 2 — Have an Energy Advocate contact me #}
+      <div>
+        <input type="radio" id="choice_assistance" name="choice" value="assistance">
+        <label class="choice-label" for="choice_assistance">
+          <div style="width:100%;">
+            <div style="font-weight:600; margin-bottom:0.25rem;">
+              📞 {{ t('welcome_assistance_title') }}
+            </div>
+            <div style="font-size:0.86rem; color:#555; line-height:1.5;">
+              {{ t('welcome_assistance_body') }}
+            </div>
+          </div>
+        </label>
+      </div>
+
+      {# Option 3 — Enroll with Mass Save directly #}
+      <div>
+        <input type="radio" id="choice_enroll" name="choice" value="enroll">
+        <label class="choice-label" for="choice_enroll">
+          <div style="width:100%;">
+            <div style="font-weight:600; margin-bottom:0.25rem;">
+              ⚡ {{ t('welcome_enroll_title') }}
+            </div>
+            <div style="font-size:0.86rem; color:#555; line-height:1.5;">
+              {{ t('welcome_enroll_body') }}
+            </div>
+          </div>
+        </label>
+      </div>
+
+    </div>
+
+    <div class="btn-row">
+      <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

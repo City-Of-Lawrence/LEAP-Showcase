@@ -986,6 +986,93 @@ TRANSLATIONS = {
         "es": "o visítenos en el Ayuntamiento.",
     },
 
+    # ── welcome.html ─────────────────────────────────────────────────
+    # Combined greeting + intent selection screen for all non-landlord paths.
+    # Replaces the old select_intent screen.
+    "welcome_title": {
+        "en": "Welcome!",
+        "es": "¡Bienvenido/a!",
+    },
+    "welcome_address_confirmed": {
+        "en": "Your address is confirmed:",
+        "es": "Su dirección está confirmada:",
+    },
+    "welcome_question": {
+        "en": "How can we help you today?",
+        "es": "¿Cómo podemos ayudarle hoy?",
+    },
+    "welcome_event_title": {
+        "en": "Attend a City Information Session",
+        "es": "Asistir a una Sesión Informativa de la Ciudad",
+    },
+    "welcome_event_body": {
+        "en": "Reserve your spot at an upcoming free energy information session hosted by the City of Lawrence.",
+        "es": "Reserve su lugar en una próxima sesión informativa gratuita sobre energía organizada por la Ciudad de Lawrence.",
+    },
+    "welcome_event_btn": {
+        "en": "See Available Sessions →",
+        "es": "Ver Sesiones Disponibles →",
+    },
+    "welcome_assistance_title": {
+        "en": "Have an Energy Advocate Contact Me",
+        "es": "Que un Asesor de Energía Me Contacte",
+    },
+    "welcome_assistance_body": {
+        "en": "A City Energy Advocate will reach out to explain your options and walk you through the program at your own pace.",
+        "es": "Un Asesor de Energía de la Ciudad se comunicará para explicarle sus opciones y guiarle por el programa a su ritmo.",
+    },
+    "welcome_assistance_btn": {
+        "en": "Request a Callback →",
+        "es": "Solicitar una Llamada →",
+    },
+    "welcome_enroll_title": {
+        "en": "Enroll with Mass Save Now",
+        "es": "Inscribirse con Mass Save Ahora",
+    },
+    "welcome_enroll_body": {
+        "en": "Go directly to the Mass Save enrollment page to sign up for no-cost energy upgrades. Free and takes about 5 minutes.",
+        "es": "Vaya directamente a la página de inscripción de Mass Save para solicitar mejoras de energía sin costo. Es gratis y toma unos 5 minutos.",
+    },
+    "welcome_enroll_btn": {
+        "en": "Go to Mass Save →",
+        "es": "Ir a Mass Save →",
+    },
+    "welcome_civic_note": {
+        "en": "This is the City of Lawrence's registration booth for the Community First Partnership. Your registration here helps City staff track and support program participation in Lawrence.",
+        "es": "Este es el registro de la Ciudad de Lawrence para la Asociación Community First. Su registro aquí ayuda al personal de la Ciudad a dar seguimiento y apoyo a la participación en el programa.",
+    },
+    # ── already_rsvpd.html ────────────────────────────────────────────
+    # Shown when a visitor tries to register for an event they're already in.
+    "already_rsvpd_title": {
+        "en": "You're Already Registered!",
+        "es": "¡Ya Está Registrado/a!",
+    },
+    "already_rsvpd_subtitle": {
+        "en": "We found an existing registration for the session you selected:",
+        "es": "Encontramos un registro existente para la sesión que seleccionó:",
+    },
+    "already_rsvpd_what_next": {
+        "en": "What would you like to do?",
+        "es": "¿Qué desea hacer?",
+    },
+    "already_rsvpd_keep_btn": {
+        "en": "Keep My Registration →",
+        "es": "Conservar Mi Registro →",
+    },
+    "already_rsvpd_cancel_btn": {
+        "en": "Cancel This Registration",
+        "es": "Cancelar Este Registro",
+    },
+    "already_rsvpd_cancel_confirm": {
+        "en": "Cancel your registration for this event?",
+        "es": "¿Cancelar su registro para este evento?",
+    },
+    # ── event_select.html — RSVP summary banner ───────────────────────
+    "eselect_current_rsvp_banner": {
+        "en": "You are currently registered for:",
+        "es": "Actualmente está registrado/a para:",
+    },
+
     # ── renter_login.html ────────────────────────────────────────────
     "renter_login_heading": {
         "en": "Renter Sign-In",

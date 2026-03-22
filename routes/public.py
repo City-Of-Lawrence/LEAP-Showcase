@@ -145,7 +145,7 @@ def _complete_renter_upin_login(upin_plain, row):
         )
         return redirect(url_for("public.welcome_back"))
 
-    return redirect(url_for("public.event_select"))
+    return redirect(url_for("public.welcome"))
 
 
 @public.route("/renter/login", methods=["GET", "POST"])
@@ -380,7 +380,7 @@ def address_pick():
 
         if role == "landlord":
             return redirect(url_for("public.landlord_units"))
-        return redirect(url_for("public.select_intent"))
+        return redirect(url_for("public.welcome"))
 
     return render_template("address_pick.html", addresses=addresses,
                            street_name=street_name,
@@ -598,7 +598,7 @@ def landlord_events():
                                          session.get("service_unit", ""))
                 session["event_rsvp_id"] = rsvp_id
             else:
-                session["event_rsvp_id"] = event_id_int
+                session["event_rsvp_id"] = existing_rsvps[event_id_int]
         else:
             for event in events_display:
                 if event["already_rsvpd"]:
@@ -671,7 +671,9 @@ def event_select():
                                          session.get("service_unit", ""))
                 session["event_rsvp_id"] = rsvp_id
             else:
+                # Already registered — store correct rsvp_id and show confirmation
                 session["event_rsvp_id"] = existing_rsvps[event_id_int]
+                return redirect(url_for("public.already_rsvpd"))
         if not event_id_str:
             session["no_events_notify"] = True
         return redirect(url_for("public.contact_info"))
@@ -692,23 +694,75 @@ def event_select():
                            zombie_has_contact=zombie_has_contact)
 
 
-@public.route("/intent", methods=["GET", "POST"])
-def select_intent():
+@public.route("/welcome", methods=["GET", "POST"])
+def welcome():
+    """
+    Combined greeting + intent selection screen for all non-landlord paths.
+    Replaces select_intent. Shows confirmed address and three action choices.
+    """
     if not session.get("account_number"):
         return redirect(url_for("public.index"))
+
     if request.method == "POST":
-        intent = request.form.get("intent", "").strip()
-        lang = get_lang()
-        if intent not in dict(get_intents(lang)):
-            return render_template("intent.html", intents=get_intents(lang),
-                                   error=t("error_select_option", lang))
-        session["intent"] = intent
-        if intent == "event":
+        choice = request.form.get("choice", "").strip()
+        if choice == "event":
+            session["intent"] = "event"
             n = int(get_setting("events_to_show", "2"))
             session["no_events_notify"] = len(get_upcoming_events(limit=n)) == 0
             return redirect(url_for("public.event_select"))
-        return redirect(url_for("public.contact_info"))
-    return render_template("intent.html", intents=get_intents(get_lang()))
+        elif choice == "assistance":
+            session["intent"] = "assistance"
+            session["needs_callback"] = "yes"
+            return redirect(url_for("public.contact_info"))
+        elif choice == "enroll":
+            session["intent"] = "enroll"
+            return redirect(url_for("public.contact_info"))
+        # Fallback — unknown choice, re-render
+        return redirect(url_for("public.welcome"))
+
+    return render_template("welcome.html",
+                           address=session.get("normalized_address"),
+                           service_unit=session.get("service_unit", ""))
+
+
+@public.route("/already-registered")
+def already_rsvpd():
+    """
+    Shown when a visitor submits an event they are already registered for.
+    No new slot is consumed. Offers Keep or Cancel.
+    """
+    if not session.get("account_number"):
+        return redirect(url_for("public.index"))
+    rsvp_id    = session.get("event_rsvp_id")
+    upin_plain = session.get("upin_plain", "")
+
+    event = None
+    if rsvp_id:
+        row = upin_db().execute(
+            """SELECT e.name, e.event_date, e.event_time, e.location
+               FROM event_rsvps r JOIN events e ON r.event_id = e.event_id
+               WHERE r.id = ?""",
+            (rsvp_id,)
+        ).fetchone()
+        if row:
+            event = dict(row)
+
+    return render_template("already_rsvpd.html",
+                           event=event,
+                           rsvp_id=rsvp_id,
+                           upin_plain=upin_plain)
+
+
+@public.route("/intent", methods=["GET", "POST"])
+def select_intent():
+    # select_intent is superseded by the welcome screen for all non-landlord paths.
+    # Redirect gracefully so any bookmarked or back-navigated link still works.
+    if not session.get("account_number"):
+        return redirect(url_for("public.index"))
+    role = session.get("role", "")
+    if role == "landlord":
+        return redirect(url_for("public.landlord_intent"))
+    return redirect(url_for("public.welcome"))
 
 
 @public.route("/contact", methods=["GET", "POST"])
