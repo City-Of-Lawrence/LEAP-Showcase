@@ -333,13 +333,13 @@ def save_registration(data):
             role, intent, unit_count_reported, unit_count_known,
             unit_count_flag, mass_save_enrolled, needs_callback,
             event_rsvp_id, contact_name, contact_phone, contact_email,
-            ip_address, pending_upin
+            ip_address, pending_upin, reported_fuel
         ) VALUES (
             :account_number, :upin_used, :normalized_address, :service_unit,
             :role, :intent, :unit_count_reported, :unit_count_known,
             :unit_count_flag, :mass_save_enrolled, :needs_callback,
             :event_rsvp_id, :contact_name, :contact_phone, :contact_email,
-            :ip_address, :pending_upin
+            :ip_address, :pending_upin, :reported_fuel
         )""",
         data
     )

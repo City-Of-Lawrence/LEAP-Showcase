@@ -986,6 +986,60 @@ TRANSLATIONS = {
         "es": "o visítenos en el Ayuntamiento.",
     },
 
+    # ── Fuel type labels (shared — welcome screen correction + admin display) ──
+    "fuel_natural_gas": {
+        "en": "Natural Gas",
+        "es": "Gas Natural",
+    },
+    "fuel_electric": {
+        "en": "Electric Baseboard / Resistance",
+        "es": "Eléctrico (Zócalo / Resistencia)",
+    },
+    "fuel_oil": {
+        "en": "Oil / Fuel Oil",
+        "es": "Petróleo / Aceite Combustible",
+    },
+    "fuel_heat_pump": {
+        "en": "Heat Pump (no backup)",
+        "es": "Bomba de Calor (sin respaldo)",
+    },
+    "fuel_heat_pump_gas": {
+        "en": "Heat Pump + Gas backup",
+        "es": "Bomba de Calor + Respaldo de Gas",
+    },
+    "fuel_heat_pump_oil": {
+        "en": "Heat Pump + Oil backup",
+        "es": "Bomba de Calor + Respaldo de Petróleo",
+    },
+    "fuel_heat_pump_electric": {
+        "en": "Heat Pump + Electric backup",
+        "es": "Bomba de Calor + Respaldo Eléctrico",
+    },
+    "fuel_other": {
+        "en": "Other",
+        "es": "Otro",
+    },
+    "fuel_on_file_label": {
+        "en": "Heating source on file:",
+        "es": "Fuente de calefacción registrada:",
+    },
+    "fuel_correct_btn": {
+        "en": "This is not correct",
+        "es": "Esto no es correcto",
+    },
+    "fuel_correction_prompt": {
+        "en": "What is your actual heating source?",
+        "es": "¿Cuál es su fuente de calefacción real?",
+    },
+    "fuel_correction_note": {
+        "en": "This helps City staff prepare for your program conversation.",
+        "es": "Esto ayuda al personal de la Ciudad a prepararse para su conversación sobre el programa.",
+    },
+    "fuel_select_default": {
+        "en": "— Select your heating source —",
+        "es": "— Seleccione su fuente de calefacción —",
+    },
+
     # ── welcome.html ─────────────────────────────────────────────────
     # Combined greeting + intent selection screen for all non-landlord paths.
     # Replaces the old select_intent screen.

@@ -41,6 +41,7 @@
         <th>Mass Save:<br>Enrolled?</th>
         <th>Pending<br>UPIN</th>
         <th>Callback</th>
+        <th>Fuel&nbsp;⚑</th>
         <th>Name</th>
         <th>Phone</th>
         <th>Email</th>
@@ -84,6 +85,14 @@
         </td>
         <td>
           {% if r['needs_callback'] == 'yes' %}<span class="tag tag-enroll">📞&nbsp;Yes</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if r['reported_fuel'] %}
+            <span class="tag" style="background:#fde8e6; color:#7a1f1a;"
+                  title="Resident reported correction">
+              ⚑ {{ r['reported_fuel'] | replace('_', ' ') | title }}
+            </span>
           {% else %}—{% endif %}
         </td>
         <td>{{ r['contact_name']  or '—' }}</td>

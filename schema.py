@@ -60,7 +60,8 @@ def init_schema():
             contact_email         TEXT,
             registered_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             ip_address            TEXT,
-            pending_upin          TEXT
+            pending_upin          TEXT,
+            reported_fuel         TEXT
         )
     """)
 
@@ -145,15 +146,20 @@ def ensure_schema():
             contact_email         TEXT,
             registered_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             ip_address            TEXT,
-            pending_upin          TEXT
+            pending_upin          TEXT,
+            reported_fuel         TEXT
         )
     """)
-    # Migration guard — adds pending_upin to existing databases without a full reset
-    try:
-        cur.execute("ALTER TABLE registrations ADD COLUMN pending_upin TEXT")
-        conn.commit()
-    except Exception:
-        pass  # Column already exists — safe to ignore
+    # Migration guards — add new columns to existing databases without a full reset
+    for col_sql in [
+        "ALTER TABLE registrations ADD COLUMN pending_upin TEXT",
+        "ALTER TABLE registrations ADD COLUMN reported_fuel TEXT",
+    ]:
+        try:
+            cur.execute(col_sql)
+            conn.commit()
+        except Exception:
+            pass  # Column already exists — safe to ignore
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS events (

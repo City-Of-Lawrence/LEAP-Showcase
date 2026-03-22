@@ -15,10 +15,50 @@
   <h1>{{ t('welcome_title') }}</h1>
 
   {# Address confirmation banner #}
+  {# Address + fuel confirmation banner #}
   <div style="background:#eef2f7; border-radius:6px; padding:0.75rem 1rem;
               margin-bottom:1.5rem; font-size:0.9rem; color:#1a3a5c;">
-    📬 {{ t('welcome_address_confirmed') }}
-    <strong>{{ address }}{% if service_unit %}, Unit {{ service_unit }}{% endif %}</strong>
+    <div style="margin-bottom:0.4rem;">
+      📬 {{ t('welcome_address_confirmed') }}
+      <strong>{{ address }}{% if service_unit %}, Unit {{ service_unit }}{% endif %}</strong>
+    </div>
+    {% if assessed_fuel %}
+    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+      <span>🔥 {{ t('fuel_on_file_label') }} <strong>{{ assessed_fuel }}</strong></span>
+      <button type="button" id="fuel-correct-btn"
+              onclick="document.getElementById('fuel-correction').style.display='block';
+                       document.getElementById('fuel-correct-btn').style.display='none';"
+              style="font-size:0.78rem; color:#c8392b; background:none;
+                     border:1px solid #c8392b; border-radius:3px;
+                     padding:0.1rem 0.5rem; cursor:pointer;">
+        ✏️ {{ t('fuel_correct_btn') }}
+      </button>
+    </div>
+    {# Inline correction dropdown — hidden until button clicked #}
+    <div id="fuel-correction" style="display:none; margin-top:0.6rem;
+         background:#fff8f8; border:1px solid #f5c6c6; border-radius:4px;
+         padding:0.6rem 0.8rem;">
+      <div style="font-size:0.85rem; font-weight:600; margin-bottom:0.4rem; color:#7a1f1a;">
+        {{ t('fuel_correction_prompt') }}
+      </div>
+      <select name="reported_fuel" id="reported_fuel"
+              style="width:100%; padding:0.4rem; font-size:0.88rem;
+                     border:1px solid #ccc; border-radius:4px;">
+        <option value="">{{ t('fuel_select_default') }}</option>
+        <option value="natural_gas">{{ t('fuel_natural_gas') }}</option>
+        <option value="electric">{{ t('fuel_electric') }}</option>
+        <option value="oil">{{ t('fuel_oil') }}</option>
+        <option value="heat_pump">{{ t('fuel_heat_pump') }}</option>
+        <option value="heat_pump_gas">{{ t('fuel_heat_pump_gas') }}</option>
+        <option value="heat_pump_oil">{{ t('fuel_heat_pump_oil') }}</option>
+        <option value="heat_pump_electric">{{ t('fuel_heat_pump_electric') }}</option>
+        <option value="other">{{ t('fuel_other') }}</option>
+      </select>
+      <div style="font-size:0.78rem; color:#666; margin-top:0.35rem;">
+        {{ t('fuel_correction_note') }}
+      </div>
+    </div>
+    {% endif %}
   </div>
 
   {# Civic context note #}

@@ -705,6 +705,14 @@ def welcome():
 
     if request.method == "POST":
         choice = request.form.get("choice", "").strip()
+        reported_fuel = request.form.get("reported_fuel", "").strip()
+        # Store correction only if resident changed it from the on-file value
+        assessed_fuel = session.get("assessed_fuel", "")
+        if reported_fuel and reported_fuel != assessed_fuel:
+            session["reported_fuel"] = reported_fuel
+        else:
+            session.pop("reported_fuel", None)
+
         if choice == "event":
             session["intent"] = "event"
             n = int(get_setting("events_to_show", "2"))
@@ -720,9 +728,20 @@ def welcome():
         # Fallback — unknown choice, re-render
         return redirect(url_for("public.welcome"))
 
+    # Fetch assessed fuel from master DB for display
+    from helpers import lookup_property
+    assessed_fuel = ""
+    account_number = session.get("account_number", "")
+    if account_number and account_number not in ("MANUAL", "NOT_FOUND"):
+        prop = lookup_property(account_number)
+        if prop and prop["heating_fuel_description"]:
+            assessed_fuel = prop["heating_fuel_description"]
+    session["assessed_fuel"] = assessed_fuel
+
     return render_template("welcome.html",
                            address=session.get("normalized_address"),
-                           service_unit=session.get("service_unit", ""))
+                           service_unit=session.get("service_unit", ""),
+                           assessed_fuel=assessed_fuel)
 
 
 @public.route("/already-registered")
@@ -817,6 +836,7 @@ def contact_info():
             "contact_email":       request.form.get("contact_email", "").strip(),
             "ip_address":          request.remote_addr,
             "pending_upin":        "yes" if is_zombie else None,
+            "reported_fuel":       session.get("reported_fuel"),
         })
         lang   = session.get("lang", "en")
         intent = session.get("intent")
