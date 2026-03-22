@@ -49,7 +49,7 @@ def admin_dashboard():
         """SELECT id, registered_at, normalized_address, service_unit,
                   role, intent, upin_used, unit_count_flag,
                   mass_save_enrolled, needs_callback, pending_upin,
-                  contact_name, contact_phone, contact_email
+                  contact_name, contact_phone, contact_email, reported_fuel
            FROM registrations ORDER BY registered_at DESC LIMIT 200"""
     ).fetchall()
     total     = upin_db().execute("SELECT COUNT(*) FROM registrations").fetchone()[0]
