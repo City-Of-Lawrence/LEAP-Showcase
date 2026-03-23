@@ -32,6 +32,12 @@ def _unit_count_multiplier():
     from flask import current_app
     return current_app.config["UNIT_COUNT_CONFIRM_MULTIPLIER"]
 
+def _strip_unit_suffix(address: str) -> str:
+    """Remove trailing unit suffix (e.g. ', Unit 1' or ' Unit 1') from display address.
+    Prevents double-unit display when outreach DB address already contains unit info."""
+    import re
+    return re.sub(r'[,\s]+[Uu]nit\s+\S+\s*$', '', address).strip()
+
 
 # ------------------------------------------------------------------
 # Language toggle
@@ -99,7 +105,7 @@ def _complete_renter_upin_login(upin_plain, row):
     """Shared session setup and redirect for both QR scan and typed renter UPIN paths."""
     account_number  = row["account_number"]
     service_unit    = row["service_unit"] or ""
-    normalized_addr = row["normalized_address"] or ""
+    normalized_addr = _strip_unit_suffix(row["normalized_address"] or "")
 
     prior = get_prior_registration_summary(account_number, service_unit)
 
