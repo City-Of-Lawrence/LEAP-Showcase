@@ -380,13 +380,21 @@ def add_event_rsvp(event_id, account_number, upin="", service_unit=""):
     return cur.lastrowid
 
 def get_existing_rsvps(upin_plain, account_number="", service_unit=""):
-    """Return dict of {event_id: rsvp_row_id} for active (non-cancelled) RSVPs."""
+    """Return dict of {event_id: rsvp_row_id} for active (non-cancelled) RSVPs.
+
+    Strategy:
+    1. Query by UPIN if present. If results found, return them.
+    2. Fall through to account_number + service_unit lookup — handles the case
+       where a prior RSVP was saved before UPIN was issued, and prevents
+       cross-unit contamination by always filtering on service_unit.
+    """
     if upin_plain:
         rows = upin_db().execute(
             "SELECT id, event_id FROM event_rsvps WHERE upin=? AND cancelled_at IS NULL",
             (upin_plain,)
         ).fetchall()
-        return {r["event_id"]: r["id"] for r in rows}
+        if rows:
+            return {r["event_id"]: r["id"] for r in rows}
     if account_number:
         norm = normalize_unit(service_unit) if service_unit else ""
         rows = upin_db().execute(
