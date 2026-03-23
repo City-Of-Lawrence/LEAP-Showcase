@@ -224,7 +224,7 @@ def welcome_back():
         session["role"] = role
         if role == "landlord":
             return redirect(url_for("public.landlord_events"))
-        return redirect(url_for("public.event_select"))
+        return redirect(url_for("public.welcome"))
 
     return render_template("welcome_back.html",
                            roles=get_roles(get_lang()),
