@@ -372,8 +372,8 @@ def address_pick():
                                    error=t("error_select_address", get_lang()))
         prop = lookup_property(account_number)
         session["account_number"]     = account_number
-        session["normalized_address"] = display_address or (
-                                            prop["normalized_address"] if prop else account_number)
+        session["normalized_address"] = _strip_unit_suffix(display_address or (
+                                            prop["normalized_address"] if prop else account_number))
         session["service_unit"]       = service_unit
         session["is_repeat_visit"]    = has_prior_registration(account_number, service_unit)
 
