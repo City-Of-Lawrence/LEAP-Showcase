@@ -700,20 +700,6 @@ def event_select():
                            zombie_has_contact=zombie_has_contact)
 
 
-@public.route("/debug/prior/<account>/<unit>")
-def debug_prior(account, unit):
-    """Temporary debug route — remove after diagnosis."""
-    from helpers import get_prior_registration_summary, normalize_unit
-    norm = normalize_unit(unit) if unit else ""
-    result = get_prior_registration_summary(account, unit)
-    return (
-        f"account={account!r}<br>"
-        f"unit={unit!r}<br>"
-        f"normalized={norm!r}<br>"
-        f"result={dict(result) if result else None}"
-    )
-
-
 @public.route("/welcome", methods=["GET", "POST"])
 def welcome():
     """
