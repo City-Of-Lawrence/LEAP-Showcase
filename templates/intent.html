@@ -19,7 +19,7 @@
   <div class="alert alert-error">{{ error }}</div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('public.select_intent') }}">
+  <form method="POST" action="{{ url_for('public.landlord_intent') if session.get('role') == 'landlord' else url_for('public.select_intent') }}">
     <div class="choices">
       {% for value, label in intents %}
       <div>
@@ -34,7 +34,7 @@
   <div class="alert alert-info" style="margin-top:1.4rem;">
     <strong>{{ t('intent_remember_title') }}</strong>
     {{ t('intent_remember_body') }}
-    <a href="https://www.masssave.com/community-first/lawrence"
+    <a href="{{ config['MASSSAVE_URL'] }}"
        target="_blank" rel="noopener">masssave.com/Lawrence</a>.
     {{ t('intent_remember_suffix') }}
   </div>
