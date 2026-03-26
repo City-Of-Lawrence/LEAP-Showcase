@@ -11,12 +11,12 @@ TRANSLATIONS = {
         "es": "Ciudad de Lawrence",
     },
     "program_name": {
-        "en": "Lawrence Energy Affordability Project (LEAP) · Mass Save - Community First Partnership",
-        "es": "Proyecto de Asequibilidad Energética de Lawrence (LEAP) · Mass Save - Community First Partnership",
+        "en": "Lawrence Energy Affordability Project (LEAP) · Mass Save - City of Lawrence",
+        "es": "Proyecto de Asequibilidad Energética de Lawrence (LEAP) · Mass Save - Ciudad de Lawrence",
     },
     "footer": {
-        "en": "Energy Affordability Program · Mass Save - Community First Partnership",
-        "es": "Programa de Asequibilidad de Energía · Mass Save - Community First Partnership",
+        "en": "Energy Affordability Program · Mass Save - City of Lawrence",
+        "es": "Programa de Asequibilidad de Energía · Mass Save - Ciudad de Lawrence",
     },
     "lang_toggle": {
         "en": "Español",
@@ -1092,8 +1092,8 @@ TRANSLATIONS = {
         "es": "Ir a Mass Save →",
     },
     "welcome_civic_note": {
-        "en": "This is the City of Lawrence's registration booth for the Community First Partnership. Your registration here helps City staff track and support program participation in Lawrence.",
-        "es": "Este es el registro de la Ciudad de Lawrence para la Asociación Community First. Su registro aquí ayuda al personal de la Ciudad a dar seguimiento y apoyo a la participación en el programa.",
+        "en": "This is the City of Lawrence's energy affordability registration portal. Your registration here helps City staff track and support Mass Save program participation in Lawrence.",
+        "es": "Este es el portal de registro de asequibilidad energética de la Ciudad de Lawrence. Su registro aquí ayuda al personal de la Ciudad a dar seguimiento y apoyo a la participación en los programas de Mass Save en Lawrence.",
     },
     # ── already_rsvpd.html ────────────────────────────────────────────
     # Shown when a visitor tries to register for an event they're already in.
