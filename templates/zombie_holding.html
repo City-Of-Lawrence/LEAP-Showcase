@@ -4,13 +4,12 @@
 {% block content %}
 <div style="max-width:560px; margin:0 auto; padding:1rem 0;">
 
-  {# ── Step indicator ── #}
-  <div style="display:flex; gap:0.4rem; margin-bottom:1.5rem; font-size:0.78rem; flex-wrap:wrap;">
-    <span class="tag" style="background:#dff0d8; color:#2e6b3e;">✓ {{ t('step_role') }}</span>
-    <span class="tag" style="background:#dff0d8; color:#2e6b3e;">✓ {{ t('step_address') }}</span>
-    <span class="tag" style="background:#dff0d8; color:#2e6b3e;">✓ {{ t('step_intent') }}</span>
-    <span class="tag" style="background:#dff0d8; color:#2e6b3e;">✓ {{ t('step_contact') }}</span>
-    <span class="tag" style="background:#1a3a5c; color:#fff;">📬 {{ t('zombie_title') }}</span>
+  <div class="steps">
+    <div class="step done">{{ t('confirm_step_role') }}</div>
+    <div class="step done">{{ t('confirm_step_street') }}</div>
+    <div class="step done">{{ t('confirm_step_address') }}</div>
+    <div class="step done">{{ t('confirm_step_intent') }}</div>
+    <div class="step done">{{ t('confirm_step_contact') }}</div>
   </div>
 
   {# ── Heading ── #}
@@ -19,6 +18,13 @@
     <h1 style="font-size:1.4rem; color:#1a3a5c; margin-bottom:0.6rem;">
       {{ t('zombie_title') }}
     </h1>
+    {% if address %}
+    <div style="background:#eef2f7; border-radius:6px; padding:0.5rem 1rem;
+                display:inline-block; font-size:0.9rem; color:#1a3a5c;
+                margin-bottom:0.75rem;">
+      📍 <strong>{{ address }}{% if service_unit %}, Unit {{ service_unit }}{% endif %}</strong>
+    </div>
+    {% endif %}
     <p style="font-size:0.95rem; color:#444; line-height:1.6; max-width:480px; margin:0 auto;">
       {{ t('zombie_subtitle') }}
     </p>

@@ -911,7 +911,12 @@ def done():
 
 @public.route("/renter/pending")
 def zombie_holding():
-    return render_template("zombie_holding.html")
+    address      = session.get("normalized_address", "")
+    service_unit = session.get("service_unit", "")
+    return render_template("zombie_holding.html",
+                           address=address,
+                           service_unit=service_unit,
+                           masssave_url=_masssave_url())
 
 
 @public.route("/rsvp/<int:rsvp_id>/cancel", methods=["POST"])
