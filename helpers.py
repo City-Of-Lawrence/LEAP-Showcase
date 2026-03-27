@@ -440,20 +440,27 @@ def get_existing_rsvps(upin_plain, account_number="", service_unit=""):
     """Return dict of {event_id: rsvp_row_id} for active (non-cancelled) RSVPs.
 
     Strategy:
-    1. Query by UPIN if present. If results found, return them.
+    1. Query by UPIN if present, also filtering by service_unit when available.
+       This prevents cross-unit contamination for unit UPINs — a UPIN match
+       alone is not sufficient when multiple units share the same account_number.
     2. Fall through to account_number + service_unit lookup — handles the case
-       where a prior RSVP was saved before UPIN was issued, and prevents
-       cross-unit contamination by always filtering on service_unit.
+       where a prior RSVP was saved before UPIN was issued.
     """
+    norm = normalize_unit(service_unit) if service_unit else ""
     if upin_plain:
-        rows = upin_db().execute(
-            "SELECT id, event_id FROM event_rsvps WHERE upin=? AND cancelled_at IS NULL",
-            (upin_plain,)
-        ).fetchall()
+        if norm:
+            rows = upin_db().execute(
+                "SELECT id, event_id FROM event_rsvps WHERE upin=? AND service_unit=? AND cancelled_at IS NULL",
+                (upin_plain, norm)
+            ).fetchall()
+        else:
+            rows = upin_db().execute(
+                "SELECT id, event_id FROM event_rsvps WHERE upin=? AND cancelled_at IS NULL",
+                (upin_plain,)
+            ).fetchall()
         if rows:
             return {r["event_id"]: r["id"] for r in rows}
     if account_number:
-        norm = normalize_unit(service_unit) if service_unit else ""
         rows = upin_db().execute(
             "SELECT id, event_id FROM event_rsvps WHERE account_number=? AND service_unit=? AND cancelled_at IS NULL",
             (account_number, norm)

@@ -21,7 +21,7 @@
               margin-bottom:1.5rem; font-size:0.9rem; color:#1a3a5c;">
     <div style="margin-bottom:0.4rem;">
       📬 {{ t('welcome_address_confirmed') }}
-      <strong>{{ address }}{% if service_unit %}, Unit {{ service_unit }}{% endif %}</strong>
+      <strong>{{ address }}{% if service_unit and service_unit not in address %}, Unit {{ service_unit }}{% endif %}</strong>
     </div>
     {% if assessed_fuel %}
     <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">

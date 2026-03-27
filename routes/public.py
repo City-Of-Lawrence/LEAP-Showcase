@@ -378,7 +378,9 @@ def address_pick():
         session["service_unit"]       = service_unit
         session["is_repeat_visit"]    = has_prior_registration(account_number, service_unit)
 
-        if session["is_repeat_visit"]:
+        # Welcome Back is a UPIN-holder privilege only.
+        # Street-address visitors are always treated as first-time visitors.
+        if session["is_repeat_visit"] and session.get("upin_plain"):
             prior = get_prior_registration_summary(account_number, service_unit)
             if prior:
                 session["prior_role"]       = prior["role"] or ""
@@ -731,6 +733,9 @@ def welcome():
             return redirect(url_for("public.contact_info"))
         elif choice == "enroll":
             session["intent"] = "enroll"
+            return redirect(url_for("public.contact_info"))
+        elif choice == "done":
+            session["intent"] = "done"
             return redirect(url_for("public.contact_info"))
         # Fallback — unknown choice, re-render
         return redirect(url_for("public.welcome"))
