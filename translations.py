@@ -234,6 +234,10 @@ TRANSLATIONS = {
         "en": "Role",
         "es": "Rol",
     },
+    "confirm_step_street": {
+        "en": "Street",
+        "es": "Calle",
+    },
     "confirm_step_intent": {
         "en": "Intent",
         "es": "Propósito",

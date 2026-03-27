@@ -4,6 +4,14 @@
 {% block content %}
 <div class="card" style="text-align:center;">
 
+  <div class="steps">
+    <div class="step done">{{ t('confirm_step_role') }}</div>
+    <div class="step done">{{ t('confirm_step_street') }}</div>
+    <div class="step done">{{ t('confirm_step_address') }}</div>
+    <div class="step done">{{ t('confirm_step_intent') }}</div>
+    <div class="step done">{{ t('confirm_step_contact') }}</div>
+  </div>
+
   <div style="font-size:3rem; margin-bottom:0.5rem;">✅</div>
   <h1 style="margin-bottom:0.5rem;">{{ t('done_title') }}</h1>
   {% if not is_zombie %}
