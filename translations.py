@@ -463,12 +463,12 @@ TRANSLATIONS = {
 
     # ── address_street.html ──────────────────────────────────────────
     "street_title": {
-        "en": "What Street Do You Live On?",
-        "es": "¿En Qué Calle Vive?",
+        "en": "What Street is the Property On?",
+        "es": "¿En Qué Calle Está la Propiedad?",
     },
     "street_subtitle": {
-        "en": "Enter the street name only — no house number. For example:",
-        "es": "Ingrese solo el nombre de la calle — sin número de casa. Por ejemplo:",
+        "en": "Type a street name to see matching options. For example:",
+        "es": "Escriba el nombre de una calle para ver opciones. Por ejemplo:",
     },
     "street_looking_up": {
         "en": "Looking up properties for:",
@@ -1072,8 +1072,8 @@ TRANSLATIONS = {
         "es": "Ver Sesiones Disponibles →",
     },
     "welcome_assistance_title": {
-        "en": "Have an Energy Advocate Contact Me",
-        "es": "Que un Asesor de Energía Me Contacte",
+        "en": "Have the Energy Advocate Contact Me",
+        "es": "Que el Asesor de Energía Me Contacte",
     },
     "welcome_assistance_body": {
         "en": "A City Energy Advocate will reach out to explain your options and walk you through the program at your own pace.",
