@@ -15,8 +15,8 @@ TRANSLATIONS = {
         "es": "Proyecto de Asequibilidad Energética de Lawrence (LEAP) · Mass Save - Ciudad de Lawrence",
     },
     "footer": {
-        "en": "Energy Affordability Program · Mass Save - City of Lawrence",
-        "es": "Programa de Asequibilidad de Energía · Mass Save - Ciudad de Lawrence",
+        "en": "Lawrence Energy Affordability Project (LEAP) · Mass Save - City of Lawrence",
+        "es": "Proyecto de Asequibilidad Energética de Lawrence (LEAP) · Mass Save - Ciudad de Lawrence",
     },
     "lang_toggle": {
         "en": "Español",
@@ -355,8 +355,8 @@ TRANSLATIONS = {
         "es": "¡Todo Listo!",
     },
     "done_subtitle": {
-        "en": "Thank you for registering with the City of Lawrence Energy Affordability Program. A City staff member may follow up if you requested assistance.",
-        "es": "Gracias por registrarse con el Programa de Asequibilidad de Energía de la Ciudad de Lawrence. Un miembro del personal de la Ciudad puede darle seguimiento si solicitó asistencia.",
+        "en": "Thank you for registering with the Lawrence Energy Affordability Project (LEAP). A City staff member may follow up if you requested assistance.",
+        "es": "Gracias por registrarse con el Proyecto de Asequibilidad Energética de Lawrence (LEAP). Un miembro del personal de la Ciudad puede darle seguimiento si solicitó asistencia.",
     },
     "done_next_step_title": {
         "en": "Next step: Enroll with Mass Save",
