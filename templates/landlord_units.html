@@ -6,10 +6,10 @@
 <div class="card">
 
   <div class="steps">
-    <div class="step done">{{ t('confirm_step_address') }}</div>
     <div class="step done">{{ t('confirm_step_role') }}</div>
-    <div class="step active">{{ t('step_property') }}</div>
-    <div class="step">{{ t('confirm_step_intent') }}</div>
+    <div class="step done">{{ t('confirm_step_street') }}</div>
+    <div class="step done">{{ t('confirm_step_address') }}</div>
+    <div class="step active">{{ t('confirm_step_intent') }}</div>
     <div class="step">{{ t('confirm_step_contact') }}</div>
   </div>
 
@@ -25,7 +25,7 @@
     <input type="number" id="unit_count" name="unit_count"
            min="1" max="500"
            placeholder="e.g. 4"
-           style="width:160px;"
+           style="width:160px; height:3rem; font-size:1.2rem; padding:0.5rem 0.75rem;"
            required autofocus>
 
     <div class="btn-row" style="margin-top:1.2rem;">
