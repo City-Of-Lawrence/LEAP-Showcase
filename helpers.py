@@ -162,6 +162,63 @@ def search_streets_by_role(street_name: str, role: str):
     return sorted(streets)
 
 
+def get_all_streets_by_role(role: str):
+    """
+    Returns the full sorted list of distinct street names for the given role.
+    Used to populate the live filter on the street search screen.
+    Same DB logic as search_streets_by_role but with no filter pattern.
+    """
+    streets = set()
+
+    if role == "landlord":
+        rows = master_db().execute(
+            """SELECT DISTINCT normalized_address FROM Assessment_L_Parcels
+               ORDER BY normalized_address"""
+        ).fetchall()
+        for r in rows:
+            parts = r["normalized_address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+        rows = outreach_db().execute(
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               ORDER BY Service_Address"""
+        ).fetchall()
+        for r in rows:
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+
+    elif role == "renter":
+        rows = outreach_db().execute(
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               ORDER BY Service_Address"""
+        ).fetchall()
+        for r in rows:
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+
+    else:  # owner_occupant, property_manager, small_business
+        rows = outreach_db().execute(
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               ORDER BY Service_Address"""
+        ).fetchall()
+        for r in rows:
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+        rows = master_db().execute(
+            """SELECT DISTINCT normalized_address FROM Assessment_L_Parcels
+               ORDER BY normalized_address"""
+        ).fetchall()
+        for r in rows:
+            parts = r["normalized_address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+
+    return sorted(streets)
+
+
 def search_addresses_on_street(street_name: str, role: str):
     """
     Step 2 — return all addresses on a confirmed street name.

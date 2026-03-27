@@ -13,7 +13,7 @@ from schema import upin_db
 from helpers import (
     get_lang, get_setting,
     lookup_by_upin, lookup_property,
-    search_streets_by_role, search_addresses_on_street,
+    search_streets_by_role, search_addresses_on_street, get_all_streets_by_role,
     normalize_unit, has_prior_registration,
     get_prior_registration_summary, save_registration,
     get_upcoming_events, get_event_wards,
@@ -296,6 +296,7 @@ def address_street():
                                    streets=streets, query=street_input)
     return render_template("address_street.html",
                            role=dict(get_roles(get_lang())).get(session.get("role", ""), ""),
+                           all_streets=get_all_streets_by_role(session.get("role", "renter")),
                            error=error)
 
 

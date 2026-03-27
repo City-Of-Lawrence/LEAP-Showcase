@@ -24,14 +24,27 @@
   {% endif %}
 
   {% if not streets %}
-  <form method="POST" action="{{ url_for('public.address_street') }}">
+  <form method="POST" action="{{ url_for('public.address_street') }}" id="street-form">
     <label for="street_name">{{ t('street_label') }}</label>
-    <input type="text" id="street_name" name="street_name"
-           value="{{ query or '' }}"
-           placeholder="e.g. Exeter"
-           autocomplete="off"
-           autofocus required>
-    <p style="font-size:0.8rem; color:#888; margin-top:-0.8rem; margin-bottom:1rem;">
+
+    <div style="position:relative;">
+      <input type="text" id="street_name" name="street_name"
+             value="{{ query or '' }}"
+             placeholder="e.g. Exeter"
+             autocomplete="off"
+             autofocus required
+             oninput="filterStreets(this.value)"
+             onkeydown="handleKey(event)">
+      <ul id="street-suggestions"
+          style="display:none; position:absolute; top:100%; left:0; right:0;
+                 background:white; border:1px solid #ccc; border-top:none;
+                 border-radius:0 0 4px 4px; max-height:220px; overflow-y:auto;
+                 margin:0; padding:0; list-style:none; z-index:100;
+                 box-shadow:0 4px 8px rgba(0,0,0,0.1);">
+      </ul>
+    </div>
+
+    <p style="font-size:0.8rem; color:#888; margin-top:0.3rem; margin-bottom:1rem;">
       {{ t('street_hint') }}
     </p>
     <div class="btn-row">
@@ -39,6 +52,71 @@
       <a href="{{ url_for('public.start_generic') }}" class="btn btn-outline">{{ t('back_btn') }}</a>
     </div>
   </form>
+
+  <script>
+    const ALL_STREETS = {{ all_streets | tojson }};
+    let selectedIndex = -1;
+
+    function filterStreets(query) {
+      const list = document.getElementById('street-suggestions');
+      const q = query.trim().toUpperCase();
+      if (q.length < 2) { list.style.display = 'none'; return; }
+
+      const matches = ALL_STREETS.filter(s => s.toUpperCase().includes(q)).slice(0, 12);
+      if (matches.length === 0) { list.style.display = 'none'; return; }
+
+      list.innerHTML = matches.map((s, i) =>
+        `<li data-index="${i}" data-value="${s}"
+             style="padding:0.55rem 0.9rem; cursor:pointer; font-size:0.93rem;
+                    border-bottom:1px solid #f0f0f0;"
+             onmouseenter="highlight(${i})"
+             onmousedown="selectStreet('${s.replace(/'/g, "\\'")}')">${s}</li>`
+      ).join('');
+
+      selectedIndex = -1;
+      list.style.display = 'block';
+    }
+
+    function highlight(index) {
+      selectedIndex = index;
+      document.querySelectorAll('#street-suggestions li').forEach((li, i) => {
+        li.style.background = i === index ? '#eef2f7' : 'white';
+      });
+    }
+
+    function selectStreet(name) {
+      document.getElementById('street_name').value = name;
+      document.getElementById('street-suggestions').style.display = 'none';
+      document.getElementById('street-form').submit();
+    }
+
+    function handleKey(e) {
+      const list = document.getElementById('street-suggestions');
+      const items = list.querySelectorAll('li');
+      if (!items.length) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+        highlight(selectedIndex);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 1, 0);
+        highlight(selectedIndex);
+      } else if (e.key === 'Enter' && selectedIndex >= 0) {
+        e.preventDefault();
+        selectStreet(items[selectedIndex].dataset.value);
+      } else if (e.key === 'Escape') {
+        list.style.display = 'none';
+      }
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#street_name') && !e.target.closest('#street-suggestions')) {
+        document.getElementById('street-suggestions').style.display = 'none';
+      }
+    });
+  </script>
 
   {% else %}
   <p style="font-weight:600; margin-bottom:0.6rem;">
