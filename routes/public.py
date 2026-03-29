@@ -1,5 +1,5 @@
 """
-routes/public.py — LEAP Portal
+routes/public.py â€” LEAP Portal
 All resident-facing routes. Registered as Blueprint "public".
 """
 
@@ -23,7 +23,7 @@ from translations import t, get_roles, get_intents, get_landlord_intents
 
 public = Blueprint("public", __name__)
 
-# Read from app config at runtime — set by app.py
+# Read from app config at runtime â€” set by app.py
 def _masssave_url():
     from flask import current_app
     return current_app.config["MASSSAVE_URL"]
@@ -57,6 +57,15 @@ def set_language(lang):
 @public.route("/")
 def index():
     return render_template("index.html")
+
+
+# ------------------------------------------------------------------
+# How Can We Help — interstitial between landing page and flows
+# ------------------------------------------------------------------
+
+@public.route("/how-can-we-help")
+def how_can_we_help():
+    return render_template("how_can_we_help.html")
 
 
 # ------------------------------------------------------------------
@@ -680,7 +689,7 @@ def event_select():
                                          session.get("service_unit", ""))
                 session["event_rsvp_id"] = rsvp_id
             else:
-                # Already registered — store correct rsvp_id and show confirmation
+                # Already registered â€” store correct rsvp_id and show confirmation
                 session["event_rsvp_id"] = existing_rsvps[event_id_int]
                 return redirect(url_for("public.already_rsvpd"))
         if not event_id_str:
@@ -737,7 +746,7 @@ def welcome():
         elif choice == "done":
             session["intent"] = "done"
             return redirect(url_for("public.contact_info"))
-        # Fallback — unknown choice, re-render
+        # Fallback â€” unknown choice, re-render
         return redirect(url_for("public.welcome"))
 
     # Fetch assessed fuel from master DB for display
@@ -798,7 +807,7 @@ def select_intent():
 
 @public.route("/contact", methods=["GET", "POST"])
 def contact_info():
-    # Special case: address-not-found path — no session required
+    # Special case: address-not-found path â€” no session required
     if request.method == "POST" and request.form.get("_path") == "not_found":
         street_note = request.form.get("street_note", "").strip()
         save_registration({

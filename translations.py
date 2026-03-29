@@ -158,6 +158,68 @@ TRANSLATIONS = {
         "en": "Get Started \u2192",
         "es": "Comenzar \u2192",
     },
+    "index_no_letter_title": {
+        "en": "No Letter Yet?",
+        "es": "\u00bfA\u00fan Sin Carta?",
+    },
+    "index_no_letter_desc": {
+        "en": "Look up your property by address to get started with LEAP.",
+        "es": "Busque su propiedad por direcci\u00f3n para comenzar con LEAP.",
+    },
+    "index_have_upin_title": {
+        "en": "Have a Letter or UPIN?",
+        "es": "\u00bfTiene una Carta o UPIN?",
+    },
+    "index_have_upin_desc": {
+        "en": "Enter the UPIN from your City letter or scanned QR code.",
+        "es": "Ingrese el UPIN de su carta de la Ciudad o del c\u00f3digo QR escaneado.",
+    },
+
+    # ── how_can_we_help.html — interstitial ─────────────────────────
+    "help_title": {
+        "en": "How Can We Help You?",
+        "es": "\u00bfC\u00f3mo Podemos Ayudarle?",
+    },
+    "help_subtitle": {
+        "en": "Choose a path below to get started.",
+        "es": "Elija una opci\u00f3n a continuaci\u00f3n para comenzar.",
+    },
+    "help_masssave_title": {
+        "en": "Energy Upgrades",
+        "es": "Mejoras Energ\u00e9ticas",
+    },
+    "help_masssave_body": {
+        "en": "No-cost home energy improvements through Mass Save\u00ae \u2014 insulation, heat pumps, thermostats, and more.",
+        "es": "Mejoras de energ\u00eda en el hogar sin costo a trav\u00e9s de Mass Save\u00ae \u2014 aislamiento, bombas de calor, termostatos y m\u00e1s.",
+    },
+    "help_masssave_btn": {
+        "en": "Get Started \u2192",
+        "es": "Comenzar \u2192",
+    },
+    "help_aggregation_title": {
+        "en": "Lower My Energy Bills",
+        "es": "Reducir Mi Factura de Energ\u00eda",
+    },
+    "help_aggregation_body": {
+        "en": "Lawrence's municipal electricity aggregation program \u2014 automatically lower your electric rate as a City resident.",
+        "es": "El programa municipal de agregaci\u00f3n el\u00e9ctrica de Lawrence \u2014 reduzca autom\u00e1ticamente su tarifa el\u00e9ctrica como residente de la Ciudad.",
+    },
+    "help_aggregation_btn": {
+        "en": "Learn More \u2192",
+        "es": "Saber M\u00e1s \u2192",
+    },
+    "help_smallbiz_title": {
+        "en": "Small Business",
+        "es": "Peque\u00f1o Negocio",
+    },
+    "help_smallbiz_body": {
+        "en": "Energy programs for Lawrence small businesses. Coming soon \u2014 check back shortly.",
+        "es": "Programas de energ\u00eda para peque\u00f1os negocios en Lawrence. Pr\u00f3ximamente \u2014 vuelva pronto.",
+    },
+    "help_coming_soon": {
+        "en": "Coming Soon",
+        "es": "Pr\u00f3ximamente",
+    },
 
     # ── start_generic.html ───────────────────────────────────────────
     "start_title": {

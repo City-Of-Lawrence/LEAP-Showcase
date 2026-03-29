@@ -1,14 +1,12 @@
 {% extends "base.html" %}
 {% block title %}{{ t('index_title') }} · Lawrence Energy Program{% endblock %}
 
-{# ── Inject Nunito font and landing-page styles into <head> ── #}
 {% block head %}
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* ── Reset body background for landing page ── */
   body { background: #F9F6F0; }
 
-  /* ── Hero photo section ── */
+  /* ── HERO ── */
   .leap-hero {
     position: relative;
     width: 100%;
@@ -36,7 +34,7 @@
     pointer-events: none;
   }
 
-  /* ── LEAP badge floating in upper fifth of photo ── */
+  /* ── BADGE: text left, logo right, upper fifth ── */
   .leap-badge {
     position: absolute;
     top: 18%;
@@ -49,7 +47,6 @@
     padding: 12px 14px 12px 32px;
     display: flex;
     align-items: center;
-    flex-direction: row;
     gap: 20px;
     box-shadow: 0 8px 40px rgba(26,42,82,0.28), 0 2px 8px rgba(0,0,0,0.10);
     white-space: nowrap;
@@ -65,7 +62,6 @@
   }
   .leap-badge-text span {
     display: block;
-    font-family: 'Nunito', sans-serif;
     font-weight: 600;
     font-size: 13px;
     letter-spacing: 0.10em;
@@ -82,12 +78,12 @@
     order: 2;
   }
 
-  /* ── Welcome card ── */
+  /* ── WELCOME CARD ── */
   .leap-card {
     background: #ffffff;
     border-radius: 14px;
     box-shadow: 0 4px 40px rgba(26,58,107,0.10), 0 1px 4px rgba(0,0,0,0.04);
-    max-width: 640px;
+    max-width: 680px;
     width: 100%;
     margin: 40px auto 0;
     padding: 48px 48px 40px;
@@ -118,7 +114,6 @@
     margin-bottom: 20px;
   }
   .leap-title .leap-highlight {
-    color: #1A3A6B;
     text-decoration: underline;
     text-decoration-color: #C8960C;
     text-decoration-thickness: 3px;
@@ -127,93 +122,140 @@
   .leap-body {
     font-family: 'Nunito', sans-serif;
     font-size: 17px;
-    font-weight: 400;
     line-height: 1.75;
     color: #2e3a4e;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
   }
   .leap-sub {
     font-family: 'Nunito', sans-serif;
     font-size: 15.5px;
-    font-weight: 400;
     color: #5a6a80;
     line-height: 1.6;
     margin-bottom: 36px;
     font-style: italic;
   }
 
-  /* ── Get Started button ── */
-  .leap-cta {
+  /* ── TWO PATH CARDS ── */
+  .leap-paths {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .leap-path-card {
+    border: 2px solid #e0e8f0;
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    background: #ffffff;
+  }
+  .leap-path-card:hover {
+    border-color: #1A3A6B;
+    box-shadow: 0 4px 20px rgba(26,58,107,0.12);
+    transform: translateY(-2px);
+  }
+  .leap-path-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .leap-path-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    color: #1A3A6B;
+    margin-bottom: 8px;
+  }
+  .leap-path-desc {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13.5px;
+    color: #5a6a80;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .leap-path-btn {
     display: block;
     width: 100%;
     background: #1A3A6B;
     color: #ffffff;
     font-family: 'Nunito', sans-serif;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 700;
-    letter-spacing: 0.02em;
     text-align: center;
-    padding: 17px 32px;
-    border-radius: 10px;
+    padding: 11px 16px;
+    border-radius: 8px;
     border: none;
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 18px rgba(26,58,107,0.22);
-    margin-bottom: 0;
+    transition: background 0.2s ease;
+    box-shadow: 0 2px 8px rgba(26,58,107,0.18);
   }
-  .leap-cta:hover {
+  .leap-path-btn:hover {
     background: #122a52;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(26,58,107,0.30);
     color: #ffffff;
     text-decoration: none;
   }
-  .leap-cta:active { transform: translateY(0); }
 
-  /* ── Divider between Get Started and UPIN section ── */
-  .leap-divider {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin: 1.6rem 0;
-    color: #aaa;
-    font-size: 0.9rem;
-    font-family: 'Nunito', sans-serif;
-  }
-  .leap-divider-line { flex: 1; height: 1px; background: #dde3ea; }
-
-  /* ── UPIN section ── */
-  .leap-upin-section { margin-bottom: 1.4rem; }
-  .leap-upin-label {
-    font-family: 'Nunito', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 600;
+  /* UPIN path card — secondary styling */
+  .leap-path-card.upin-card { border-color: #dde3ea; }
+  .leap-path-card.upin-card .leap-path-btn {
+    background: transparent;
     color: #1A3A6B;
-    margin-bottom: 0.4rem;
-    display: block;
+    border: 2px solid #1A3A6B;
+    box-shadow: none;
   }
-  .leap-upin-hint { font-weight: 400; color: #777; }
+  .leap-path-card.upin-card .leap-path-btn:hover {
+    background: #1A3A6B;
+    color: #ffffff;
+  }
 
-  /* ── Privacy note ── */
+  /* UPIN inline form */
+  .upin-form-wrap {
+    margin-top: 8px;
+  }
+  .upin-input-row {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .upin-input-row input {
+    width: 140px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    margin-bottom: 0;
+    text-align: center;
+  }
+  .upin-input-row button {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* ── PRIVACY NOTE ── */
   .leap-privacy {
     font-family: 'Nunito', sans-serif;
     font-size: 0.83rem;
     color: #666;
-    margin-top: 1.8rem;
+    margin-top: 1.6rem;
     padding-top: 1.4rem;
     border-top: 1px solid #eee;
   }
 
-  /* ── Bottom padding for page ── */
   .leap-page-wrap { padding-bottom: 60px; }
 
-  @media (max-width: 540px) {
-    .leap-card { padding: 36px 24px 32px; margin: 24px 16px 0; }
-    .leap-title { font-size: 28px; }
-    .leap-badge { padding: 8px 10px 8px 20px; gap: 12px; }
-    .leap-badge img.badge-logo { height: 52px; }
-    .leap-badge-text { font-size: 15px; }
+  @media (max-width: 560px) {
+    .leap-card { padding: 36px 20px 32px; margin: 24px 12px 0; }
+    .leap-title { font-size: 26px; }
+    .leap-paths { grid-template-columns: 1fr; }
+    .leap-badge { padding: 8px 10px 8px 18px; gap: 10px; }
+    .leap-badge img.badge-logo { height: 50px; }
+    .leap-badge-text { font-size: 14px; }
     .leap-badge-text span { font-size: 11px; }
   }
 </style>
@@ -222,7 +264,7 @@
 {% block content %}
 <div class="leap-page-wrap">
 
-  {# ── HERO PHOTO with floating badge ── #}
+  {# ── HERO PHOTO ── #}
   <div class="leap-hero">
     <img class="hero-photo"
          src="{{ url_for('static', filename='lawrence_photo.png') }}"
@@ -242,10 +284,8 @@
   {# ── WELCOME CARD ── #}
   <div class="leap-card">
 
-    {# Welcome eyebrow #}
     <div class="leap-eyebrow">{{ t('index_welcome_eyebrow') }}</div>
 
-    {# Headline with gold-underlined keyword #}
     <h1 class="leap-title">
       {%- if lang == 'en' -%}
         Making energy <span class="leap-highlight">affordable</span><br>for all of Lawrence
@@ -254,47 +294,45 @@
       {%- endif -%}
     </h1>
 
-    {# Body copy #}
     <p class="leap-body">{{ t('index_hero_body') }}</p>
     <p class="leap-sub">{{ t('index_hero_sub') }}</p>
 
-    {# Primary CTA — address path (no UPIN) #}
-    <a href="{{ url_for('public.start_generic') }}" class="leap-cta">
-      {{ t('index_get_started') }}
-    </a>
+    {# ── TWO EQUAL PATH CARDS ── #}
+    <div class="leap-paths">
 
-    {# ── Divider ── #}
-    <div class="leap-divider">
-      <div class="leap-divider-line"></div>
-      <span>{{ t('index_or') }}</span>
-      <div class="leap-divider-line"></div>
-    </div>
-
-    {# ── UPIN entry for letter recipients ── #}
-    <div class="leap-upin-section">
-      <div class="alert alert-info" style="margin-bottom:1rem;">
-        <strong>{{ t('index_qr_alert_title') }}</strong><br>
-        {{ t('index_qr_alert_body') }}
+      {# Path 1 — No letter, look up by address #}
+      <div class="leap-path-card">
+        <span class="leap-path-icon">🏠</span>
+        <div class="leap-path-title">{{ t('index_no_letter_title') }}</div>
+        <div class="leap-path-desc">{{ t('index_no_letter_desc') }}</div>
+        <a href="{{ url_for('public.how_can_we_help') }}" class="leap-path-btn">
+          {{ t('index_get_started') }}
+        </a>
       </div>
-      <form method="GET" action="{{ url_for('public.register_qr') }}">
-        <label class="leap-upin-label" for="upin">
-          {{ t('index_upin_label') }}
-          <span class="leap-upin-hint">{{ t('index_upin_hint') }}</span>
-        </label>
-        <div style="display:flex; gap:0.5rem; align-items:flex-start; flex-wrap:wrap;">
-          <input type="text" id="upin" name="upin"
-                 placeholder="{{ t('index_upin_placeholder') }}"
-                 maxlength="12"
-                 style="width:200px; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0; font-family:'Nunito',sans-serif;"
-                 autocomplete="off">
-          <button type="submit" class="btn btn-secondary" style="white-space:nowrap; font-family:'Nunito',sans-serif;">
-            {{ t('index_go_btn') }}
-          </button>
-        </div>
-      </form>
-    </div>
 
-    {# ── Privacy note ── #}
+      {# Path 2 — Have a UPIN from letter #}
+      <div class="leap-path-card upin-card">
+        <span class="leap-path-icon">✉️</span>
+        <div class="leap-path-title">{{ t('index_have_upin_title') }}</div>
+        <div class="leap-path-desc">{{ t('index_have_upin_desc') }}</div>
+        <div class="upin-form-wrap">
+          <form method="GET" action="{{ url_for('public.register_qr') }}">
+            <div class="upin-input-row">
+              <input type="text" id="upin" name="upin"
+                     placeholder="{{ t('index_upin_placeholder') }}"
+                     maxlength="12"
+                     autocomplete="off">
+              <button type="submit" class="btn btn-secondary">
+                {{ t('index_go_btn') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>{# /leap-paths #}
+
+    {# ── PRIVACY NOTE ── #}
     <p class="leap-privacy">
       <strong>{{ t('index_privacy_title') }}</strong>
       {{ t('index_privacy_body') }}
@@ -306,8 +344,11 @@
 </div>{# /leap-page-wrap #}
 
 <script>
-  document.getElementById("upin").addEventListener("input", function() {
-    this.value = this.value.toUpperCase();
-  });
+  var upinInput = document.getElementById("upin");
+  if (upinInput) {
+    upinInput.addEventListener("input", function() {
+      this.value = this.value.toUpperCase();
+    });
+  }
 </script>
 {% endblock %}
