@@ -21,6 +21,8 @@ venv/
 *.psd
 *.cdr
 !static/Lawrence-Seal.png
+!static/leap_logo.png
+!static/lawrence_photo.png
 
 
 # System

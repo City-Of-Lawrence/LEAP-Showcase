@@ -133,6 +133,32 @@ TRANSLATIONS = {
         "es": "La Ciudad usa su dirección únicamente para conectarle con beneficios que ya pagó a través de sus facturas de servicios. El registro con la Ciudad es opcional. La inscripción oficial se realiza en",
     },
 
+    # ── index.html — landing page hero (new welcoming front page) ────
+    "index_welcome_eyebrow": {
+        "en": "Welcome",
+        "es": "Bienvenido/a",
+    },
+    "index_badge_name": {
+        "en": "Lawrence Energy Affordability Project",
+        "es": "Proyecto de Asequibilidad Energética de Lawrence",
+    },
+    "index_badge_sub": {
+        "en": "City of Lawrence Initiative",
+        "es": "Iniciativa de la Ciudad de Lawrence",
+    },
+    "index_hero_body": {
+        "en": "LEAP is a new initiative to make energy more affordable for everyone in Lawrence \u2014 whether they live here or own property here.",
+        "es": "LEAP es una nueva iniciativa para hacer la energ\u00eda m\u00e1s asequible para todos en Lawrence \u2014 ya sea que vivan aqu\u00ed o tengan una propiedad aqu\u00ed.",
+    },
+    "index_hero_sub": {
+        "en": "Renters, homeowners, condo owners, small businesses, and landlords are all welcome.",
+        "es": "Inquilinos, due\u00f1os de vivienda, due\u00f1os de condominio, peque\u00f1os negocios y propietarios de alquiler son todos bienvenidos.",
+    },
+    "index_get_started": {
+        "en": "Get Started \u2192",
+        "es": "Comenzar \u2192",
+    },
+
     # ── start_generic.html ───────────────────────────────────────────
     "start_title": {
         "en": "Who Are You?",
