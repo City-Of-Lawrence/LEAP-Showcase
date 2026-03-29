@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Restore Database — LEAP Admin{% endblock %}
+
+{% block content %}
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div>
+      <h1 style="font-size:1.3rem; color:#1a3a5c;">Restore Database</h1>
+      <p style="font-size:0.85rem; color:#666; margin-top:0.2rem;">
+        Upload a <code>.xdb</code> file exported from this portal.
+        Your current data is backed up automatically before any changes are made.
+      </p>
+    </div>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+      <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">← Dashboard</a>
+      <a href="{{ url_for('admin.admin_logout') }}"    class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">Sign Out</a>
+    </div>
+  </div>
+
+  {% if error %}
+  <div class="alert alert-warning"
+       style="margin-bottom:1.2rem; background:#fff3cd; border:1px solid #f0ad4e;
+              border-radius:6px; padding:1rem 1.2rem; color:#856404;">
+    ⚠ {{ error }}
+  </div>
+  {% endif %}
+
+  {# ------------------------------------------------------------------ #}
+  {# STEP 1 — Upload form                                                #}
+  {# ------------------------------------------------------------------ #}
+  {% if step == "upload" %}
+
+  <div style="background:#fff; border:1px solid #dce3ed; border-radius:6px;
+              padding:1.5rem; max-width:520px;">
+    <h2 style="font-size:1.05rem; color:#1a3a5c; margin-bottom:1rem;">Select File</h2>
+    <form method="POST"
+          action="{{ url_for('admin.admin_import_xdb') }}"
+          enctype="multipart/form-data">
+      <input type="hidden" name="step" value="upload">
+
+      <div style="margin-bottom:1.2rem;">
+        <label for="xdb_file"
+               style="display:block; font-size:0.9rem; font-weight:600;
+                      color:#1a3a5c; margin-bottom:0.4rem;">
+          Database file (.xdb)
+        </label>
+        <input type="file"
+               id="xdb_file"
+               name="xdb_file"
+               accept=".xdb,.xdbk"
+               required
+               style="display:block; width:100%; font-size:0.9rem;
+                      padding:0.4rem 0.6rem; border:1px solid #ccc;
+                      border-radius:4px;">
+        <p style="font-size:0.8rem; color:#666; margin-top:0.4rem;">
+          Must be a valid LEAP database export —
+          <code>leap_registrations.xdb</code>
+        </p>
+      </div>
+
+      <div style="display:flex; gap:0.6rem;">
+        <button type="submit"
+                class="btn btn-secondary"
+                style="background:#b45309; color:#fff; border:none;
+                       padding:0.45rem 1.2rem; font-size:0.9rem;
+                       border-radius:4px; cursor:pointer;">
+          Upload &amp; Preview
+        </button>
+        <a href="{{ url_for('admin.admin_dashboard') }}"
+           class="btn btn-outline"
+           style="padding:0.45rem 1.2rem; font-size:0.9rem;">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+
+  {# ------------------------------------------------------------------ #}
+  {# STEP 2 — Confirmation screen                                        #}
+  {# ------------------------------------------------------------------ #}
+  {% elif step == "confirm" %}
+
+  <div style="background:#fff3cd; border:1px solid #f0ad4e; border-radius:6px;
+              padding:1rem 1.2rem; color:#856404; margin-bottom:1.2rem;">
+    <strong>⚠ This will replace your current data.</strong><br>
+    Your current database will be backed up automatically before the restore executes.
+    The backup can be recovered from the Render console if needed
+    (<code>/data/backups/</code>).
+  </div>
+
+  <div style="background:#fff; border:1px solid #dce3ed; border-radius:6px;
+              overflow:hidden; max-width:520px; margin-bottom:1.2rem;">
+    <div style="background:#1a3a5c; color:#fff; font-size:0.85rem;
+                font-weight:600; padding:0.6rem 1rem;">
+      Record Count Comparison
+    </div>
+    <table class="admin-table" style="margin:0;">
+      <thead>
+        <tr>
+          <th>Table</th>
+          <th style="text-align:right;">Current</th>
+          <th style="text-align:right;">Incoming</th>
+          <th style="text-align:center;">Change</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for table in tables %}
+        {% set cur_count = current_counts.get(table, 0) %}
+        {% set inc_count = incoming_counts.get(table, 0) %}
+        {% set diff = inc_count - cur_count %}
+        <tr>
+          <td><code>{{ table }}</code></td>
+          <td style="text-align:right;">{{ cur_count }}</td>
+          <td style="text-align:right;">{{ inc_count }}</td>
+          <td style="text-align:center;">
+            {% if diff > 0 %}
+              <span style="color:#2e6b3e; font-weight:600;">+{{ diff }}</span>
+            {% elif diff < 0 %}
+              <span style="color:#7a1f1a; font-weight:600;">{{ diff }}</span>
+            {% else %}
+              <span style="color:#888;">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p style="font-size:0.8rem; color:#666; margin-bottom:1.2rem;">
+    Tables <code>upin</code>, <code>upinInfo</code>, and <code>audit_event</code>
+    are not affected by this restore.
+  </p>
+
+  <form method="POST" action="{{ url_for('admin.admin_import_xdb') }}">
+    <input type="hidden" name="step" value="confirm">
+    <div style="display:flex; gap:0.6rem;">
+      <button type="submit"
+              style="background:#7a1f1a; color:#fff; border:none;
+                     padding:0.45rem 1.4rem; font-size:0.9rem;
+                     border-radius:4px; cursor:pointer; font-weight:600;">
+        Confirm Restore
+      </button>
+      <button type="submit"
+              name="step"
+              value="cancel"
+              class="btn btn-outline"
+              style="padding:0.45rem 1.2rem; font-size:0.9rem;">
+        Cancel
+      </button>
+    </div>
+  </form>
+
+  {% endif %}
+
+{% endblock %}

@@ -5,16 +5,25 @@ All admin routes. Registered as Blueprint "admin" with url_prefix="/admin".
 
 import io
 import csv
+import os
+import sqlite3
+import tempfile
 from datetime import datetime, timezone
 from flask import (
     Blueprint, render_template, request, redirect,
-    url_for, session, abort, send_file, Response
+    url_for, session, abort, send_file, Response, current_app
 )
 
-from schema import upin_db
+from schema import upin_db, DB_UPIN
 from helpers import admin_required, get_setting, get_event_wards
 
 admin = Blueprint("admin", __name__, url_prefix="/admin")
+
+# ------------------------------------------------------------------
+# Tables owned by lean_app — the only tables touched by export/import.
+# upin, upinInfo, audit_event are UPINmgmt-owned — never touched here.
+# ------------------------------------------------------------------
+LEAN_APP_TABLES = ["registrations", "events", "event_wards", "event_rsvps", "settings"]
 
 
 # ------------------------------------------------------------------
@@ -23,7 +32,6 @@ admin = Blueprint("admin", __name__, url_prefix="/admin")
 
 @admin.route("/login", methods=["GET", "POST"])
 def admin_login():
-    from flask import current_app
     error = None
     if request.method == "POST":
         if request.form.get("password") == current_app.config["ADMIN_PASSWORD"]:
@@ -103,6 +111,289 @@ def admin_export_zombies():
 
 
 # ------------------------------------------------------------------
+# XDB export — full lean_app data snapshot
+# ------------------------------------------------------------------
+
+@admin.route("/export/leap_registrations")
+@admin_required
+def admin_export_xdb():
+    """
+    Export all lean_app-owned tables to a single SQLite file (.xdb).
+
+    Tables exported: registrations, events, event_wards, event_rsvps, settings.
+    Tables NOT touched: upin, upinInfo, audit_event (UPINmgmt-owned — sacred).
+
+    The .xdb file is the interchange format between lean_app and UPINmgmt.
+    Drop it in UPINmgmt/EventInfo/ on the city workstation for Option 19.
+    It is also the restore artifact — import it back via /admin/import/leap_registrations.
+    """
+    src_path = DB_UPIN
+
+    # Build the export in memory as a fresh SQLite DB
+    # containing only the lean_app-owned tables.
+    export_conn = sqlite3.connect(":memory:")
+    export_conn.row_factory = sqlite3.Row
+
+    src_conn = sqlite3.connect(src_path)
+    src_conn.row_factory = sqlite3.Row
+
+    try:
+        for table in LEAN_APP_TABLES:
+            # Copy schema from source
+            schema_row = src_conn.execute(
+                "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
+                (table,)
+            ).fetchone()
+            if not schema_row:
+                continue  # table doesn't exist yet — skip gracefully
+            export_conn.execute(schema_row["sql"])
+
+            # Copy all rows
+            rows = src_conn.execute(f"SELECT * FROM {table}").fetchall()
+            if rows:
+                cols   = rows[0].keys()
+                params = ", ".join(["?"] * len(cols))
+                export_conn.executemany(
+                    f"INSERT INTO {table} VALUES ({params})",
+                    [tuple(r) for r in rows]
+                )
+
+        export_conn.commit()
+
+        # Serialize to bytes
+        buf = io.BytesIO()
+        for chunk in export_conn.iterdump():
+            pass  # iterdump is for SQL text — use backup API instead
+
+        # Use SQLite backup API to write to bytes buffer via a temp file
+        tmp_fd, tmp_path = tempfile.mkstemp(suffix=".xdb")
+        os.close(tmp_fd)
+        try:
+            dest_conn = sqlite3.connect(tmp_path)
+            export_conn.backup(dest_conn)
+            dest_conn.close()
+            with open(tmp_path, "rb") as f:
+                buf = io.BytesIO(f.read())
+        finally:
+            os.unlink(tmp_path)
+
+    finally:
+        src_conn.close()
+        export_conn.close()
+
+    buf.seek(0)
+    return send_file(
+        buf,
+        as_attachment=True,
+        download_name="leap_registrations.xdb",
+        mimetype="application/octet-stream",
+    )
+
+
+# ------------------------------------------------------------------
+# XDB import / restore — two-step: upload → confirm → execute
+# ------------------------------------------------------------------
+
+def _count_tables_in_xdb(path):
+    """
+    Open an .xdb file and return a dict of {table_name: row_count}
+    for all lean_app-owned tables found in the file.
+    Returns None if the file is not valid SQLite.
+    """
+    try:
+        conn = sqlite3.connect(path)
+        conn.row_factory = sqlite3.Row
+        # Quick sanity check — valid SQLite files have sqlite_master
+        conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+    except sqlite3.DatabaseError:
+        return None
+
+    counts = {}
+    for table in LEAN_APP_TABLES:
+        try:
+            counts[table] = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+        except sqlite3.OperationalError:
+            counts[table] = None  # table missing in uploaded file
+    conn.close()
+    return counts
+
+
+def _count_current_tables():
+    """Return {table_name: row_count} for live lean_app tables."""
+    counts = {}
+    for table in LEAN_APP_TABLES:
+        try:
+            counts[table] = upin_db().execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+        except sqlite3.OperationalError:
+            counts[table] = 0
+    return counts
+
+
+@admin.route("/import/leap_registrations", methods=["GET", "POST"])
+@admin_required
+def admin_import_xdb():
+    """
+    Two-step import/restore from .xdb file.
+
+    GET  — show upload form
+    POST (step=upload)   — validate file, save to session staging area,
+                           show confirmation screen with current vs incoming counts
+    POST (step=confirm)  — backup current DB, execute full replace of lean_app tables
+    POST (step=cancel)   — clean up staged file, redirect to dashboard
+    """
+    step = request.form.get("step", "upload") if request.method == "POST" else "upload"
+
+    # ---- GET: show upload form ----
+    if request.method == "GET":
+        return render_template("admin_import_xdb.html",
+                               step="upload", error=None)
+
+    # ---- POST step=cancel ----
+    if step == "cancel":
+        staged = session.pop("xdb_staged_path", None)
+        if staged and os.path.exists(staged):
+            os.unlink(staged)
+        return redirect(url_for("admin.admin_dashboard"))
+
+    # ---- POST step=upload: validate and stage ----
+    if step == "upload":
+        f = request.files.get("xdb_file")
+
+        if not f or not f.filename:
+            return render_template("admin_import_xdb.html",
+                                   step="upload",
+                                   error="No file selected.")
+
+        if not (f.filename.endswith(".xdb") or f.filename.endswith(".xdbk")):
+            return render_template("admin_import_xdb.html",
+                                   step="upload",
+                                   error="Invalid file type. Please upload a .xdb file.")
+
+        # Save to a temp file for validation and staging
+        tmp_fd, tmp_path = tempfile.mkstemp(suffix=".xdb")
+        os.close(tmp_fd)
+        f.save(tmp_path)
+
+        # Validate: is it valid SQLite with expected tables?
+        incoming_counts = _count_tables_in_xdb(tmp_path)
+        if incoming_counts is None:
+            os.unlink(tmp_path)
+            return render_template("admin_import_xdb.html",
+                                   step="upload",
+                                   error="Invalid file: not a valid SQLite database.")
+
+        missing = [t for t, c in incoming_counts.items() if c is None]
+        if missing:
+            os.unlink(tmp_path)
+            return render_template("admin_import_xdb.html",
+                                   step="upload",
+                                   error=f"Invalid file: missing table(s): {', '.join(missing)}")
+
+        # Stage path in session for confirm step
+        # Clean up any previously staged file first
+        old_staged = session.pop("xdb_staged_path", None)
+        if old_staged and os.path.exists(old_staged):
+            os.unlink(old_staged)
+        session["xdb_staged_path"] = tmp_path
+
+        current_counts  = _count_current_tables()
+
+        return render_template("admin_import_xdb.html",
+                               step="confirm",
+                               current_counts=current_counts,
+                               incoming_counts=incoming_counts,
+                               tables=LEAN_APP_TABLES,
+                               error=None)
+
+    # ---- POST step=confirm: backup then replace ----
+    if step == "confirm":
+        staged_path = session.pop("xdb_staged_path", None)
+
+        if not staged_path or not os.path.exists(staged_path):
+            return render_template("admin_import_xdb.html",
+                                   step="upload",
+                                   error="Session expired or staged file missing. Please upload again.")
+
+        # --- Step 1: Backup current DB to /data/backups/ ---
+        backup_dir = os.path.join(os.path.dirname(DB_UPIN), "backups")
+        os.makedirs(backup_dir, exist_ok=True)
+        backup_filename = datetime.now().strftime("%Y%m%d_%H%M") + ".xdbk"
+        backup_path     = os.path.join(backup_dir, backup_filename)
+
+        try:
+            src_conn  = sqlite3.connect(DB_UPIN)
+            dest_conn = sqlite3.connect(backup_path)
+            # Backup only the lean_app tables — not upin/upinInfo/audit_event
+            # We do this by building a fresh DB with just those tables
+            dest_conn.close()
+            # Full file backup is safer — easier to restore from console.
+            # upin/upinInfo/audit_event are included in the .xdbk but
+            # the restore step below only replaces lean_app tables,
+            # so the backup having them is harmless and actually useful
+            # for full disaster recovery.
+            dest_conn = sqlite3.connect(backup_path)
+            src_conn.backup(dest_conn)
+            dest_conn.close()
+            src_conn.close()
+        except Exception as e:
+            os.unlink(staged_path)
+            return render_template("admin_import_xdb.html",
+                                   step="upload",
+                                   error=f"Backup failed — restore aborted. Error: {e}")
+
+        # --- Step 2: Replace lean_app tables only ---
+        try:
+            incoming_conn = sqlite3.connect(staged_path)
+            incoming_conn.row_factory = sqlite3.Row
+            live_conn     = sqlite3.connect(DB_UPIN)
+
+            for table in LEAN_APP_TABLES:
+                # Drop and recreate from incoming schema
+                schema_row = incoming_conn.execute(
+                    "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
+                    (table,)
+                ).fetchone()
+                if not schema_row:
+                    continue
+
+                live_conn.execute(f"DROP TABLE IF EXISTS {table}")
+                live_conn.execute(schema_row["sql"])
+
+                rows = incoming_conn.execute(f"SELECT * FROM {table}").fetchall()
+                if rows:
+                    cols   = rows[0].keys()
+                    params = ", ".join(["?"] * len(cols))
+                    live_conn.executemany(
+                        f"INSERT INTO {table} VALUES ({params})",
+                        [tuple(r) for r in rows]
+                    )
+
+            live_conn.commit()
+            live_conn.close()
+            incoming_conn.close()
+
+        except Exception as e:
+            # Backup already made — operator can restore manually via console
+            return render_template("admin_import_xdb.html",
+                                   step="upload",
+                                   error=(
+                                       f"Restore failed mid-way. Error: {e} — "
+                                       f"Backup saved as backups/{backup_filename} "
+                                       f"— restore via Render console if needed."
+                                   ))
+        finally:
+            os.unlink(staged_path)
+
+        session["import_xdb_result"] = (
+            f"Restore complete. Previous data backed up as backups/{backup_filename}."
+        )
+        return redirect(url_for("admin.admin_dashboard"))
+
+    # Fallback
+    return redirect(url_for("admin.admin_import_xdb"))
+
+
+# ------------------------------------------------------------------
 # Events management
 # ------------------------------------------------------------------
 
@@ -120,8 +411,10 @@ def admin_events():
                                   "is_past": e["event_date"] < today}
                       for e in events]
     import_result = session.pop("import_result", None)
+    import_xdb_result = session.pop("import_xdb_result", None)
     return render_template("admin_events.html", events=events_display,
-                           import_result=import_result)
+                           import_result=import_result,
+                           import_xdb_result=import_xdb_result)
 
 @admin.route("/events/new", methods=["GET", "POST"])
 @admin_required

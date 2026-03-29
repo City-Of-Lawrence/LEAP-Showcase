@@ -20,9 +20,19 @@
         ⬇ Export Zombie Queue ({{ zombies }})
       </a>
       {% endif %}
-      <a href="{{ url_for('admin.admin_events') }}"   class="btn btn-secondary" style="font-size:0.85rem; padding:0.4rem 1rem;">Events</a>
-      <a href="{{ url_for('admin.admin_settings') }}" class="btn btn-outline"   style="font-size:0.85rem; padding:0.4rem 1rem;">Settings</a>
-      <a href="{{ url_for('admin.admin_logout') }}"   class="btn btn-outline"   style="font-size:0.85rem; padding:0.4rem 1rem;">Sign Out</a>
+      <a href="{{ url_for('admin.admin_events') }}"     class="btn btn-secondary" style="font-size:0.85rem; padding:0.4rem 1rem;">Events</a>
+      <a href="{{ url_for('admin.admin_export_xdb') }}" class="btn btn-secondary"
+         style="font-size:0.85rem; padding:0.4rem 1rem; background:#e8f0fe; color:#1a3a5c; border:1px solid #b0c4e8;"
+         title="Download full database snapshot (.xdb)">
+        ⬇ Export .xdb
+      </a>
+      <a href="{{ url_for('admin.admin_import_xdb') }}" class="btn btn-secondary"
+         style="font-size:0.85rem; padding:0.4rem 1rem; background:#fff3cd; color:#856404; border:1px solid #f0ad4e;"
+         title="Restore database from .xdb file">
+        ⬆ Restore .xdb
+      </a>
+      <a href="{{ url_for('admin.admin_settings') }}"   class="btn btn-outline"   style="font-size:0.85rem; padding:0.4rem 1rem;">Settings</a>
+      <a href="{{ url_for('admin.admin_logout') }}"     class="btn btn-outline"   style="font-size:0.85rem; padding:0.4rem 1rem;">Sign Out</a>
     </div>
   </div>
 
