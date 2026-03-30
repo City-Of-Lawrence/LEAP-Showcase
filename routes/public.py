@@ -60,12 +60,18 @@ def index():
 
 
 # ------------------------------------------------------------------
-# How Can We Help — now merged into index; redirect for old links
+# How Can We Help — merged into index; redirect for old links
+# Choose Path — entry point selection after Energy Upgrades tile
 # ------------------------------------------------------------------
 
 @public.route("/how-can-we-help")
 def how_can_we_help():
     return redirect(url_for("public.index"))
+
+
+@public.route("/start", methods=["GET"])
+def choose_path():
+    return render_template("choose_path.html")
 
 
 # ------------------------------------------------------------------

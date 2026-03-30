@@ -158,6 +158,10 @@ TRANSLATIONS = {
         "en": "Get Started \u2192",
         "es": "Comenzar \u2192",
     },
+    "choose_path_title": {
+        "en": "How Would You Like to Get Started?",
+        "es": "¿Cómo Le Gustaría Comenzar?",
+    },
     "index_no_letter_title": {
         "en": "No Letter Yet?",
         "es": "\u00bfA\u00fan Sin Carta?",
