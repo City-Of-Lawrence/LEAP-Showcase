@@ -74,6 +74,16 @@ def choose_path():
     return render_template("choose_path.html")
 
 
+@public.route("/start/small-business", methods=["GET"])
+def start_small_business():
+    """Small Business tile shortcut -- sets role and goes straight to address search."""
+    session["role"]            = "small_business"
+    session["entry_path"]      = "generic"
+    session["upin_used"]       = "manual"
+    session["is_repeat_visit"] = False
+    return redirect(url_for("public.address_street"))
+
+
 # ------------------------------------------------------------------
 # QR / UPIN entry points
 # ------------------------------------------------------------------
