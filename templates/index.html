@@ -1,265 +1,153 @@
 {% extends "base.html" %}
-{% block title %}{{ t('index_title') }} · Lawrence Energy Program{% endblock %}
+{% block title %}{{ t('index_title') }}{% endblock %}
 
 {% block head %}
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   body { background: #F9F6F0; }
 
-  /* ── HERO ── */
   .leap-hero {
-    position: relative;
-    width: 100%;
-    height: 46vh;
-    min-height: 260px;
-    max-height: 400px;
-    overflow: hidden;
+    position: relative; width: 100%;
+    height: 46vh; min-height: 240px; max-height: 380px; overflow: hidden;
   }
   .leap-hero img.hero-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 40%;
-    display: block;
+    width: 100%; height: 100%; object-fit: cover;
+    object-position: center 40%; display: block;
   }
   .leap-hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(26,42,82,0.22) 0%,
-      rgba(26,42,82,0.04) 55%,
-      rgba(26,42,82,0.35) 100%
-    );
-    pointer-events: none;
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to bottom, rgba(26,42,82,0.22) 0%, rgba(26,42,82,0.04) 55%, rgba(26,42,82,0.35) 100%);
   }
-
-  /* ── BADGE: text left, logo right, upper fifth ── */
   .leap-badge {
-    position: absolute;
-    top: 18%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255,255,255,0.93);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 999px;
-    padding: 12px 14px 12px 32px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    box-shadow: 0 8px 40px rgba(26,42,82,0.28), 0 2px 8px rgba(0,0,0,0.10);
-    white-space: nowrap;
-    border: 1.5px solid rgba(255,255,255,0.75);
+    position: absolute; top: 18%; left: 50%; transform: translateX(-50%);
+    background: rgba(255,255,255,0.93); backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); border-radius: 999px;
+    padding: 12px 14px 12px 32px; display: flex; align-items: center;
+    gap: 20px; box-shadow: 0 8px 40px rgba(26,42,82,0.28), 0 2px 8px rgba(0,0,0,0.10);
+    white-space: nowrap; border: 1.5px solid rgba(255,255,255,0.75);
   }
   .leap-badge-text {
-    font-family: 'Nunito', sans-serif;
-    font-size: 20px;
-    font-weight: 800;
-    color: #1A3A6B;
-    line-height: 1.3;
-    order: 1;
+    font-family:'Nunito',sans-serif; font-size:20px; font-weight:800;
+    color:#1A3A6B; line-height:1.3; order:1;
   }
   .leap-badge-text span {
-    display: block;
-    font-weight: 600;
-    font-size: 13px;
-    letter-spacing: 0.10em;
-    text-transform: uppercase;
-    color: #1A3A6B;
-    margin-top: 4px;
-    opacity: 0.72;
+    display:block; font-weight:600; font-size:13px; letter-spacing:0.10em;
+    text-transform:uppercase; color:#1A3A6B; margin-top:4px; opacity:0.72;
   }
-  .leap-badge img.badge-logo {
-    height: 72px;
-    width: auto;
-    display: block;
-    flex-shrink: 0;
-    order: 2;
-  }
-
-  /* ── WELCOME CARD ── */
-  .leap-card {
-    background: #ffffff;
-    border-radius: 14px;
-    box-shadow: 0 4px 40px rgba(26,58,107,0.10), 0 1px 4px rgba(0,0,0,0.04);
-    max-width: 680px;
-    width: 100%;
-    margin: 40px auto 0;
-    padding: 48px 48px 40px;
-    border-top: 4px solid #C8960C;
-    animation: leapRise 0.65s cubic-bezier(0.22,1,0.36,1) both;
-    animation-delay: 0.1s;
-  }
-  @keyframes leapRise {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .leap-eyebrow {
-    font-family: 'Nunito', sans-serif;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #1A3A6B;
-    margin-bottom: 10px;
-  }
-  .leap-title {
-    font-family: 'Nunito', sans-serif;
-    font-size: 34px;
-    font-weight: 800;
-    color: #1A3A6B;
-    line-height: 1.2;
-    margin-bottom: 20px;
-  }
-  .leap-title .leap-highlight {
-    text-decoration: underline;
-    text-decoration-color: #C8960C;
-    text-decoration-thickness: 3px;
-    text-underline-offset: 5px;
-  }
-  .leap-body {
-    font-family: 'Nunito', sans-serif;
-    font-size: 17px;
-    line-height: 1.75;
-    color: #2e3a4e;
-    margin-bottom: 8px;
-  }
-  .leap-sub {
-    font-family: 'Nunito', sans-serif;
-    font-size: 15.5px;
-    color: #5a6a80;
-    line-height: 1.6;
-    margin-bottom: 36px;
-    font-style: italic;
-  }
-
-  /* ── TWO PATH CARDS ── */
-  .leap-paths {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-  .leap-path-card {
-    border: 2px solid #e0e8f0;
-    border-radius: 12px;
-    padding: 24px 20px;
-    text-align: center;
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
-    background: #ffffff;
-    display: flex;
-    flex-direction: column;
-  }
-  .leap-path-card:hover {
-    border-color: #1A3A6B;
-    box-shadow: 0 4px 20px rgba(26,58,107,0.12);
-    transform: translateY(-2px);
-  }
-  .leap-path-icon {
-    font-size: 32px;
-    margin-bottom: 10px;
-    display: block;
-  }
-  .leap-path-title {
-    font-family: 'Nunito', sans-serif;
-    font-size: 15px;
-    font-weight: 800;
-    color: #1A3A6B;
-    margin-bottom: 8px;
-  }
-  .leap-path-desc {
-    font-family: 'Nunito', sans-serif;
-    font-size: 13.5px;
-    color: #5a6a80;
-    line-height: 1.5;
-    margin-bottom: 16px;
-    flex: 1;
-  }
-  .leap-path-btn {
-    display: block;
-    width: 100%;
-    background: #1A3A6B;
-    color: #ffffff;
-    font-family: 'Nunito', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    text-align: center;
-    padding: 11px 16px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.2s ease;
-    box-shadow: 0 2px 8px rgba(26,58,107,0.18);
-  }
-  .leap-path-btn:hover {
-    background: #122a52;
-    color: #ffffff;
-    text-decoration: none;
-  }
-
-  /* UPIN path card — secondary styling */
-  .leap-path-card.upin-card { border-color: #dde3ea; }
-  .leap-path-card.upin-card .leap-path-btn {
-    background: transparent;
-    color: #1A3A6B;
-    border: 2px solid #1A3A6B;
-    box-shadow: none;
-  }
-  .leap-path-card.upin-card .leap-path-btn:hover {
-    background: #1A3A6B;
-    color: #ffffff;
-  }
-
-  /* UPIN inline form */
-  .upin-form-wrap {
-    margin-top: 8px;
-  }
-  .upin-input-row {
-    display: flex;
-    gap: 6px;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .upin-input-row input {
-    width: 140px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-family: 'Nunito', sans-serif;
-    font-size: 14px;
-    margin-bottom: 0;
-    text-align: center;
-  }
-  .upin-input-row button {
-    font-family: 'Nunito', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
-  /* ── PRIVACY NOTE ── */
-  .leap-privacy {
-    font-family: 'Nunito', sans-serif;
-    font-size: 0.83rem;
-    color: #666;
-    margin-top: 1.6rem;
-    padding-top: 1.4rem;
-    border-top: 1px solid #eee;
-  }
+  .leap-badge img.badge-logo { height:72px; width:auto; display:block; flex-shrink:0; order:2; }
 
   .leap-page-wrap { padding-bottom: 60px; }
 
-  @media (max-width: 560px) {
-    .leap-card { padding: 36px 20px 32px; margin: 24px 12px 0; }
-    .leap-title { font-size: 26px; }
-    .leap-paths { grid-template-columns: 1fr; }
-    .leap-badge { padding: 8px 10px 8px 18px; gap: 10px; }
-    .leap-badge img.badge-logo { height: 50px; }
-    .leap-badge-text { font-size: 14px; }
-    .leap-badge-text span { font-size: 11px; }
+  .leap-card {
+    background:#ffffff; border-radius:14px;
+    box-shadow:0 4px 40px rgba(26,58,107,0.10),0 1px 4px rgba(0,0,0,0.04);
+    max-width:720px; width:100%; margin:40px auto 0;
+    padding:48px 48px 40px; border-top:4px solid #C8960C;
+    animation:leapRise 0.65s cubic-bezier(0.22,1,0.36,1) both; animation-delay:0.1s;
+  }
+  @keyframes leapRise { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .leap-eyebrow {
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:800;
+    letter-spacing:0.18em; text-transform:uppercase; color:#1A3A6B; margin-bottom:10px;
+  }
+  .leap-title {
+    font-family:'Nunito',sans-serif; font-size:34px; font-weight:800;
+    color:#1A3A6B; line-height:1.2; margin-bottom:20px;
+  }
+  .leap-title .leap-highlight {
+    text-decoration:underline; text-decoration-color:#C8960C;
+    text-decoration-thickness:3px; text-underline-offset:5px;
+  }
+  .leap-body { font-family:'Nunito',sans-serif; font-size:17px; line-height:1.75; color:#2e3a4e; margin-bottom:8px; }
+  .leap-sub  { font-family:'Nunito',sans-serif; font-size:15.5px; color:#5a6a80; line-height:1.6; margin-bottom:0; font-style:italic; }
+
+  .leap-section-divider { display:flex; align-items:center; gap:12px; margin:36px 0 28px; }
+  .leap-section-divider-line { flex:1; height:1px; background:#e0e8f0; }
+  .leap-section-label {
+    font-family:'Nunito',sans-serif; font-size:11px; font-weight:800;
+    letter-spacing:0.16em; text-transform:uppercase; color:#C8960C; white-space:nowrap;
+  }
+
+  .leap-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:36px; }
+  .leap-tile {
+    background:#F9F6F0; border-radius:12px; border:2px solid #e0e8f0;
+    padding:24px 16px 20px; text-align:center; display:flex; flex-direction:column;
+    transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;
+  }
+  .leap-tile:hover:not(.leap-tile-disabled) {
+    border-color:#1A3A6B; box-shadow:0 4px 20px rgba(26,58,107,0.12);
+    transform:translateY(-2px); background:#ffffff;
+  }
+  .leap-tile-disabled { opacity:0.52; }
+  .leap-tile-icon { font-size:36px; margin-bottom:10px; }
+  .leap-tile-title { font-family:'Nunito',sans-serif; font-size:15px; font-weight:800; color:#1A3A6B; margin-bottom:8px; }
+  .leap-tile-body  { font-family:'Nunito',sans-serif; font-size:13px; color:#5a6a80; line-height:1.55; margin-bottom:18px; flex:1; }
+  .leap-tile-btn {
+    display:block; width:100%; background:#1A3A6B; color:#ffffff;
+    font-family:'Nunito',sans-serif; font-size:14px; font-weight:700; text-align:center;
+    padding:11px 12px; border-radius:8px; border:none; cursor:pointer; text-decoration:none;
+    transition:background 0.2s; box-shadow:0 2px 8px rgba(26,58,107,0.18); margin-top:auto;
+  }
+  .leap-tile-btn:hover { background:#122a52; color:#ffffff; text-decoration:none; }
+  .leap-tile-btn.btn-outline {
+    background:transparent; color:#1A3A6B; border:2px solid #1A3A6B; box-shadow:none;
+  }
+  .leap-tile-btn.btn-outline:hover { background:#1A3A6B; color:#ffffff; }
+  .coming-soon-badge {
+    display:inline-block; background:#e8edf2; color:#5a6a80;
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:700;
+    letter-spacing:0.08em; text-transform:uppercase; padding:9px 16px;
+    border-radius:7px; margin-top:auto;
+  }
+
+  .leap-paths { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px; }
+  .leap-path-card {
+    border:2px solid #e0e8f0; border-radius:12px; padding:24px 20px;
+    text-align:center; background:#ffffff; display:flex; flex-direction:column;
+    transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;
+  }
+  .leap-path-card:hover:not(.upin-card) {
+    border-color:#1A3A6B; box-shadow:0 4px 20px rgba(26,58,107,0.12); transform:translateY(-2px);
+  }
+  .leap-path-icon { font-size:32px; margin-bottom:10px; display:block; }
+  .leap-path-title { font-family:'Nunito',sans-serif; font-size:15px; font-weight:800; color:#1A3A6B; margin-bottom:8px; }
+  .leap-path-desc  { font-family:'Nunito',sans-serif; font-size:13.5px; color:#5a6a80; line-height:1.5; margin-bottom:16px; flex:1; }
+  .leap-path-btn {
+    display:block; width:100%; background:#1A3A6B; color:#ffffff;
+    font-family:'Nunito',sans-serif; font-size:14px; font-weight:700; text-align:center;
+    padding:12px 16px; border-radius:8px; border:none; cursor:pointer; text-decoration:none;
+    transition:background 0.2s; box-shadow:0 2px 8px rgba(26,58,107,0.18); margin-top:auto;
+  }
+  .leap-path-btn:hover { background:#122a52; color:#ffffff; text-decoration:none; }
+  .upin-card { border-color:#dde3ea; }
+  .upin-card .leap-path-btn {
+    background:transparent; color:#1A3A6B; border:2px solid #1A3A6B; box-shadow:none;
+  }
+  .upin-card .leap-path-btn:hover { background:#1A3A6B; color:#ffffff; }
+  .upin-input-row {
+    display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; margin-bottom:8px;
+  }
+  .upin-input-row input {
+    width:140px; text-transform:uppercase; letter-spacing:0.08em;
+    font-family:'Nunito',sans-serif; font-size:14px; margin-bottom:0; text-align:center;
+  }
+
+  .leap-privacy {
+    font-family:'Nunito',sans-serif; font-size:0.83rem; color:#666;
+    margin-top:1.6rem; padding-top:1.4rem; border-top:1px solid #eee;
+  }
+
+  @media (max-width:560px) {
+    .leap-badge { padding:8px 12px 8px 18px; gap:10px; top:12%; }
+    .leap-badge-text { font-size:14px; }
+    .leap-badge-text span { font-size:10px; }
+    .leap-badge img.badge-logo { height:46px; }
+    .leap-card { padding:32px 20px 28px; margin:24px 12px 0; }
+    .leap-title { font-size:26px; }
+    .leap-body { font-size:15px; }
+    .leap-tiles { grid-template-columns:1fr; }
+    .leap-paths { grid-template-columns:1fr; }
   }
 </style>
 {% endblock %}
@@ -267,28 +155,22 @@
 {% block content %}
 <div class="leap-page-wrap">
 
-  {# ── HERO PHOTO ── #}
   <div class="leap-hero">
-    <img class="hero-photo"
-         src="{{ url_for('static', filename='lawrence_photo.png') }}"
-         alt="Lawrence, Massachusetts">
+    <img class="hero-photo" src="{{ url_for('static', filename='lawrence_photo.png') }}" alt="Lawrence, Massachusetts">
     <div class="leap-hero-overlay"></div>
     <div class="leap-badge">
       <div class="leap-badge-text">
         {{ t('index_badge_name') }}
         <span>{{ t('index_badge_sub') }}</span>
       </div>
-      <img class="badge-logo"
-           src="{{ url_for('static', filename='leap_logo.png') }}"
-           alt="LEAP logo">
+      <img class="badge-logo" src="{{ url_for('static', filename='leap_logo.png') }}" alt="LEAP logo">
     </div>
   </div>
 
-  {# ── WELCOME CARD ── #}
   <div class="leap-card">
 
+    {# 1. WELCOME #}
     <div class="leap-eyebrow">{{ t('index_welcome_eyebrow') }}</div>
-
     <h1 class="leap-title">
       {%- if lang == 'en' -%}
         Making energy <span class="leap-highlight">affordable</span><br>for all of Lawrence
@@ -296,62 +178,84 @@
         Energ&iacute;a <span class="leap-highlight">asequible</span><br>para todo Lawrence
       {%- endif -%}
     </h1>
-
     <p class="leap-body">{{ t('index_hero_body') }}</p>
     <p class="leap-sub">{{ t('index_hero_sub') }}</p>
 
-    {# ── TWO EQUAL PATH CARDS ── #}
-    <div class="leap-paths">
+    {# 2. HOW CAN WE HELP divider #}
+    <div class="leap-section-divider">
+      <div class="leap-section-divider-line"></div>
+      <span class="leap-section-label">{{ t('help_title') }}</span>
+      <div class="leap-section-divider-line"></div>
+    </div>
 
-      {# Path 1 — No letter, look up by address #}
+    {# 3. THREE PROGRAM TILES #}
+    <div class="leap-tiles">
+      <div class="leap-tile">
+        <div class="leap-tile-icon">&#127968;</div>
+        <div class="leap-tile-title">{{ t('help_masssave_title') }}</div>
+        <p class="leap-tile-body">{{ t('help_masssave_body') }}</p>
+        <a href="{{ url_for('public.start_generic') }}" class="leap-tile-btn">{{ t('help_masssave_btn') }}</a>
+      </div>
+      <div class="leap-tile">
+        <div class="leap-tile-icon">&#9889;</div>
+        <div class="leap-tile-title">{{ t('help_aggregation_title') }}</div>
+        <p class="leap-tile-body">{{ t('help_aggregation_body') }}</p>
+        <a href="https://colonialpowergroup.com/lawrence/" target="_blank" rel="noopener" class="leap-tile-btn btn-outline">{{ t('help_aggregation_btn') }}</a>
+      </div>
+      <div class="leap-tile leap-tile-disabled">
+        <div class="leap-tile-icon">&#127978;</div>
+        <div class="leap-tile-title">{{ t('help_smallbiz_title') }}</div>
+        <p class="leap-tile-body">{{ t('help_smallbiz_body') }}</p>
+        <span class="coming-soon-badge">{{ t('help_coming_soon') }}</span>
+      </div>
+    </div>
+
+    {# 4. CHOOSE YOUR PATH divider #}
+    <div class="leap-section-divider">
+      <div class="leap-section-divider-line"></div>
+      <span class="leap-section-label">
+        {%- if lang == 'en' -%}Choose Your Path{%- else -%}Elija Su Camino{%- endif -%}
+      </span>
+      <div class="leap-section-divider-line"></div>
+    </div>
+
+    {# 5. TWO ENTRY CARDS #}
+    <div class="leap-paths">
       <div class="leap-path-card">
-        <span class="leap-path-icon">🏠</span>
+        <span class="leap-path-icon">&#127968;</span>
         <div class="leap-path-title">{{ t('index_no_letter_title') }}</div>
         <div class="leap-path-desc">{{ t('index_no_letter_desc') }}</div>
-        <a href="{{ url_for('public.how_can_we_help') }}" class="leap-path-btn">
-          {{ t('index_get_started') }}
-        </a>
+        <a href="{{ url_for('public.start_generic') }}" class="leap-path-btn">{{ t('index_get_started') }}</a>
       </div>
-
-      {# Path 2 — Have a UPIN from letter #}
       <div class="leap-path-card upin-card">
-        <span class="leap-path-icon">✉️</span>
+        <span class="leap-path-icon">&#9993;</span>
         <div class="leap-path-title">{{ t('index_have_upin_title') }}</div>
         <div class="leap-path-desc">{{ t('index_have_upin_desc') }}</div>
-        <div class="upin-form-wrap">
-          <form method="GET" action="{{ url_for('public.register_qr') }}">
-            <div class="upin-input-row">
-              <input type="text" id="upin" name="upin"
-                     placeholder="{{ t('index_upin_placeholder') }}"
-                     maxlength="12"
-                     autocomplete="off">
-              <button type="submit" class="btn btn-secondary">
-                {{ t('index_go_btn') }}
-              </button>
-            </div>
-          </form>
-        </div>
+        <form method="GET" action="{{ url_for('public.register_qr') }}" style="margin-top:auto;">
+          <div class="upin-input-row">
+            <input type="text" id="upin" name="upin"
+                   placeholder="{{ t('index_upin_placeholder') }}"
+                   maxlength="12" autocomplete="off">
+          </div>
+          <button type="submit" class="leap-path-btn" style="background:#1A3A6B;color:#fff;border:none;">
+            {{ t('index_go_btn') }}
+          </button>
+        </form>
       </div>
+    </div>
 
-    </div>{# /leap-paths #}
-
-    {# ── PRIVACY NOTE ── #}
+    {# 6. PRIVACY #}
     <p class="leap-privacy">
       <strong>{{ t('index_privacy_title') }}</strong>
       {{ t('index_privacy_body') }}
-      <a href="https://www.masssave.com/community-first/lawrence"
-         target="_blank" rel="noopener">MassSave.com/Lawrence</a>.
+      <a href="https://www.masssave.com/community-first/lawrence" target="_blank" rel="noopener">MassSave.com/Lawrence</a>.
     </p>
 
-  </div>{# /leap-card #}
-</div>{# /leap-page-wrap #}
+  </div>
+</div>
 
 <script>
-  var upinInput = document.getElementById("upin");
-  if (upinInput) {
-    upinInput.addEventListener("input", function() {
-      this.value = this.value.toUpperCase();
-    });
-  }
+  var u = document.getElementById("upin");
+  if (u) u.addEventListener("input", function(){ this.value = this.value.toUpperCase(); });
 </script>
 {% endblock %}

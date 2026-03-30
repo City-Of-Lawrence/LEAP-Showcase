@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{% block title %}Lawrence Energy Affordability Project (LEAP) — DEMO{% endblock %}</title>
+  <title>{% block title %}Lawrence Energy Affordability Project (LEAP) â€” DEMO{% endblock %}</title>
   <style>
-    /* ── Reset & base ── */
+    /* â”€â”€ Reset & base â”€â”€ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: "Segoe UI", Arial, sans-serif;
@@ -14,7 +14,7 @@
       min-height: 100vh;
     }
 
-    /* ── Header ── */
+    /* â”€â”€ Header â”€â”€ */
     header {
       background: #1a3a5c;   /* Lawrence dark navy */
       color: white;
@@ -37,8 +37,14 @@
       opacity: 0.85;
       margin-top: 0.2rem;
     }
+    @media (max-width: 600px) {
+      header { padding: 0.9rem 1rem; gap: 0.75rem; }
+      header .city-name { font-size: 1.25rem; }
+      header .program-name { display: none; }
+      .seal-link img { height: 60px !important; width: 60px !important; }
+    }
 
-    /* ── Seal link ── */
+    /* â”€â”€ Seal link â”€â”€ */
     .seal-link {
       display: inline-block;
       flex-shrink: 0;
@@ -48,7 +54,7 @@
     }
     .seal-link:hover { opacity: 0.8; }
 
-    /* ── Progress bar ── */
+    /* â”€â”€ Progress bar â”€â”€ */
     .progress-bar {
       background: #d0dce8;
       height: 6px;
@@ -59,7 +65,7 @@
       transition: width 0.3s ease;
     }
 
-    /* ── Main content area ── */
+    /* â”€â”€ Main content area â”€â”€ */
     main {
       max-width: 640px;
       margin: 2rem auto;
@@ -88,7 +94,7 @@
       line-height: 1.5;
     }
 
-    /* ── Forms ── */
+    /* â”€â”€ Forms â”€â”€ */
     label {
       display: block;
       font-weight: 600;
@@ -108,7 +114,7 @@
     }
     input:focus { outline: none; border-color: #1a3a5c; }
 
-    /* ── Radio / choice cards ── */
+    /* â”€â”€ Radio / choice cards â”€â”€ */
     .choices { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.4rem; }
     .choice-label {
       display: flex;
@@ -129,7 +135,7 @@
     }
     input[type="radio"] { display: none; }
 
-    /* ── Buttons ── */
+    /* â”€â”€ Buttons â”€â”€ */
     .btn {
       display: inline-block;
       padding: 0.7rem 1.8rem;
@@ -149,7 +155,7 @@
     .btn-outline:hover { background: #f0f4f8; }
     .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
 
-    /* ── Address card ── */
+    /* â”€â”€ Address card â”€â”€ */
     .address-card {
       background: #e8f4ec;
       border: 1px solid #9ecfaa;
@@ -160,7 +166,7 @@
     .address-card .addr-main { font-size: 1.1rem; font-weight: 700; color: #1a3a5c; }
     .address-card .addr-meta { font-size: 0.85rem; color: #555; margin-top: 0.3rem; }
 
-    /* ── Search results ── */
+    /* â”€â”€ Search results â”€â”€ */
     .result-list { list-style: none; margin-top: 0.8rem; }
     .result-list li {
       border-bottom: 1px solid #eee;
@@ -174,7 +180,7 @@
     .result-list li a:hover { text-decoration: underline; }
     .result-list .meta { font-size: 0.82rem; color: #777; }
 
-    /* ── Alert / error ── */
+    /* â”€â”€ Alert / error â”€â”€ */
     .alert {
       padding: 0.75rem 1rem;
       border-radius: 5px;
@@ -184,7 +190,7 @@
     .alert-error { background: #fde8e6; border: 1px solid #e8a09a; color: #7a1f1a; }
     .alert-info  { background: #e8f0f8; border: 1px solid #9ab8d8; color: #1a3a5c; }
 
-    /* ── Step indicator ── */
+    /* â”€â”€ Step indicator â”€â”€ */
     .steps {
       display: flex;
       gap: 0;
@@ -212,9 +218,9 @@
       margin: 0 auto 0.3rem;
     }
     .step.active::before { background: #c8392b; color: white; }
-    .step.done::before   { background: #2e7d50; color: white; content: "✓"; }
+    .step.done::before   { background: #2e7d50; color: white; content: "âœ“"; }
 
-    /* ── Footer ── */
+    /* â”€â”€ Footer â”€â”€ */
     footer {
       text-align: center;
       padding: 1.5rem;
@@ -222,7 +228,7 @@
       color: #888;
     }
 
-    /* ── Admin table ── */
+    /* â”€â”€ Admin table â”€â”€ */
     .admin-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; table-layout: auto; }
     .admin-table th {
       background: #1a3a5c; color: white;
@@ -254,7 +260,7 @@
 <body>
 
 <header>
-  {# Seal — mid-flow pages get a confirmation dialog, home and done pages go straight home #}
+  {# Seal â€” mid-flow pages get a confirmation dialog, home and done pages go straight home #}
   {% if progress is defined %}
   <a href="{{ url_for('public.index') }}" class="seal-link"
      onclick="return confirm('{{ t('seal_confirm_msg') }}')">
@@ -274,7 +280,7 @@
     <div class="program-name">{{ t('program_name') }}</div>
   </div>
 
-  {# Language toggle — hidden on admin pages #}
+  {# Language toggle â€” hidden on admin pages #}
   {% if not request.path.startswith('/admin') %}
   <div style="margin-left:auto; flex-shrink:0; text-align:right;">
     {% set lang = session.get('lang', 'en') %}
@@ -284,14 +290,14 @@
               border:1px solid rgba(255,255,255,0.5); border-radius:4px;
               padding:0.3rem 0.75rem; text-decoration:none;
               opacity:0.85; white-space:nowrap;"
-       title="Switch to Spanish">🇩🇴 Español</a>
+       title="Switch to Spanish">ðŸ‡©ðŸ‡´ EspaÃ±ol</a>
     {% else %}
     <a href="{{ url_for('public.set_language', lang='en') }}"
        style="color:white; font-size:0.85rem; font-weight:600;
               border:1px solid rgba(255,255,255,0.5); border-radius:4px;
               padding:0.3rem 0.75rem; text-decoration:none;
               opacity:0.85; white-space:nowrap;"
-       title="Switch to English">🇺🇸 English</a>
+       title="Switch to English">ðŸ‡ºðŸ‡¸ English</a>
     {% endif %}
     <div style="margin-top:0.4rem; font-size:1.05rem; font-weight:800;
                 color:#FF8C00; letter-spacing:0.05em;">

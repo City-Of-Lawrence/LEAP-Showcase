@@ -60,12 +60,12 @@ def index():
 
 
 # ------------------------------------------------------------------
-# How Can We Help — interstitial between landing page and flows
+# How Can We Help — now merged into index; redirect for old links
 # ------------------------------------------------------------------
 
 @public.route("/how-can-we-help")
 def how_can_we_help():
-    return render_template("how_can_we_help.html")
+    return redirect(url_for("public.index"))
 
 
 # ------------------------------------------------------------------

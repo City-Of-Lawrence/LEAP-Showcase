@@ -77,8 +77,8 @@ TRANSLATIONS = {
 
     # ── index.html ───────────────────────────────────────────────────
     "index_title": {
-        "en": "No-Cost Energy Upgrades for Lawrence Residents",
-        "es": "Mejoras de Energía Sin Costo para Residentes de Lawrence",
+        "en": "LEAP · Making Energy Affordable in Lawrence",
+        "es": "LEAP · Energía Asequible en Lawrence",
     },
     "index_subtitle": {
         "en": "The City of Lawrence is partnering with Mass Save to bring no-cost energy efficiency upgrades to renters and landlords. Find out if your property qualifies — it takes less than two minutes.",
