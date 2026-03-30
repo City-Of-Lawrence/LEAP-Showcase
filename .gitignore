@@ -45,3 +45,5 @@ ResetDeployedDbusingConsole.txt
 *.lnk
 *.code-workspace
 ResetDeployedDbusingConsole.txt
+
+templates/upload_*.html
