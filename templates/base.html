@@ -277,7 +277,7 @@
   {% endif %}
   <div style="flex:1;">
     <div class="city-name">{{ t('city_name') }}</div>
-    <div class="program-name">{{ t('program_name') }}</div>
+    <div class="program-name">Lawrence Energy Affordability Project (LEAP)</div>
   </div>
 
   {# Language toggle â€” hidden on admin pages #}
@@ -286,18 +286,18 @@
     {% set lang = session.get('lang', 'en') %}
     {% if lang == 'en' %}
     <a href="{{ url_for('public.set_language', lang='es') }}"
-       style="color:white; font-size:0.85rem; font-weight:600;
+       style="color:white; font-size:0.85rem; font-weight:700;
               border:1px solid rgba(255,255,255,0.5); border-radius:4px;
               padding:0.3rem 0.75rem; text-decoration:none;
-              opacity:0.85; white-space:nowrap;"
-       title="Switch to Spanish">ðŸ‡©ðŸ‡´ EspaÃ±ol</a>
+              white-space:nowrap; letter-spacing:0.04em;"
+       title="Switch to Spanish">ES&nbsp;Espa&ntilde;ol</a>
     {% else %}
     <a href="{{ url_for('public.set_language', lang='en') }}"
-       style="color:white; font-size:0.85rem; font-weight:600;
+       style="color:white; font-size:0.85rem; font-weight:700;
               border:1px solid rgba(255,255,255,0.5); border-radius:4px;
               padding:0.3rem 0.75rem; text-decoration:none;
-              opacity:0.85; white-space:nowrap;"
-       title="Switch to English">ðŸ‡ºðŸ‡¸ English</a>
+              white-space:nowrap; letter-spacing:0.04em;"
+       title="Switch to English">EN&nbsp;English</a>
     {% endif %}
     <div style="margin-top:0.4rem; font-size:1.05rem; font-weight:800;
                 color:#FF8C00; letter-spacing:0.05em;">

@@ -69,7 +69,7 @@ def how_can_we_help():
     return redirect(url_for("public.index"))
 
 
-@public.route("/start", methods=["GET"])
+@public.route("/choose-path", methods=["GET"])
 def choose_path():
     return render_template("choose_path.html")
 
