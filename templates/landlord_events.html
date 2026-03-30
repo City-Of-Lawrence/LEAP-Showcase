@@ -24,7 +24,7 @@
     {% endif %}
   </p>
 
-  {# ”€”€ Cancel forms (one per already-RSVP'd event) €” must be outside main form ”€”€ #}
+  {# ”—€ Cancel forms (one per already-RSVP'd event) — must be outside main form ”—€ #}
   {% for e in events %}
   {% if e.already_rsvpd and e.rsvp_id %}
   <form id="cancel_form_{{ e.event_id }}" method="POST"
@@ -35,7 +35,7 @@
   {% endif %}
   {% endfor %}
 
-  {# ”€”€ Main event selection form ”€”€ #}
+  {# ”—€ Main event selection form ”—€ #}
   <form method="POST" action="{{ url_for('public.landlord_events') }}">
 
     {% if events %}

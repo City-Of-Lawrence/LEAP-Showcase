@@ -27,7 +27,7 @@
 
     <p style="font-weight:600; font-size:0.97rem; color:#1a3a5c; margin-bottom:0.75rem;">
       {% if upin_role %}
-        {# Role locked by UPIN €” show only the locked role #}
+        {# Role locked by UPIN — show only the locked role #}
         {{ t('welcome_back_role_locked') }}
       {% else %}
         {{ t('welcome_back_last_visit_prompt') }}
@@ -41,7 +41,7 @@
 
     <div class="choices" style="margin-bottom:1.4rem;">
       {% if upin_role %}
-        {# Show only the locked role €” no choice presented #}
+        {# Show only the locked role — no choice presented #}
         {% for value, label in roles %}
           {% if value == upin_role %}
           <div>
@@ -57,7 +57,7 @@
           {% endif %}
         {% endfor %}
       {% else %}
-        {# Normal flow €” show all roles #}
+        {# Normal flow — show all roles #}
         {% for value, label in roles %}
         <div>
           <input type="radio" id="role_{{ value }}" name="role" value="{{ value }}"

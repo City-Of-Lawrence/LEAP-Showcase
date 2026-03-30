@@ -16,19 +16,19 @@
   <h1>{{ t('eselect_title') }}</h1>
   <p class="subtitle">{{ t('eselect_subtitle') }}</p>
 
-  {# Graduated zombie welcome banner €” shown when a returning zombie logs in with their new UPIN #}
+  {# Graduated zombie welcome banner — shown when a returning zombie logs in with their new UPIN #}
   {% if graduated_zombie %}
   <div style="background:#d4edda; border:1px solid #c3e6cb; border-radius:6px;
               padding:0.75rem 1rem; margin-bottom:1.2rem; font-size:0.9rem; color:#155724;">
     ðŸŽ‰ <strong>Welcome back!</strong>
     We've linked your registration to your new code.
     {% if zombie_has_contact %}
-    Your contact information has been carried forward €” you can confirm it on the next page.
+    Your contact information has been carried forward — you can confirm it on the next page.
     {% endif %}
   </div>
   {% endif %}
 
-  {# Address confirmation banner €” shown for renter UPIN path #}
+  {# Address confirmation banner — shown for renter UPIN path #}
   {% if address %}
   <div style="background:#eef2f7; border-radius:6px; padding:0.6rem 1rem;
               margin-bottom:1.2rem; font-size:0.88rem; color:#1a3a5c;">
@@ -36,19 +36,19 @@
   </div>
   {% endif %}
 
-  {# Current RSVP summary banner €” shown when visitor already has an active registration #}
+  {# Current RSVP summary banner — shown when visitor already has an active registration #}
   {% set current_rsvp = events | selectattr('already_rsvpd') | list | first %}
   {% if current_rsvp %}
   <div style="background:#d4edda; border:1px solid #c3e6cb; border-radius:6px;
               padding:0.75rem 1rem; margin-bottom:1.2rem; font-size:0.9rem; color:#155724;">
     ✅ <strong>{{ t('eselect_current_rsvp_banner') }}</strong>
-    <strong>{{ current_rsvp.name }}</strong> €”
+    <strong>{{ current_rsvp.name }}</strong> —
     {{ current_rsvp.event_date }} at {{ current_rsvp.event_time }},
     {{ current_rsvp.location }}
   </div>
   {% endif %}
 
-  {# Hidden cancel forms €” must be outside the main form to avoid nesting #}
+  {# Hidden cancel forms — must be outside the main form to avoid nesting #}
   {% for e in events %}
   {% if e.already_rsvpd and e.rsvp_id %}
   <form id="cancel-form-{{ e.event_id }}" method="POST"

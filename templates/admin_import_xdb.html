@@ -1,5 +1,5 @@
 ﻿{% extends "base.html" %}
-{% block title %}Restore Database €” LEAP Admin{% endblock %}
+{% block title %}Restore Database — LEAP Admin{% endblock %}
 
 {% block content %}
 
@@ -26,7 +26,7 @@
   {% endif %}
 
   {# ------------------------------------------------------------------ #}
-  {# STEP 1 €” Upload form                                                #}
+  {# STEP 1 — Upload form                                                #}
   {# ------------------------------------------------------------------ #}
   {% if step == "upload" %}
 
@@ -53,7 +53,7 @@
                       padding:0.4rem 0.6rem; border:1px solid #ccc;
                       border-radius:4px;">
         <p style="font-size:0.8rem; color:#666; margin-top:0.4rem;">
-          Must be a valid LEAP database export €”
+          Must be a valid LEAP database export —
           <code>leap_registrations.xdb</code>
         </p>
       </div>
@@ -76,7 +76,7 @@
   </div>
 
   {# ------------------------------------------------------------------ #}
-  {# STEP 2 €” Confirmation screen                                        #}
+  {# STEP 2 — Confirmation screen                                        #}
   {# ------------------------------------------------------------------ #}
   {% elif step == "confirm" %}
 
@@ -118,7 +118,7 @@
             {% elif diff < 0 %}
               <span style="color:#7a1f1a; font-weight:600;">{{ diff }}</span>
             {% else %}
-              <span style="color:#888;">€”</span>
+              <span style="color:#888;">—</span>
             {% endif %}
           </td>
         </tr>

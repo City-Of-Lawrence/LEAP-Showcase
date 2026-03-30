@@ -5,12 +5,12 @@
 {% block content %}
 <div>
 
-  {# ”€”€ Header ”€”€ #}
+  {# ”—€ Header ”—€ #}
   <div style="display:flex; justify-content:space-between; align-items:center;
               margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
     <div>
       <h1 style="font-size:1.3rem; color:#1a3a5c; margin:0;">
-        ðŸ‘¥ RSVPs €” {{ event.name }}
+        ðŸ‘¥ RSVPs — {{ event.name }}
       </h1>
       <div style="font-size:0.88rem; color:#555; margin-top:0.3rem;">
         ðŸ“… {{ event.event_date }} at {{ event.event_time }}
@@ -24,7 +24,7 @@
        style="font-size:0.85rem; padding:0.4rem 1rem;">† Back to Events</a>
   </div>
 
-  {# ”€”€ Summary bar ”€”€ #}
+  {# ”—€ Summary bar ”—€ #}
   <div style="display:flex; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;">
     <div style="background:#e8f4ec; border-radius:6px; padding:0.5rem 1.1rem;
                 font-size:0.9rem; color:#2e7d50; font-weight:600;">
@@ -40,7 +40,7 @@
     </div>
   </div>
 
-  {# ”€”€ Energy Advocate alert ”€”€ #}
+  {# ”—€ Energy Advocate alert ”—€ #}
   {% if ea_flags %}
   <div style="background:#fff8e1; border:1px solid #f0a500; border-radius:6px;
               padding:0.75rem 1.2rem; margin-bottom:1rem; font-size:0.9rem; color:#7a4f00;">
@@ -52,7 +52,7 @@
   </div>
   {% endif %}
 
-  {# ”€”€ Attendee table ”€”€ #}
+  {# ”—€ Attendee table ”—€ #}
   {% if attendees %}
   <div style="overflow-x:auto;">
     <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
@@ -87,7 +87,7 @@
             {% if a.contact_name %}
               {{ a.contact_name }}
             {% else %}
-              <span style="color:#aaa; font-style:italic;">€”</span>
+              <span style="color:#aaa; font-style:italic;">—</span>
             {% endif %}
             {% if is_ea %}
               <span style="display:inline-block; background:#fff3cd; color:#7a4f00;
@@ -105,7 +105,7 @@
                 {{ a.contact_phone }}
               </a>
             {% else %}
-              <span style="color:#aaa;">€”</span>
+              <span style="color:#aaa;">—</span>
             {% endif %}
           </td>
 
@@ -118,7 +118,7 @@
                 {{ a.contact_email }}
               </a>
             {% else %}
-              <span style="color:#aaa;">€”</span>
+              <span style="color:#aaa;">—</span>
             {% endif %}
           </td>
 
@@ -135,13 +135,13 @@
           {# Unit #}
           <td style="padding:0.55rem 0.8rem;
                      {% if is_cancelled %}text-decoration:line-through; color:#888;{% endif %}">
-            {{ a.service_unit if a.service_unit else '€”' }}
+            {{ a.service_unit if a.service_unit else '—' }}
           </td>
 
           {# RSVP date #}
           <td style="padding:0.55rem 0.8rem; white-space:nowrap;
                      {% if is_cancelled %}color:#aaa;{% endif %}">
-            {{ a.rsvp_at[:16] if a.rsvp_at else '€”' }}
+            {{ a.rsvp_at[:16] if a.rsvp_at else '—' }}
           </td>
 
           {# Status badge #}

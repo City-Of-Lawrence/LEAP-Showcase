@@ -44,7 +44,7 @@
             &nbsp;·&nbsp; ðŸ“ {{ e.location }}
           </div>
           <div style="font-size:0.85rem; color:#555; margin-top:0.2rem;">
-            ðŸ—º Wards: {{ e.wards | join(', ') if e.wards else '€”' }}
+            ðŸ—º Wards: {{ e.wards | join(', ') if e.wards else '—' }}
             &nbsp;·&nbsp;
             <span style="color:{% if e.rsvp_count >= e.capacity %}#c8392b{% else %}#2e7d50{% endif %};">
               {{ e.rsvp_count }} / {{ e.capacity }} RSVPs
