@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Restore Database — LEAP Admin{% endblock %}
+﻿{% extends "base.html" %}
+{% block title %}Restore Database €” LEAP Admin{% endblock %}
 
 {% block content %}
 
@@ -12,7 +12,7 @@
       </p>
     </div>
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-      <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">← Dashboard</a>
+      <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">† Dashboard</a>
       <a href="{{ url_for('admin.admin_logout') }}"    class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">Sign Out</a>
     </div>
   </div>
@@ -21,12 +21,12 @@
   <div class="alert alert-warning"
        style="margin-bottom:1.2rem; background:#fff3cd; border:1px solid #f0ad4e;
               border-radius:6px; padding:1rem 1.2rem; color:#856404;">
-    ⚠ {{ error }}
+    š  {{ error }}
   </div>
   {% endif %}
 
   {# ------------------------------------------------------------------ #}
-  {# STEP 1 — Upload form                                                #}
+  {# STEP 1 €” Upload form                                                #}
   {# ------------------------------------------------------------------ #}
   {% if step == "upload" %}
 
@@ -53,7 +53,7 @@
                       padding:0.4rem 0.6rem; border:1px solid #ccc;
                       border-radius:4px;">
         <p style="font-size:0.8rem; color:#666; margin-top:0.4rem;">
-          Must be a valid LEAP database export —
+          Must be a valid LEAP database export €”
           <code>leap_registrations.xdb</code>
         </p>
       </div>
@@ -76,13 +76,13 @@
   </div>
 
   {# ------------------------------------------------------------------ #}
-  {# STEP 2 — Confirmation screen                                        #}
+  {# STEP 2 €” Confirmation screen                                        #}
   {# ------------------------------------------------------------------ #}
   {% elif step == "confirm" %}
 
   <div style="background:#fff3cd; border:1px solid #f0ad4e; border-radius:6px;
               padding:1rem 1.2rem; color:#856404; margin-bottom:1.2rem;">
-    <strong>⚠ This will replace your current data.</strong><br>
+    <strong>š  This will replace your current data.</strong><br>
     Your current database will be backed up automatically before the restore executes.
     The backup can be recovered from the Render console if needed
     (<code>/data/backups/</code>).
@@ -118,7 +118,7 @@
             {% elif diff < 0 %}
               <span style="color:#7a1f1a; font-weight:600;">{{ diff }}</span>
             {% else %}
-              <span style="color:#888;">—</span>
+              <span style="color:#888;">€”</span>
             {% endif %}
           </td>
         </tr>

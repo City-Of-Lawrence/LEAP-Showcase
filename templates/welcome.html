@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% set progress = 55 %}
 {% block title %}{{ t('welcome_title') }} · Lawrence Energy Program{% endblock %}
 
@@ -20,19 +20,19 @@
   <div style="background:#eef2f7; border-radius:6px; padding:0.75rem 1rem;
               margin-bottom:1.5rem; font-size:0.9rem; color:#1a3a5c;">
     <div style="margin-bottom:0.4rem;">
-      📬 {{ t('welcome_address_confirmed') }}
+      ðŸ“¬ {{ t('welcome_address_confirmed') }}
       <strong>{{ address }}{% if service_unit and service_unit not in address %}, Unit {{ service_unit }}{% endif %}</strong>
     </div>
     {% if assessed_fuel %}
     <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-      <span>🔥 {{ t('fuel_on_file_label') }} <strong>{{ assessed_fuel }}</strong></span>
+      <span>ðŸ”¥ {{ t('fuel_on_file_label') }} <strong>{{ assessed_fuel }}</strong></span>
       <button type="button" id="fuel-correct-btn"
               onclick="document.getElementById('fuel-correction').style.display='block';
                        document.getElementById('fuel-correct-btn').style.display='none';"
               style="font-size:0.78rem; color:#c8392b; background:none;
                      border:1px solid #c8392b; border-radius:3px;
                      padding:0.1rem 0.5rem; cursor:pointer;">
-        ✏️ {{ t('fuel_correct_btn') }}
+        œï¸ {{ t('fuel_correct_btn') }}
       </button>
     </div>
     {% endif %}
@@ -49,7 +49,7 @@
 
   <form method="POST" action="{{ url_for('public.welcome') }}">
 
-    {# Fuel correction dropdown — inside form so it submits correctly #}
+    {# Fuel correction dropdown €” inside form so it submits correctly #}
     {% if assessed_fuel %}
     <div id="fuel-correction" style="display:none; margin-bottom:1.2rem;
          background:#fff8f8; border:1px solid #f5c6c6; border-radius:4px;
@@ -78,13 +78,13 @@
 
     <div class="choices" style="margin-bottom:1.4rem;">
 
-      {# Option 1 — Attend an event #}
+      {# Option 1 €” Attend an event #}
       <div>
         <input type="radio" id="choice_event" name="choice" value="event" checked>
         <label class="choice-label" for="choice_event">
           <div style="width:100%;">
             <div style="font-weight:600; margin-bottom:0.25rem;">
-              📅 {{ t('welcome_event_title') }}
+              ðŸ“… {{ t('welcome_event_title') }}
             </div>
             <div style="font-size:0.86rem; color:#555; line-height:1.5;">
               {{ t('welcome_event_body') }}
@@ -93,13 +93,13 @@
         </label>
       </div>
 
-      {# Option 2 — Have an Energy Advocate contact me #}
+      {# Option 2 €” Have an Energy Advocate contact me #}
       <div>
         <input type="radio" id="choice_assistance" name="choice" value="assistance">
         <label class="choice-label" for="choice_assistance">
           <div style="width:100%;">
             <div style="font-weight:600; margin-bottom:0.25rem;">
-              📞 {{ t('welcome_assistance_title') }}
+              ðŸ“ž {{ t('welcome_assistance_title') }}
             </div>
             <div style="font-size:0.86rem; color:#555; line-height:1.5;">
               {{ t('welcome_assistance_body') }}
@@ -108,13 +108,13 @@
         </label>
       </div>
 
-      {# Option 3 — Enroll with Mass Save directly #}
+      {# Option 3 €” Enroll with Mass Save directly #}
       <div>
         <input type="radio" id="choice_enroll" name="choice" value="enroll">
         <label class="choice-label" for="choice_enroll">
           <div style="width:100%;">
             <div style="font-weight:600; margin-bottom:0.25rem;">
-              ⚡ {{ t('welcome_enroll_title') }}
+              š¡ {{ t('welcome_enroll_title') }}
             </div>
             <div style="font-size:0.86rem; color:#555; line-height:1.5;">
               {{ t('welcome_enroll_body') }}

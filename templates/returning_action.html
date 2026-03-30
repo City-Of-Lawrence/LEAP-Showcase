@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% set progress = 50 %}
 {% block title %}{{ t('returning_title') }} · Lawrence Energy Program{% endblock %}
 
@@ -27,10 +27,10 @@
           <div>
             <strong>{{ e.name }}</strong><br>
             <span style="font-size:0.86rem; color:#555; line-height:1.7;">
-              📅 {{ e.event_date }} at {{ e.event_time }}&nbsp;&nbsp;
-              📍 {{ e.location }}<br>
+              ðŸ“… {{ e.event_date }} at {{ e.event_time }}&nbsp;&nbsp;
+              ðŸ“ {{ e.location }}<br>
               {% if e.wards %}
-                🗺 {{ t('event_wards_label_plural') if e.wards|length > 1 else t('event_wards_label') }}: {{ e.wards|join(', ') }}<br>
+                ðŸ—º {{ t('event_wards_label_plural') if e.wards|length > 1 else t('event_wards_label') }}: {{ e.wards|join(', ') }}<br>
               {% endif %}
               <span style="color:{% if e.spots_left <= 5 %}#c8392b{% else %}#2e7d50{% endif %}; font-weight:600;">
                 {{ e.spots_left }} {{ t('event_spot_remaining') if e.spots_left == 1 else t('event_spots_remaining') }}

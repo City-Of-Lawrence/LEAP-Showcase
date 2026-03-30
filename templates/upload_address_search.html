@@ -1,6 +1,6 @@
 ﻿{% extends "base.html" %}
 {% set progress = 15 %}
-{% block title %}Find Your Address · Lawrence Energy Program{% endblock %}
+{% block title %}Find Your Address Â· Lawrence Energy Program{% endblock %}
 
 {% block content %}
 <div class="card">
@@ -24,7 +24,7 @@
            value="{{ query }}"
            autocomplete="street-address"
            required>
-    <button type="submit" class="btn btn-primary">Search †’</button>
+    <button type="submit" class="btn btn-primary">Search â†’</button>
   </form>
 
   {% if query and results is defined %}
@@ -36,7 +36,7 @@
         {% for r in results %}
         <li>
           <a href="{{ url_for('public.select_address', acct=r['Account_Number'], unit=r['Service_Unit']) }}">
-            {{ r['Service_Address'] }}{% if r['Service_Unit'] %} · {{ r['Service_Unit'] }}{% endif %}
+            {{ r['Service_Address'] }}{% if r['Service_Unit'] %} Â· {{ r['Service_Unit'] }}{% endif %}
           </a>
           <div class="meta">
             {{ r['Resident_Status'] }}
@@ -55,7 +55,7 @@
   {% endif %}
 
   <div class="btn-row" style="margin-top:1.5rem;">
-    <a href="{{ url_for('public.index') }}" class="btn btn-outline">† Back</a>
+    <a href="{{ url_for('public.index') }}" class="btn btn-outline">â† Back</a>
   </div>
 
 </div>

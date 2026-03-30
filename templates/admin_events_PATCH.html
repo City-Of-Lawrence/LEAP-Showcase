@@ -1,8 +1,8 @@
-<!--
+﻿<!--
   PATCH for admin_events.html
   Add the two blocks below inside your existing admin_events.html
 
-  BLOCK 1 — Import result banner
+  BLOCK 1 €” Import result banner
   Place this right after the opening <div class="..."> or <main> tag,
   BEFORE the existing page heading / table. It shows the result message
   after an import and disappears if there is nothing to show.
@@ -17,7 +17,7 @@
 {% endif %}
 
 <!--
-  BLOCK 2 — Export and Import buttons
+  BLOCK 2 €” Export and Import buttons
   Place this near your existing "+ New Event" button / action row.
   The Export button is a plain link.
   The Import button opens a hidden file input and submits a form.
@@ -25,14 +25,14 @@
 
 <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
 
-  <!-- Existing New Event button — keep as-is, shown here for context -->
+  <!-- Existing New Event button €” keep as-is, shown here for context -->
   <a href="{{ url_for('admin.admin_event_new') }}" class="btn btn-primary">+ New Event</a>
 
   <!-- Export button -->
   <a href="{{ url_for('admin.admin_events_export') }}"
      class="btn btn-outline"
      style="text-decoration:none;">
-    ⬇ Export to Excel
+    ¬‡ Export to Excel
   </a>
 
   <!-- Import form -->
@@ -40,7 +40,7 @@
         enctype="multipart/form-data"
         style="display:inline; margin:0;">
     <label style="cursor:pointer;">
-      <span class="btn btn-outline">⬆ Import from Excel</span>
+      <span class="btn btn-outline">¬† Import from Excel</span>
       <input type="file" name="events_file" accept=".xlsx"
              style="display:none;"
              onchange="this.form.submit()">
@@ -53,12 +53,12 @@
   HOW IMPORT WORKS:
   - Accepts .xlsx files in the same format as the export
   - Matches events by: name + event_date + event_time + location (case-insensitive)
-  - If all four match an existing event → SKIP (no update, no duplicate)
-  - If no match → INSERT as new event including wards
+  - If all four match an existing event †’ SKIP (no update, no duplicate)
+  - If no match †’ INSERT as new event including wards
   - After import, a green banner shows "Imported X event(s), skipped Y duplicate(s)."
 
   EXCEL FORMAT (columns must be in this order):
   event_id | name | event_date | event_date | event_time | location | capacity | status | wards
-  (event_id is ignored on import — new IDs are assigned automatically)
+  (event_id is ignored on import €” new IDs are assigned automatically)
   (wards should be comma-separated in one cell e.g. "1, 2, 3")
 -->

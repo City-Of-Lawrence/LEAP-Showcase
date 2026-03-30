@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% set progress = 75 %}
 {% block title %}{{ t('eselect_title') }} · Lawrence Energy Program{% endblock %}
 
@@ -16,39 +16,39 @@
   <h1>{{ t('eselect_title') }}</h1>
   <p class="subtitle">{{ t('eselect_subtitle') }}</p>
 
-  {# Graduated zombie welcome banner — shown when a returning zombie logs in with their new UPIN #}
+  {# Graduated zombie welcome banner €” shown when a returning zombie logs in with their new UPIN #}
   {% if graduated_zombie %}
   <div style="background:#d4edda; border:1px solid #c3e6cb; border-radius:6px;
               padding:0.75rem 1rem; margin-bottom:1.2rem; font-size:0.9rem; color:#155724;">
-    🎉 <strong>Welcome back!</strong>
+    ðŸŽ‰ <strong>Welcome back!</strong>
     We've linked your registration to your new code.
     {% if zombie_has_contact %}
-    Your contact information has been carried forward — you can confirm it on the next page.
+    Your contact information has been carried forward €” you can confirm it on the next page.
     {% endif %}
   </div>
   {% endif %}
 
-  {# Address confirmation banner — shown for renter UPIN path #}
+  {# Address confirmation banner €” shown for renter UPIN path #}
   {% if address %}
   <div style="background:#eef2f7; border-radius:6px; padding:0.6rem 1rem;
               margin-bottom:1.2rem; font-size:0.88rem; color:#1a3a5c;">
-    📬 {{ t('eselect_address_on_file') }} <strong>{{ address }}{% if service_unit %}, Unit {{ service_unit }}{% endif %}</strong>
+    ðŸ“¬ {{ t('eselect_address_on_file') }} <strong>{{ address }}{% if service_unit %}, Unit {{ service_unit }}{% endif %}</strong>
   </div>
   {% endif %}
 
-  {# Current RSVP summary banner — shown when visitor already has an active registration #}
+  {# Current RSVP summary banner €” shown when visitor already has an active registration #}
   {% set current_rsvp = events | selectattr('already_rsvpd') | list | first %}
   {% if current_rsvp %}
   <div style="background:#d4edda; border:1px solid #c3e6cb; border-radius:6px;
               padding:0.75rem 1rem; margin-bottom:1.2rem; font-size:0.9rem; color:#155724;">
     ✅ <strong>{{ t('eselect_current_rsvp_banner') }}</strong>
-    <strong>{{ current_rsvp.name }}</strong> —
+    <strong>{{ current_rsvp.name }}</strong> €”
     {{ current_rsvp.event_date }} at {{ current_rsvp.event_time }},
     {{ current_rsvp.location }}
   </div>
   {% endif %}
 
-  {# Hidden cancel forms — must be outside the main form to avoid nesting #}
+  {# Hidden cancel forms €” must be outside the main form to avoid nesting #}
   {% for e in events %}
   {% if e.already_rsvpd and e.rsvp_id %}
   <form id="cancel-form-{{ e.event_id }}" method="POST"
@@ -78,15 +78,15 @@
               <span style="font-size:0.75rem; color:#856404; background:#fff3cd;
                            border:1px solid #f0ad4e; padding:0.1rem 0.5rem;
                            border-radius:3px; white-space:nowrap;">
-                ⚠ {{ t('event_already_registered') }}
+                š  {{ t('event_already_registered') }}
               </span>
               {% endif %}
             </div>
             <span style="font-size:0.86rem; color:#555; line-height:1.7;">
-              📅 {{ e.event_date }} at {{ e.event_time }}<br>
-              📍 {{ e.location }}<br>
+              ðŸ“… {{ e.event_date }} at {{ e.event_time }}<br>
+              ðŸ“ {{ e.location }}<br>
               {% if e.wards %}
-                🗺 {{ t('event_wards_label_plural') if e.wards|length > 1 else t('event_wards_label') }}: {{ e.wards|join(', ') }}<br>
+                ðŸ—º {{ t('event_wards_label_plural') if e.wards|length > 1 else t('event_wards_label') }}: {{ e.wards|join(', ') }}<br>
               {% endif %}
               <span style="color:{% if e.spots_left <= 5 %}#c8392b{% else %}#2e7d50{% endif %}; font-weight:600;">
                 {{ e.spots_left }} {{ t('event_spot_remaining') if e.spots_left == 1 else t('event_spots_remaining') }}
@@ -103,7 +103,7 @@
                              border-radius:3px; padding:0.15rem 0.5rem;
                              cursor:pointer;"
                       onclick="document.getElementById('cancel-form-{{ e.event_id }}').submit()">
-                ✕ Cancel RSVP
+                œ• Cancel RSVP
               </button>
               {% endif %}
               {% endif %}
@@ -130,7 +130,7 @@
 
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
-      <a href="{{ url_for('public.select_intent') }}" class="btn btn-outline">← {{ t('back_btn') }}</a>
+      <a href="{{ url_for('public.select_intent') }}" class="btn btn-outline">† {{ t('back_btn') }}</a>
     </div>
 
   </form>

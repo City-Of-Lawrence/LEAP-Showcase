@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% set progress = 72 %}
 {% block title %}{{ t('levents_title') }} · Lawrence Energy Program{% endblock %}
 
@@ -24,7 +24,7 @@
     {% endif %}
   </p>
 
-  {# ── Cancel forms (one per already-RSVP'd event) — must be outside main form ── #}
+  {# ”€”€ Cancel forms (one per already-RSVP'd event) €” must be outside main form ”€”€ #}
   {% for e in events %}
   {% if e.already_rsvpd and e.rsvp_id %}
   <form id="cancel_form_{{ e.event_id }}" method="POST"
@@ -35,7 +35,7 @@
   {% endif %}
   {% endfor %}
 
-  {# ── Main event selection form ── #}
+  {# ”€”€ Main event selection form ”€”€ #}
   <form method="POST" action="{{ url_for('public.landlord_events') }}">
 
     {% if events %}
@@ -55,15 +55,15 @@
                   <span style="font-size:0.75rem; color:#856404; background:#fff3cd;
                                border:1px solid #f0ad4e; padding:0.1rem 0.5rem;
                                border-radius:3px; white-space:nowrap;">
-                    ⚠ {{ t('event_already_registered') }}
+                    š  {{ t('event_already_registered') }}
                   </span>
                   {% endif %}
                 </div>
                 <span style="font-size:0.86rem; color:#555; line-height:1.7;">
-                  📅 {{ e.event_date }} at {{ e.event_time }}<br>
-                  📍 {{ e.location }}<br>
+                  ðŸ“… {{ e.event_date }} at {{ e.event_time }}<br>
+                  ðŸ“ {{ e.location }}<br>
                   {% if e.wards %}
-                    🗺 {{ t('event_wards_label_plural') if e.wards|length > 1 else t('event_wards_label') }}: {{ e.wards | join(', ') }}<br>
+                    ðŸ—º {{ t('event_wards_label_plural') if e.wards|length > 1 else t('event_wards_label') }}: {{ e.wards | join(', ') }}<br>
                   {% endif %}
                   <span style="color:{% if e.spots_left <= 5 %}#c8392b{% else %}#2e7d50{% endif %}; font-weight:600;">
                     {{ e.spots_left }} {{ t('event_spot_remaining') if e.spots_left == 1 else t('event_spots_remaining') }}

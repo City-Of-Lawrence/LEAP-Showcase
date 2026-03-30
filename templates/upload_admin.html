@@ -1,6 +1,6 @@
 ﻿{% extends "base.html" %}
 {% block main_class %}wide{% endblock %}
-{% block title %}Admin Dashboard · Lawrence Energy Program{% endblock %}
+{% block title %}Admin Dashboard Â· Lawrence Energy Program{% endblock %}
 
 {% block content %}
 
@@ -8,8 +8,8 @@
     <div>
       <h1 style="font-size:1.3rem; color:#1a3a5c;">Registrations Dashboard</h1>
       <p style="font-size:0.85rem; color:#666; margin-top:0.2rem;">
-        {{ total }} total &nbsp;·&nbsp; {{ flags }} unit flag(s) &nbsp;·&nbsp; {{ callbacks }} callback request(s)
-        {% if zombies %}&nbsp;·&nbsp; <span style="color:#856404; font-weight:600;">³ {{ zombies }} awaiting UPIN</span>{% endif %}
+        {{ total }} total &nbsp;Â·&nbsp; {{ flags }} unit flag(s) &nbsp;Â·&nbsp; {{ callbacks }} callback request(s)
+        {% if zombies %}&nbsp;Â·&nbsp; <span style="color:#856404; font-weight:600;">â³ {{ zombies }} awaiting UPIN</span>{% endif %}
       </p>
     </div>
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
@@ -17,19 +17,19 @@
       <a href="{{ url_for('admin.admin_export_zombies') }}" class="btn btn-secondary"
          style="font-size:0.85rem; padding:0.4rem 1rem; background:#fff3cd; color:#856404;
                 border:1px solid #f0ad4e;">
-        ¬‡ Export Zombie Queue ({{ zombies }})
+        â¬‡ Export Zombie Queue ({{ zombies }})
       </a>
       {% endif %}
       <a href="{{ url_for('admin.admin_events') }}"     class="btn btn-secondary" style="font-size:0.85rem; padding:0.4rem 1rem;">Events</a>
       <a href="{{ url_for('admin.admin_export_xdb') }}" class="btn btn-secondary"
          style="font-size:0.85rem; padding:0.4rem 1rem; background:#e8f0fe; color:#1a3a5c; border:1px solid #b0c4e8;"
          title="Download full database snapshot (.xdb)">
-        ¬‡ Export .xdb
+        â¬‡ Export .xdb
       </a>
       <a href="{{ url_for('admin.admin_import_xdb') }}" class="btn btn-secondary"
          style="font-size:0.85rem; padding:0.4rem 1rem; background:#fff3cd; color:#856404; border:1px solid #f0ad4e;"
          title="Restore database from .xdb file">
-        ¬† Restore .xdb
+        â¬† Restore .xdb
       </a>
       <a href="{{ url_for('admin.admin_settings') }}"   class="btn btn-outline"   style="font-size:0.85rem; padding:0.4rem 1rem;">Settings</a>
       <a href="{{ url_for('admin.admin_logout') }}"     class="btn btn-outline"   style="font-size:0.85rem; padding:0.4rem 1rem;">Sign Out</a>
@@ -51,7 +51,7 @@
         <th>Mass Save:<br>Enrolled?</th>
         <th>Pending<br>UPIN</th>
         <th>Callback</th>
-        <th>Fuel&nbsp;š‘</th>
+        <th>Fuel&nbsp;âš‘</th>
         <th>Name</th>
         <th>Phone</th>
         <th>Email</th>
@@ -62,52 +62,52 @@
       <tr>
         <td>{{ r['id'] }}</td>
         <td style="white-space:nowrap;">{{ r['registered_at'][:16] }}</td>
-        <td>{{ r['normalized_address'] or '€”' }}</td>
-        <td>{{ r['service_unit'] or '€”' }}</td>
-        <td style="white-space:nowrap;">{{ r['role'] or '€”' }}</td>
+        <td>{{ r['normalized_address'] or 'â€”' }}</td>
+        <td>{{ r['service_unit'] or 'â€”' }}</td>
+        <td style="white-space:nowrap;">{{ r['role'] or 'â€”' }}</td>
         <td>
           {% if r['intent'] == 'enroll' %}<span class="tag tag-enroll">Enroll</span>
           {% elif r['intent'] == 'event' %}<span class="tag tag-event">Event</span>
           {% elif r['intent'] == 'assistance' %}<span class="tag" style="background:#fef9e7;color:#7d6608;">Assist</span>
-          {% else %}€”{% endif %}
+          {% else %}â€”{% endif %}
         </td>
         <td>
           {% if r['upin_used'] == 'qr' %}<span class="tag tag-qr">QR</span>
           {% else %}<span class="tag tag-manual">Manual</span>{% endif %}
         </td>
         <td>
-          {% if r['unit_count_flag'] == 'confirmed_flag' %}<span class="tag" style="background:#fde8e6;color:#7a1f1a;">š‘&nbsp;Confirmed</span>
-          {% elif r['unit_count_flag'] == 'soft_flag' %}<span class="tag" style="background:#fef9e7;color:#7d6608;">š‘&nbsp;Soft</span>
-          {% elif r['unit_count_flag'] == 'ok' %}<span class="tag" style="background:#dff0d8;color:#2e6b3e;">œ“</span>
-          {% else %}€”{% endif %}
+          {% if r['unit_count_flag'] == 'confirmed_flag' %}<span class="tag" style="background:#fde8e6;color:#7a1f1a;">âš‘&nbsp;Confirmed</span>
+          {% elif r['unit_count_flag'] == 'soft_flag' %}<span class="tag" style="background:#fef9e7;color:#7d6608;">âš‘&nbsp;Soft</span>
+          {% elif r['unit_count_flag'] == 'ok' %}<span class="tag" style="background:#dff0d8;color:#2e6b3e;">âœ“</span>
+          {% else %}â€”{% endif %}
         </td>
         <td>
           {% if r['mass_save_enrolled'] == 'yes' %}<span class="tag tag-qr">Yes</span>
           {% elif r['mass_save_enrolled'] == 'no' %}No
-          {% else %}€”{% endif %}
+          {% else %}â€”{% endif %}
         </td>
         <td>
           {% if r['pending_upin'] == 'yes' %}
-            <span class="tag" style="background:#fff3cd; color:#856404;">³ Awaiting</span>
+            <span class="tag" style="background:#fff3cd; color:#856404;">â³ Awaiting</span>
           {% elif r['pending_upin'] == 'graduated' %}
-            <span class="tag" style="background:#dff0d8; color:#2e6b3e;">œ“ Graduated</span>
-          {% else %}€”{% endif %}
+            <span class="tag" style="background:#dff0d8; color:#2e6b3e;">âœ“ Graduated</span>
+          {% else %}â€”{% endif %}
         </td>
         <td>
           {% if r['needs_callback'] == 'yes' %}<span class="tag tag-enroll">ðŸ“ž&nbsp;Yes</span>
-          {% else %}€”{% endif %}
+          {% else %}â€”{% endif %}
         </td>
         <td>
           {% if r['reported_fuel'] %}
             <span class="tag" style="background:#fde8e6; color:#7a1f1a;"
                   title="Resident reported correction">
-              š‘ {{ r['reported_fuel'] | replace('_', ' ') | title }}
+              âš‘ {{ r['reported_fuel'] | replace('_', ' ') | title }}
             </span>
-          {% else %}€”{% endif %}
+          {% else %}â€”{% endif %}
         </td>
-        <td>{{ r['contact_name']  or '€”' }}</td>
-        <td style="white-space:nowrap;">{{ r['contact_phone'] or '€”' }}</td>
-        <td>{{ r['contact_email'] or '€”' }}</td>
+        <td>{{ r['contact_name']  or 'â€”' }}</td>
+        <td style="white-space:nowrap;">{{ r['contact_phone'] or 'â€”' }}</td>
+        <td>{{ r['contact_email'] or 'â€”' }}</td>
       </tr>
       {% endfor %}
     </tbody>
