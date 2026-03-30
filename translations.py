@@ -40,6 +40,34 @@ TRANSLATIONS = {
         "en": "Owner-Occupant",
         "es": "Dueño que vive en la propiedad",
     },
+    # Explicit label used on role-selection card (start_generic.html)
+    # Clearer than "Owner-Occupant" -- makes single-family / owner-lives-there unambiguous
+    "role_owner_occupant_explicit": {
+        "en": "I Own & Live in My Home",
+        "es": "Soy dueño/a y vivo en mi casa",
+    },
+
+    # ── Role hint lines (shown under label on role-selection cards) ───
+    "role_hint_renter": {
+        "en": "I rent my home or apartment",
+        "es": "Alquilo mi vivienda o apartamento",
+    },
+    "role_hint_owner_occupant": {
+        "en": "Single-family home — I own it and live there",
+        "es": "Casa unifamiliar — soy dueño/a y vivo allí",
+    },
+    "role_hint_landlord": {
+        "en": "I own rental property in Lawrence",
+        "es": "Tengo propiedades de alquiler en Lawrence",
+    },
+    "role_hint_property_manager": {
+        "en": "I manage buildings on behalf of an owner",
+        "es": "Administro edificios en nombre de un propietario",
+    },
+    "role_hint_smallbiz": {
+        "en": "I own or operate a small business",
+        "es": "Soy dueño/a u opero un pequeño negocio",
+    },
     "role_landlord": {
         "en": "Landlord",
         "es": "Arrendador/a",

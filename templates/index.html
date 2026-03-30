@@ -71,36 +71,43 @@
     letter-spacing:0.16em; text-transform:uppercase; color:#C8960C; white-space:nowrap;
   }
 
-  .leap-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:0; }
-  .leap-tile {
+  .leap-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+
+  /* Tile is the clickable anchor -- no inner button */
+  a.leap-tile {
     background:#F9F6F0; border-radius:12px; border:2px solid #e0e8f0;
     padding:24px 16px 20px; text-align:center; display:flex; flex-direction:column;
+    text-decoration:none; color:inherit; cursor:pointer; position:relative;
     transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;
   }
-  .leap-tile:hover:not(.leap-tile-disabled) {
-    border-color:#1A3A6B; box-shadow:0 4px 20px rgba(26,58,107,0.12);
-    transform:translateY(-2px); background:#ffffff;
+  a.leap-tile:hover {
+    border-color:#1A3A6B; box-shadow:0 4px 20px rgba(26,58,107,0.13);
+    transform:translateY(-2px); background:#ffffff; text-decoration:none;
   }
-  .leap-tile-disabled { opacity:0.52; }
+
   .leap-tile-icon { font-size:36px; margin-bottom:10px; }
-  .leap-tile-title { font-family:'Nunito',sans-serif; font-size:15px; font-weight:800; color:#1A3A6B; margin-bottom:8px; }
-  .leap-tile-body  { font-family:'Nunito',sans-serif; font-size:13px; color:#5a6a80; line-height:1.55; margin-bottom:18px; flex:1; }
-  .leap-tile-btn {
-    display:block; width:100%; background:#1A3A6B; color:#ffffff;
-    font-family:'Nunito',sans-serif; font-size:14px; font-weight:700; text-align:center;
-    padding:11px 12px; border-radius:8px; border:none; cursor:pointer; text-decoration:none;
-    transition:background 0.2s; box-shadow:0 2px 8px rgba(26,58,107,0.18); margin-top:auto;
+  .leap-tile-title {
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:800;
+    color:#1A3A6B; margin-bottom:8px;
   }
-  .leap-tile-btn:hover { background:#122a52; color:#ffffff; text-decoration:none; }
-  .leap-tile-btn.btn-outline {
-    background:transparent; color:#1A3A6B; border:2px solid #1A3A6B; box-shadow:none;
+  .leap-tile-body {
+    font-family:'Nunito',sans-serif; font-size:13px; color:#5a6a80;
+    line-height:1.55; flex:1;
   }
-  .leap-tile-btn.btn-outline:hover { background:#1A3A6B; color:#ffffff; }
-  .coming-soon-badge {
-    display:inline-block; background:#e8edf2; color:#5a6a80;
-    font-family:'Nunito',sans-serif; font-size:12px; font-weight:700;
-    letter-spacing:0.08em; text-transform:uppercase; padding:9px 16px;
-    border-radius:7px; margin-top:auto;
+
+  /* Chevron cue at bottom of each active tile */
+  .leap-tile-chevron {
+    display:block; margin-top:16px; font-size:20px; color:#1A3A6B;
+    opacity:0.35; transition:opacity 0.2s, transform 0.2s; font-weight:700;
+  }
+  a.leap-tile:hover .leap-tile-chevron {
+    opacity:1; transform:translateX(3px);
+  }
+
+  /* External link icon inline with tile title */
+  .ext-icon {
+    font-size:12px; vertical-align:super; margin-left:3px;
+    color:#5a6a80; opacity:0.7;
   }
 
   @media (max-width:560px) {
@@ -151,26 +158,35 @@
       <div class="leap-section-divider-line"></div>
     </div>
 
-    {# THREE PROGRAM TILES #}
+    {# THREE PROGRAM TILES — order: Energy Upgrades | Small Business | Lower My Bills #}
     <div class="leap-tiles">
-      <div class="leap-tile">
+
+      {# Tile 1: Energy Upgrades (Mass Save) #}
+      <a href="{{ url_for('public.choose_path') }}" class="leap-tile">
         <div class="leap-tile-icon">&#127968;</div>
         <div class="leap-tile-title">{{ t('help_masssave_title') }}</div>
         <p class="leap-tile-body">{{ t('help_masssave_body') }}</p>
-        <a href="{{ url_for('public.choose_path') }}" class="leap-tile-btn">{{ t('help_masssave_btn') }}</a>
-      </div>
-      <div class="leap-tile">
-        <div class="leap-tile-icon">&#9889;</div>
-        <div class="leap-tile-title">{{ t('help_aggregation_title') }}</div>
-        <p class="leap-tile-body">{{ t('help_aggregation_body') }}</p>
-        <a href="https://colonialpowergroup.com/lawrence/" target="_blank" rel="noopener" class="leap-tile-btn btn-outline">{{ t('help_aggregation_btn') }}</a>
-      </div>
-      <div class="leap-tile">
+        <span class="leap-tile-chevron">&#8250;</span>
+      </a>
+
+      {# Tile 2: Small Business #}
+      <a href="{{ url_for('public.start_small_business') }}" class="leap-tile">
         <div class="leap-tile-icon">&#127978;</div>
         <div class="leap-tile-title">{{ t('help_smallbiz_title') }}</div>
         <p class="leap-tile-body">{{ t('help_smallbiz_body') }}</p>
-        <a href="{{ url_for('public.start_small_business') }}" class="leap-tile-btn">{{ t('help_smallbiz_btn') }}</a>
-      </div>
+        <span class="leap-tile-chevron">&#8250;</span>
+      </a>
+
+      {# Tile 3: Lower My Bills (Colonial Power Group -- external, opens new tab) #}
+      <a href="https://colonialpowergroup.com/lawrence/" target="_blank" rel="noopener" class="leap-tile">
+        <div class="leap-tile-icon">&#9889;</div>
+        <div class="leap-tile-title">
+          {{ t('help_aggregation_title') }}<span class="ext-icon">&#8599;</span>
+        </div>
+        <p class="leap-tile-body">{{ t('help_aggregation_body') }}</p>
+        <span class="leap-tile-chevron">&#8250;</span>
+      </a>
+
     </div>
 
   </div>

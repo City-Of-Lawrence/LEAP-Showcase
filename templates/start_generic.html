@@ -1,39 +1,156 @@
 {% extends "base.html" %}
 {% set progress = 10 %}
-{% block title %}{{ t('start_title') }} · Lawrence Energy Program{% endblock %}
+{% block title %}{{ t('start_title') }} · LEAP{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { background: #F9F6F0; }
+
+  .sg-wrap {
+    max-width: 600px;
+    margin: 48px auto 60px;
+    padding: 0 16px;
+    animation: sgRise 0.55s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes sgRise { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  .sg-eyebrow {
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:800;
+    letter-spacing:0.18em; text-transform:uppercase; color:#C8960C;
+    margin-bottom:8px; text-align:center;
+  }
+  .sg-title {
+    font-family:'Nunito',sans-serif; font-size:30px; font-weight:800;
+    color:#1A3A6B; text-align:center; margin-bottom:8px;
+  }
+  .sg-sub {
+    font-family:'Nunito',sans-serif; font-size:15px; color:#5a6a80;
+    text-align:center; margin-bottom:36px; line-height:1.6;
+  }
+
+  .sg-error {
+    background:#fff0f0; border:1.5px solid #e05555; border-radius:9px;
+    padding:12px 16px; margin-bottom:20px; color:#c0392b;
+    font-family:'Nunito',sans-serif; font-size:14px; text-align:center;
+  }
+
+  /* Role card grid */
+  .sg-roles {
+    display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:32px;
+  }
+
+  /* Hidden radio -- card click submits form */
+  .sg-roles input[type="radio"] { display:none; }
+
+  .sg-role-card {
+    background:#ffffff; border-radius:13px; border:2px solid #e0e8f0;
+    padding:26px 18px 22px; text-align:center; display:flex; flex-direction:column;
+    align-items:center; cursor:pointer;
+    box-shadow:0 2px 10px rgba(26,58,107,0.06);
+    transition:border-color 0.18s, box-shadow 0.18s, transform 0.15s, background 0.18s;
+    user-select:none;
+  }
+  .sg-role-card:hover {
+    border-color:#1A3A6B; box-shadow:0 5px 22px rgba(26,58,107,0.13);
+    transform:translateY(-2px); background:#f4f7fb;
+  }
+  .sg-role-card:active {
+    transform:translateY(0); box-shadow:0 2px 8px rgba(26,58,107,0.10);
+  }
+
+  .sg-role-icon { font-size:34px; margin-bottom:10px; }
+  .sg-role-label {
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:800;
+    color:#1A3A6B; margin-bottom:4px; line-height:1.3;
+  }
+  .sg-role-hint {
+    font-family:'Nunito',sans-serif; font-size:12px; color:#7a8a9e;
+    line-height:1.45;
+  }
+  .sg-role-chevron {
+    font-size:18px; color:#1A3A6B; opacity:0.3;
+    margin-top:12px; transition:opacity 0.18s, transform 0.18s;
+  }
+  .sg-role-card:hover .sg-role-chevron { opacity:0.9; transform:translateX(3px); }
+
+  .sg-back {
+    text-align:center; font-family:'Nunito',sans-serif; font-size:14px; color:#5a6a80;
+  }
+  .sg-back a { color:#5a6a80; text-decoration:none; }
+  .sg-back a:hover { text-decoration:underline; color:#1A3A6B; }
+
+  @media (max-width:480px) {
+    .sg-roles { grid-template-columns:1fr; }
+    .sg-title { font-size:24px; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="card">
+<div class="sg-wrap">
 
-  <div class="steps">
-    <div class="step active">{{ t('step_role') }}</div>
-    <div class="step">{{ t('step_street') }}</div>
-    <div class="step">{{ t('step_address') }}</div>
-    <div class="step">{{ t('step_intent') }}</div>
-    <div class="step">{{ t('step_contact') }}</div>
-  </div>
-
-  <h1>{{ t('start_title') }}</h1>
-  <p class="subtitle">{{ t('start_subtitle') }}</p>
+  <div class="sg-eyebrow">{{ t('help_masssave_title') }}</div>
+  <h1 class="sg-title">{{ t('start_title') }}</h1>
+  <p class="sg-sub">{{ t('start_subtitle') }}</p>
 
   {% if error %}
-  <div class="alert alert-error">{{ error }}</div>
+  <div class="sg-error">{{ error }}</div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('public.start_generic') }}">
-    <div class="choices">
+  {#
+    Role cards submit the hidden form instantly on click.
+    Each card sets the hidden role input then calls form.submit().
+    No Continue button needed.
+  #}
+  <form id="role-form" method="POST" action="{{ url_for('public.start_generic') }}">
+    <input type="hidden" id="role-input" name="role" value="">
+
+    <div class="sg-roles">
       {% for value, label in roles %}
-      <div>
-        <input type="radio" id="role_{{ value }}" name="role" value="{{ value }}">
-        <label class="choice-label" for="role_{{ value }}">{{ label }}</label>
-      </div>
+        {# Determine icon and hint per role #}
+        {% if value == 'renter' %}
+          {% set icon = '&#127968;' %}
+          {% set hint = t('role_hint_renter') if 'role_hint_renter' in translations else '' %}
+        {% elif value == 'landlord' %}
+          {% set icon = '&#127979;' %}
+          {% set hint = t('role_hint_landlord') if 'role_hint_landlord' in translations else '' %}
+        {% elif value == 'owner_occupant' %}
+          {% set icon = '&#127968;' %}
+          {# Override label to be explicit -- single family, owner lives there #}
+          {% set label = t('role_owner_occupant_explicit') if 'role_owner_occupant_explicit' in translations else 'I Own & Live in My Home' %}
+          {% set hint = t('role_hint_owner_occupant') if 'role_hint_owner_occupant' in translations else 'Single-family home' %}
+        {% elif value == 'small_business' %}
+          {% set icon = '&#127978;' %}
+          {% set hint = t('role_hint_smallbiz') if 'role_hint_smallbiz' in translations else '' %}
+        {% elif value == 'property_manager' %}
+          {% set icon = '&#128188;' %}
+          {% set hint = t('role_hint_property_manager') if 'role_hint_property_manager' in translations else '' %}
+        {% else %}
+          {% set icon = '&#128100;' %}
+          {% set hint = '' %}
+        {% endif %}
+
+        <div class="sg-role-card" onclick="submitRole('{{ value }}')">
+          <div class="sg-role-icon">{{ icon | safe }}</div>
+          <div class="sg-role-label">{{ label }}</div>
+          {% if hint %}<div class="sg-role-hint">{{ hint }}</div>{% endif %}
+          <div class="sg-role-chevron">&#8250;</div>
+        </div>
       {% endfor %}
-    </div>
-    <div class="btn-row">
-      <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
-      <a href="{{ url_for('public.index') }}" class="btn btn-outline">{{ t('back_btn') }}</a>
     </div>
   </form>
 
+  <div class="sg-back">
+    <a href="{{ url_for('public.choose_path') }}">&#8592; {{ t('back_btn') }}</a>
+  </div>
+
 </div>
+
+<script>
+  function submitRole(value) {
+    document.getElementById('role-input').value = value;
+    document.getElementById('role-form').submit();
+  }
+</script>
 {% endblock %}

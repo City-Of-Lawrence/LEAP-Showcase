@@ -59,10 +59,12 @@
       <input type="text" id="manual_address" name="manual_address"
              placeholder="e.g. 12 Exeter St"
              style="margin-bottom:0.7rem;">
+      {% if role_value != 'owner_occupant' %}
       <label for="manual_unit">Unit Number <span style="font-weight:400; color:#777;">(if applicable)</span></label>
       <input type="text" id="manual_unit" name="manual_unit"
              placeholder="e.g. 3B"
              style="margin-bottom:0;">
+      {% endif %}
     </div>
 
     <!-- Hidden fields populated by JS -->
@@ -90,9 +92,11 @@
     <input type="text" id="manual_address_b" name="manual_address"
            value="{{ street_name }}" placeholder="e.g. 12 Exeter St">
 
+    {% if role_value != 'owner_occupant' %}
     <label for="manual_unit_b">Unit Number <span style="font-weight:400; color:#777;">(if applicable)</span></label>
     <input type="text" id="manual_unit_b" name="manual_unit"
            placeholder="e.g. 3B">
+    {% endif %}
 
     <input type="hidden" name="service_unit"    value="">
     <input type="hidden" name="display_address" value="">

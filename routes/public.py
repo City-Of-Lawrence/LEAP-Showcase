@@ -356,6 +356,7 @@ def address_pick():
                 return render_template("address_pick.html", addresses=addresses,
                                        street_name=street_name,
                                        role=dict(get_roles(get_lang())).get(role, ""),
+                                       role_value=role,
                                        error=t("error_enter_address", get_lang()))
             display_address = manual_address
             if manual_unit:
@@ -395,6 +396,7 @@ def address_pick():
             return render_template("address_pick.html", addresses=addresses,
                                    street_name=street_name,
                                    role=dict(get_roles(get_lang())).get(role, ""),
+                                   role_value=role,
                                    error=t("error_select_address", get_lang()))
         prop = lookup_property(account_number)
         session["account_number"]     = account_number
@@ -419,6 +421,7 @@ def address_pick():
     return render_template("address_pick.html", addresses=addresses,
                            street_name=street_name,
                            role=dict(get_roles(get_lang())).get(role, ""),
+                           role_value=role,
                            error=None)
 
 
@@ -749,6 +752,11 @@ def welcome():
 
         if choice == "event":
             session["intent"] = "event"
+            # Zombie guard: street-path renters (no upin_plain) cannot RSVP.
+            # Route them directly to zombie_holding rather than letting
+            # event_select redirect them -- cleaner and avoids session side-effects.
+            if session.get("role") == "renter" and not session.get("upin_plain"):
+                return redirect(url_for("public.zombie_holding"))
             n = int(get_setting("events_to_show", "2"))
             session["no_events_notify"] = len(get_upcoming_events(limit=n)) == 0
             return redirect(url_for("public.event_select"))
