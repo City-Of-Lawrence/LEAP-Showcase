@@ -137,7 +137,21 @@ def search_streets_by_role(street_name: str, role: str):
             if len(parts) == 2:
                 streets.add(parts[1].strip())
 
-    else:  # owner_occupant, property_manager, small_business — try both
+    elif role == "owner_occupant":
+        # Master DB only -- owner-occupants are single-family homeowners,
+        # not in the rental outreach DB
+        rows = master_db().execute(
+            """SELECT DISTINCT normalized_address FROM Assessment_L_Parcels
+               WHERE UPPER(normalized_address) LIKE ?
+               ORDER BY normalized_address LIMIT 200""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            parts = r["normalized_address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+
+    else:  # property_manager, small_business -- both DBs
         rows = outreach_db().execute(
             """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
                WHERE UPPER(Service_Address) LIKE ?
@@ -198,7 +212,18 @@ def get_all_streets_by_role(role: str):
             if len(parts) == 2:
                 streets.add(parts[1].strip())
 
-    else:  # owner_occupant, property_manager, small_business
+    elif role == "owner_occupant":
+        # Master DB only -- owner-occupants are single-family homeowners
+        rows = master_db().execute(
+            """SELECT DISTINCT normalized_address FROM Assessment_L_Parcels
+               ORDER BY normalized_address"""
+        ).fetchall()
+        for r in rows:
+            parts = r["normalized_address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
+
+    else:  # property_manager, small_business
         rows = outreach_db().execute(
             """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
                ORDER BY Service_Address"""
@@ -266,6 +291,28 @@ def search_addresses_on_street(street_name: str, role: str):
                     "display_address": addr,
                     "service_unit":    r["Service_Unit"] or "",
                     "source":          "outreach",
+                })
+
+    elif role == "owner_occupant":
+        # Master DB only, whole-building addresses only -- no unit rows.
+        # Owner-occupants live in single-family homes; unit-level rows
+        # from the outreach DB are rental units and do not apply.
+        rows = master_db().execute(
+            """SELECT account_number, normalized_address
+               FROM Assessment_L_Parcels
+               WHERE UPPER(normalized_address) LIKE ?
+               ORDER BY normalized_address LIMIT 200""",
+            (pattern,)
+        ).fetchall()
+        for r in rows:
+            key = r["account_number"]
+            if key not in seen:
+                seen.add(key)
+                results.append({
+                    "account_number":  r["account_number"],
+                    "display_address": r["normalized_address"],
+                    "service_unit":    "",
+                    "source":          "master",
                 })
 
     elif role == "renter":
