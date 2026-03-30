@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}Restore Database — LEAP Admin{% endblock %}
 
 {% block content %}
@@ -12,7 +12,7 @@
       </p>
     </div>
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-      <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">† Dashboard</a>
+      <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">← Dashboard</a>
       <a href="{{ url_for('admin.admin_logout') }}"    class="btn btn-outline" style="font-size:0.85rem; padding:0.4rem 1rem;">Sign Out</a>
     </div>
   </div>
@@ -21,7 +21,7 @@
   <div class="alert alert-warning"
        style="margin-bottom:1.2rem; background:#fff3cd; border:1px solid #f0ad4e;
               border-radius:6px; padding:1rem 1.2rem; color:#856404;">
-    š  {{ error }}
+    ✔️ {{ error }}
   </div>
   {% endif %}
 
@@ -82,7 +82,7 @@
 
   <div style="background:#fff3cd; border:1px solid #f0ad4e; border-radius:6px;
               padding:1rem 1.2rem; color:#856404; margin-bottom:1.2rem;">
-    <strong>š  This will replace your current data.</strong><br>
+    <strong>✔️ This will replace your current data.</strong><br>
     Your current database will be backed up automatically before the restore executes.
     The backup can be recovered from the Render console if needed
     (<code>/data/backups/</code>).

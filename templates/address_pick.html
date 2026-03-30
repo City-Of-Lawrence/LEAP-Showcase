@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% set progress = 45 %}
 {% block title %}Select Your Address · Lawrence Energy Program{% endblock %}
 
@@ -71,7 +71,7 @@
 
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">This Is My Address →</button>
-      <a href="{{ url_for('public.address_street') }}" class="btn btn-outline">† Back</a>
+      <a href="{{ url_for('public.address_street') }}" class="btn btn-outline">← Back</a>
     </div>
 
   </form>
@@ -99,7 +99,7 @@
 
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">Continue →</button>
-      <a href="{{ url_for('public.address_street') }}" class="btn btn-outline">† Try different street</a>
+      <a href="{{ url_for('public.address_street') }}" class="btn btn-outline">← Try different street</a>
     </div>
   </form>
   {% else %}

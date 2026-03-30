@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% set progress = 55 %}
 {% block title %}{{ t('welcome_title') }} · Lawrence Energy Program{% endblock %}
 
@@ -20,19 +20,19 @@
   <div style="background:#eef2f7; border-radius:6px; padding:0.75rem 1rem;
               margin-bottom:1.5rem; font-size:0.9rem; color:#1a3a5c;">
     <div style="margin-bottom:0.4rem;">
-      ðŸ“¬ {{ t('welcome_address_confirmed') }}
+      📬 {{ t('welcome_address_confirmed') }}
       <strong>{{ address }}{% if service_unit and service_unit not in address %}, Unit {{ service_unit }}{% endif %}</strong>
     </div>
     {% if assessed_fuel %}
     <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-      <span>ðŸ”¥ {{ t('fuel_on_file_label') }} <strong>{{ assessed_fuel }}</strong></span>
+      <span>🔥 {{ t('fuel_on_file_label') }} <strong>{{ assessed_fuel }}</strong></span>
       <button type="button" id="fuel-correct-btn"
               onclick="document.getElementById('fuel-correction').style.display='block';
                        document.getElementById('fuel-correct-btn').style.display='none';"
               style="font-size:0.78rem; color:#c8392b; background:none;
                      border:1px solid #c8392b; border-radius:3px;
                      padding:0.1rem 0.5rem; cursor:pointer;">
-        œï¸ {{ t('fuel_correct_btn') }}
+        ✏️ {{ t('fuel_correct_btn') }}
       </button>
     </div>
     {% endif %}
@@ -84,7 +84,7 @@
         <label class="choice-label" for="choice_event">
           <div style="width:100%;">
             <div style="font-weight:600; margin-bottom:0.25rem;">
-              ðŸ“… {{ t('welcome_event_title') }}
+              📅 {{ t('welcome_event_title') }}
             </div>
             <div style="font-size:0.86rem; color:#555; line-height:1.5;">
               {{ t('welcome_event_body') }}
@@ -99,7 +99,7 @@
         <label class="choice-label" for="choice_assistance">
           <div style="width:100%;">
             <div style="font-weight:600; margin-bottom:0.25rem;">
-              ðŸ“ž {{ t('welcome_assistance_title') }}
+              📞 {{ t('welcome_assistance_title') }}
             </div>
             <div style="font-size:0.86rem; color:#555; line-height:1.5;">
               {{ t('welcome_assistance_body') }}
@@ -114,7 +114,7 @@
         <label class="choice-label" for="choice_enroll">
           <div style="width:100%;">
             <div style="font-weight:600; margin-bottom:0.25rem;">
-              š¡ {{ t('welcome_enroll_title') }}
+              💡 {{ t('welcome_enroll_title') }}
             </div>
             <div style="font-size:0.86rem; color:#555; line-height:1.5;">
               {{ t('welcome_enroll_body') }}

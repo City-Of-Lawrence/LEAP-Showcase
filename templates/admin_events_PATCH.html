@@ -1,4 +1,4 @@
-﻿<!--
+<!--
   PATCH for admin_events.html
   Add the two blocks below inside your existing admin_events.html
 
@@ -32,7 +32,7 @@
   <a href="{{ url_for('admin.admin_events_export') }}"
      class="btn btn-outline"
      style="text-decoration:none;">
-    ¬‡ Export to Excel
+    ⬇ Export to Excel
   </a>
 
   <!-- Import form -->
@@ -40,7 +40,7 @@
         enctype="multipart/form-data"
         style="display:inline; margin:0;">
     <label style="cursor:pointer;">
-      <span class="btn btn-outline">¬† Import from Excel</span>
+      <span class="btn btn-outline">⬆ Import from Excel</span>
       <input type="file" name="events_file" accept=".xlsx"
              style="display:none;"
              onchange="this.form.submit()">

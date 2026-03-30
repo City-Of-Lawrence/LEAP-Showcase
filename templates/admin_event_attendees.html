@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block main_class %}wide{% endblock %}
 {% block title %}RSVPs · {{ event.name }} · Admin{% endblock %}
 
@@ -10,18 +10,18 @@
               margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
     <div>
       <h1 style="font-size:1.3rem; color:#1a3a5c; margin:0;">
-        ðŸ‘¥ RSVPs — {{ event.name }}
+        👥 RSVPs — {{ event.name }}
       </h1>
       <div style="font-size:0.88rem; color:#555; margin-top:0.3rem;">
-        ðŸ“… {{ event.event_date }} at {{ event.event_time }}
-        &nbsp;·&nbsp; ðŸ“ {{ event.location }}
+        📅 {{ event.event_date }} at {{ event.event_time }}
+        &nbsp;·&nbsp; 📍 {{ event.location }}
         {% if wards %}
-          &nbsp;·&nbsp; ðŸ—º Wards: {{ wards | join(', ') }}
+          &nbsp;·&nbsp; 🗺 Wards: {{ wards | join(', ') }}
         {% endif %}
       </div>
     </div>
     <a href="{{ url_for('admin.admin_events') }}" class="btn btn-outline"
-       style="font-size:0.85rem; padding:0.4rem 1rem;">† Back to Events</a>
+       style="font-size:0.85rem; padding:0.4rem 1rem;">← Back to Events</a>
   </div>
 
   {# ”—€ Summary bar ”—€ #}
@@ -32,11 +32,11 @@
     </div>
     <div style="background:#fdf3f2; border-radius:6px; padding:0.5rem 1.1rem;
                 font-size:0.9rem; color:#7a1f1a; font-weight:600;">
-      œ— {{ cancelled_count }} cancelled
+      ✗ {{ cancelled_count }} cancelled
     </div>
     <div style="background:#eef2f7; border-radius:6px; padding:0.5rem 1.1rem;
                 font-size:0.9rem; color:#1a3a5c; font-weight:600;">
-      ðŸ“‹ {{ attendees | length }} total RSVPs
+      📋 {{ attendees | length }} total RSVPs
     </div>
   </div>
 
@@ -44,7 +44,7 @@
   {% if ea_flags %}
   <div style="background:#fff8e1; border:1px solid #f0a500; border-radius:6px;
               padding:0.75rem 1.2rem; margin-bottom:1rem; font-size:0.9rem; color:#7a4f00;">
-    <strong>š ï¸ Energy Advocate Follow-Up Needed</strong><br>
+    <strong>⚠️ Energy Advocate Follow-Up Needed</strong><br>
     {{ ea_flags | length }} registrant(s) below have cancelled RSVPs 2 or more times across all events.
     They are marked <span style="background:#fff3cd; padding:0.1rem 0.4rem;
     border-radius:3px; font-weight:600;">EA</span> in the table.

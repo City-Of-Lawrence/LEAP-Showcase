@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}{{ t('help_title') }} · Lawrence Energy Program{% endblock %}
 
 {% block head %}
@@ -172,7 +172,7 @@
 
     {# Tile 1 — Mass Save Energy Upgrades (live) #}
     <div class="help-tile">
-      <div class="help-tile-icon">ðŸ </div>
+      <div class="help-tile-icon">🏠</div>
       <div class="help-tile-title">{{ t('help_masssave_title') }}</div>
       <p class="help-tile-body">{{ t('help_masssave_body') }}</p>
       <a href="{{ url_for('public.start_generic') }}" class="help-tile-btn">
@@ -182,7 +182,7 @@
 
     {# Tile 2 — Municipal Aggregation / Lower Bills (external, live) #}
     <div class="help-tile">
-      <div class="help-tile-icon">š¡</div>
+      <div class="help-tile-icon">💡</div>
       <div class="help-tile-title">{{ t('help_aggregation_title') }}</div>
       <p class="help-tile-body">{{ t('help_aggregation_body') }}</p>
       <a href="https://colonialpowergroup.com/lawrence/"
@@ -194,7 +194,7 @@
 
     {# Tile 3 — Small Business (coming soon stub) #}
     <div class="help-tile help-tile-disabled">
-      <div class="help-tile-icon">ðŸª</div>
+      <div class="help-tile-icon">🏪</div>
       <div class="help-tile-title">{{ t('help_smallbiz_title') }}</div>
       <p class="help-tile-body">{{ t('help_smallbiz_body') }}</p>
       <span class="coming-soon-badge">{{ t('help_coming_soon') }}</span>
@@ -203,7 +203,7 @@
   </div>{# /help-tiles #}
 
   <div class="help-back">
-    <a href="{{ url_for('public.index') }}">† {{ t('back_btn') }}</a>
+    <a href="{{ url_for('public.index') }}">← {{ t('back_btn') }}</a>
   </div>
 
 </div>{# /help-wrap #}
