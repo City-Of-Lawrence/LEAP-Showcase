@@ -217,12 +217,16 @@ TRANSLATIONS = {
         "es": "Peque\u00f1o Negocio",
     },
     "help_smallbiz_body": {
-        "en": "Energy programs for Lawrence small businesses. Coming soon \u2014 check back shortly.",
-        "es": "Programas de energ\u00eda para peque\u00f1os negocios en Lawrence. Pr\u00f3ximamente \u2014 vuelva pronto.",
+        "en": "No-cost energy upgrades and efficiency programs for Lawrence small businesses.",
+        "es": "Mejoras de energ\u00eda sin costo y programas de eficiencia para peque\u00f1os negocios en Lawrence.",
     },
     "help_coming_soon": {
         "en": "Coming Soon",
         "es": "Pr\u00f3ximamente",
+    },
+    "help_smallbiz_btn": {
+        "en": "Get Started \u2192",
+        "es": "Comenzar \u2192",
     },
 
     # ── start_generic.html ───────────────────────────────────────────
