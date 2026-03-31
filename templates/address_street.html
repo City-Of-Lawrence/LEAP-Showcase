@@ -124,21 +124,23 @@
     {{ t('street_matching') }} <strong>{{ query }}</strong>.
     {{ t('street_which_one') }}
   </p>
-  <form method="POST" action="{{ url_for('public.address_confirm_street') }}">
-    <div class="choices">
-      {% for s in streets %}
-      <div>
-        <input type="radio" id="street_{{ loop.index }}" name="street_name" value="{{ s }}"
-               {% if loop.first %}checked{% endif %}>
-        <label class="choice-label" for="street_{{ loop.index }}">{{ s }}</label>
-      </div>
-      {% endfor %}
-    </div>
-    <div class="btn-row">
-      <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
-      <a href="{{ url_for('public.address_street') }}" class="btn btn-outline">{{ t('street_try_again_btn') }}</a>
-    </div>
-  </form>
+  <div class="choices">
+    {% for s in streets %}
+    <form method="POST" action="{{ url_for('public.address_confirm_street') }}" style="margin:0 0 0.4rem 0;">
+      <input type="hidden" name="street_name" value="{{ s }}">
+      <button type="submit"
+              style="width:100%; text-align:left; background:white;
+                     border:1px solid #ddd; border-radius:6px;
+                     padding:0.7rem 1rem; cursor:pointer; font-size:1rem;
+                     display:flex; justify-content:space-between; align-items:center;">
+        <span>{{ s }}</span><span style="color:#888;">›</span>
+      </button>
+    </form>
+    {% endfor %}
+  </div>
+  <div class="btn-row" style="margin-top:1rem;">
+    <a href="{{ url_for('public.address_street') }}" class="btn btn-outline">{{ t('street_try_again_btn') }}</a>
+  </div>
   {% endif %}
 
 </div>
