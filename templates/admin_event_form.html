@@ -46,6 +46,17 @@
              style="width:160px; margin-bottom:1.1rem;"
              required>
 
+      <label for="audience">Audience</label>
+      <select id="audience" name="audience" style="margin-bottom:1.4rem;">
+        {% set current_audience = event.audience if event and event.audience else 'residential' %}
+        <option value="residential"    {% if current_audience == 'residential'    %}selected{% endif %}>Residential (1-4 Units)</option>
+        <option value="general"        {% if current_audience == 'general'        %}selected{% endif %}>General -- All Audiences</option>
+        <option value="multi_unit"     {% if current_audience == 'multi_unit'     %}selected{% endif %}>Multi-Unit Complex (5+ Units)</option>
+        <option value="small_business" {% if current_audience == 'small_business' %}selected{% endif %}>Small Business</option>
+        <option value="lra"            {% if current_audience == 'lra'            %}selected{% endif %}>LRA -- Lawrence Redevelopment Authority</option>
+        <option value="lec"            {% if current_audience == 'lec'            %}selected{% endif %}>LEC -- Lawrence Energy Choice</option>
+      </select>
+
       <label>Wards Targeted <span style="font-weight:400; color:#777;">(select all that apply)</span></label>
       <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.4rem;">
         {% for w in ['A','B','C','D','E','F'] %}

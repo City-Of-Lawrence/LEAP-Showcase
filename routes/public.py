@@ -604,7 +604,7 @@ def landlord_events():
     if not session.get("account_number"):
         return redirect(url_for("public.index"))
     n = int(get_setting("events_to_show", "2"))
-    events = get_upcoming_events(limit=n)
+    events = get_upcoming_events(role="landlord", limit=n)
     account_number = session["account_number"]
     upin_plain = session.get("upin_plain", "")
     existing_rsvps = get_existing_rsvps(upin_plain,
@@ -678,7 +678,8 @@ def event_select():
         return redirect(url_for("public.zombie_holding"))
 
     n = int(get_setting("events_to_show", "2"))
-    events = get_upcoming_events(limit=n)
+    role   = session.get("role", "")
+    events = get_upcoming_events(role=role, limit=n)
     account_number = session["account_number"]
     existing_rsvps = get_existing_rsvps(session.get("upin_plain", ""),
                                         account_number=account_number,
@@ -758,7 +759,7 @@ def welcome():
             if session.get("role") == "renter" and not session.get("upin_plain"):
                 return redirect(url_for("public.zombie_holding"))
             n = int(get_setting("events_to_show", "2"))
-            session["no_events_notify"] = len(get_upcoming_events(limit=n)) == 0
+            session["no_events_notify"] = len(get_upcoming_events(role=session.get("role", ""), limit=n)) == 0
             return redirect(url_for("public.event_select"))
         elif choice == "assistance":
             session["intent"] = "assistance"

@@ -1,5 +1,5 @@
 """
-schema.py — LEAP Portal
+schema.py -- LEAP Portal
 Database connection management and schema initialisation.
 """
 
@@ -32,7 +32,7 @@ def outreach_db(): return get_db(DB_OUTREACH)
 
 
 # ------------------------------------------------------------------
-# Schema — destructive (dev only, called from __main__)
+# Schema -- destructive (dev only, called from __main__)
 # ------------------------------------------------------------------
 
 def init_schema():
@@ -80,6 +80,7 @@ def init_schema():
             capacity    INTEGER NOT NULL DEFAULT 50,
             status      TEXT NOT NULL DEFAULT 'active'
                             CHECK(status IN ('active','cancelled')),
+            audience    TEXT NOT NULL DEFAULT 'residential',
             created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -114,13 +115,13 @@ def init_schema():
 
 
 # ------------------------------------------------------------------
-# Schema — safe (production, called at app startup)
+# Schema -- safe (production, called at app startup)
 # ------------------------------------------------------------------
 
 def ensure_schema():
     """
     Safe schema creation for gunicorn / Render startup.
-    Uses CREATE TABLE IF NOT EXISTS — never drops existing data.
+    Uses CREATE TABLE IF NOT EXISTS -- never drops existing data.
     Called once at app startup via before_request guard.
     """
     conn = sqlite3.connect(DB_UPIN)
@@ -150,7 +151,8 @@ def ensure_schema():
             reported_fuel         TEXT
         )
     """)
-    # Migration guards — add new columns to existing databases without a full reset
+
+    # Migration guards -- add new columns to existing databases without a full reset
     for col_sql in [
         "ALTER TABLE registrations ADD COLUMN pending_upin TEXT",
         "ALTER TABLE registrations ADD COLUMN reported_fuel TEXT",
@@ -159,7 +161,7 @@ def ensure_schema():
             cur.execute(col_sql)
             conn.commit()
         except Exception:
-            pass  # Column already exists — safe to ignore
+            pass  # Column already exists -- safe to ignore
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS events (
@@ -171,9 +173,18 @@ def ensure_schema():
             capacity    INTEGER NOT NULL DEFAULT 50,
             status      TEXT NOT NULL DEFAULT 'active'
                             CHECK(status IN ('active','cancelled')),
+            audience    TEXT NOT NULL DEFAULT 'residential',
             created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # Migration guard -- add audience column to existing events table
+    try:
+        cur.execute("ALTER TABLE events ADD COLUMN audience TEXT NOT NULL DEFAULT 'residential'")
+        conn.commit()
+    except Exception:
+        pass  # Column already exists -- safe to ignore
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS event_wards (
             id        INTEGER PRIMARY KEY AUTOINCREMENT,

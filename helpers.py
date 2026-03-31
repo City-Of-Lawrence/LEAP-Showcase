@@ -1,5 +1,5 @@
 """
-helpers.py — LEAP Portal
+helpers.py -- LEAP Portal
 Shared helper functions used by both public and admin routes.
 """
 
@@ -39,11 +39,11 @@ def lookup_by_upin(upin_plain):
 
     Strategy:
       1. Compute HMAC-SHA256 of the submitted plaintext UPIN.
-      2. SELECT the single row where upin_hmac matches — O(1) indexed lookup.
+      2. SELECT the single row where upin_hmac matches -- O(1) indexed lookup.
       3. Verify Argon2 on that one row only as a second-factor integrity check.
 
     Falls back to the legacy full-table Argon2 scan ONLY if UPIN_HMAC_KEY is
-    not set — keeps the app working during the migration window.
+    not set -- keeps the app working during the migration window.
     """
     import os, hmac, hashlib
     from argon2 import PasswordHasher, exceptions
@@ -95,7 +95,7 @@ def lookup_property(account_number):
 
 def search_streets_by_role(street_name: str, role: str):
     """
-    Step 1 — find distinct street names matching input.
+    Step 1 -- find distinct street names matching input.
     Returns list of matching street name strings.
     Role determines which DB(s) to query.
     """
@@ -113,7 +113,7 @@ def search_streets_by_role(street_name: str, role: str):
             parts = r["normalized_address"].split(" ", 1)
             if len(parts) == 2:
                 streets.add(parts[1].strip())
-        # Always query outreach DB in parallel — not a fallback
+        # Always query outreach DB in parallel -- not a fallback
         rows = outreach_db().execute(
             """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
                WHERE UPPER(Service_Address) LIKE ?
@@ -246,7 +246,7 @@ def get_all_streets_by_role(role: str):
 
 def search_addresses_on_street(street_name: str, role: str):
     """
-    Step 2 — return all addresses on a confirmed street name.
+    Step 2 -- return all addresses on a confirmed street name.
     Each result is a dict with: account_number, display_address, service_unit, source
     """
     pattern = f"% {street_name.strip().upper()}%"
@@ -271,7 +271,7 @@ def search_addresses_on_street(street_name: str, role: str):
                     "service_unit":    r["service_unit"] or "",
                     "source":          "master",
                 })
-        # Always query outreach DB in parallel — not a fallback
+        # Always query outreach DB in parallel -- not a fallback
         rows = outreach_db().execute(
             """SELECT DISTINCT Account_Number, Service_Address, Service_Unit
                FROM Outreach_Master_Unified
@@ -338,7 +338,7 @@ def search_addresses_on_street(street_name: str, role: str):
                     "source":          "outreach",
                 })
 
-    else:  # others — both DBs, outreach first
+    else:  # others -- both DBs, outreach first
         rows = outreach_db().execute(
             """SELECT Service_Address, Service_Unit, Account_Number
                FROM Outreach_Master_Unified
@@ -452,19 +452,55 @@ def save_registration(data):
 
 
 # ------------------------------------------------------------------
+# Audience filtering
+# ------------------------------------------------------------------
+
+# Maps each role to the set of audience values that role may see.
+# 'general' events are visible to all roles.
+_ROLE_AUDIENCES = {
+    "renter":           {"residential", "general"},
+    "owner_occupant":   {"residential", "general"},
+    "landlord":         {"residential", "multi_unit", "general"},
+    "property_manager": {"residential", "multi_unit", "general"},
+    "small_business":   {"small_business", "general"},
+}
+
+def _audiences_for_role(role: str) -> list:
+    """Return list of audience values the given role may see."""
+    return list(_ROLE_AUDIENCES.get(role, {"residential", "general"}))
+
+
+# ------------------------------------------------------------------
 # Event helpers
 # ------------------------------------------------------------------
 
-def get_upcoming_events(limit=2):
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+def get_upcoming_events(role: str = "", limit: int = 2):
+    """
+    Return upcoming active events filtered by audience for the given role.
+
+    Audience mapping:
+      renter, owner_occupant  -> residential + general
+      landlord                -> residential + multi_unit + general
+      property_manager        -> residential + multi_unit + general
+      small_business          -> small_business + general
+      (unknown/empty)         -> residential + general (safe default)
+
+    lra and lec are not yet routed -- no role sees them currently.
+    """
+    today    = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    audiences = _audiences_for_role(role)
+
+    placeholders = ",".join("?" * len(audiences))
     rows = upin_db().execute(
-        """SELECT e.*,
+        f"""SELECT e.*,
                   (SELECT COUNT(*) FROM event_rsvps r
                    WHERE r.event_id=e.event_id AND r.cancelled_at IS NULL) AS rsvp_count
            FROM events e
-           WHERE e.status='active' AND e.event_date >= ?
+           WHERE e.status='active'
+             AND e.event_date >= ?
+             AND e.audience IN ({placeholders})
            ORDER BY e.event_date, e.event_time""",
-        (today,)
+        [today] + audiences
     ).fetchall()
     available = [r for r in rows if r["rsvp_count"] < r["capacity"]]
     return available[:limit]
@@ -488,9 +524,9 @@ def get_existing_rsvps(upin_plain, account_number="", service_unit=""):
 
     Strategy:
     1. Query by UPIN if present, also filtering by service_unit when available.
-       This prevents cross-unit contamination for unit UPINs — a UPIN match
+       This prevents cross-unit contamination for unit UPINs -- a UPIN match
        alone is not sufficient when multiple units share the same account_number.
-    2. Fall through to account_number + service_unit lookup — handles the case
+    2. Fall through to account_number + service_unit lookup -- handles the case
        where a prior RSVP was saved before UPIN was issued.
     """
     norm = normalize_unit(service_unit) if service_unit else ""

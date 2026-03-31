@@ -420,11 +420,13 @@ def admin_events():
 @admin_required
 def admin_event_new():
     if request.method == "POST":
+        audience = request.form.get("audience", "residential").strip()
         cur = upin_db().execute(
-            "INSERT INTO events (name,event_date,event_time,location,capacity) VALUES (?,?,?,?,?)",
+            "INSERT INTO events (name,event_date,event_time,location,capacity,audience) VALUES (?,?,?,?,?,?)",
             (request.form["name"], request.form["event_date"],
              request.form["event_time"], request.form["location"],
-             int(request.form.get("capacity", 50) or 50))
+             int(request.form.get("capacity", 50) or 50),
+             audience)
         )
         for ward in request.form.getlist("wards"):
             upin_db().execute(
@@ -445,11 +447,13 @@ def admin_event_edit(event_id):
         abort(404)
     existing_wards = get_event_wards(event_id)
     if request.method == "POST":
+        audience = request.form.get("audience", "residential").strip()
         upin_db().execute(
-            "UPDATE events SET name=?,event_date=?,event_time=?,location=?,capacity=? WHERE event_id=?",
+            "UPDATE events SET name=?,event_date=?,event_time=?,location=?,capacity=?,audience=? WHERE event_id=?",
             (request.form["name"], request.form["event_date"],
              request.form["event_time"], request.form["location"],
-             int(request.form.get("capacity", 50) or 50), event_id)
+             int(request.form.get("capacity", 50) or 50),
+             audience, event_id)
         )
         upin_db().execute("DELETE FROM event_wards WHERE event_id=?", (event_id,))
         for ward in request.form.getlist("wards"):
@@ -535,7 +539,7 @@ def admin_events_export():
     ws.title = "Events"
 
     headers = ["event_id", "name", "event_date", "event_time",
-               "location", "capacity", "status", "wards"]
+               "location", "capacity", "status", "audience", "wards"]
     header_fill = PatternFill("solid", start_color="1A3A5C")
     header_font = Font(bold=True, color="FFFFFF", name="Arial")
     for col, h in enumerate(headers, 1):
@@ -544,7 +548,7 @@ def admin_events_export():
         cell.font = header_font
         cell.alignment = Alignment(horizontal="center")
 
-    widths = [10, 35, 12, 10, 35, 10, 10, 20]
+    widths = [10, 35, 12, 10, 35, 10, 10, 18, 20]
     for col, w in enumerate(widths, 1):
         ws.column_dimensions[ws.cell(row=1, column=col).column_letter].width = w
 
@@ -557,10 +561,11 @@ def admin_events_export():
         ws.cell(row=row_num, column=5, value=e["location"])
         ws.cell(row=row_num, column=6, value=e["capacity"])
         ws.cell(row=row_num, column=7, value=e["status"])
-        ws.cell(row=row_num, column=8, value=wards)
+        ws.cell(row=row_num, column=8, value=e["audience"] if "audience" in e.keys() else "residential")
+        ws.cell(row=row_num, column=9, value=wards)
         if row_num % 2 == 0:
             fill = PatternFill("solid", start_color="EEF2F7")
-            for col in range(1, 9):
+            for col in range(1, 10):
                 ws.cell(row=row_num, column=col).fill = fill
 
     buf = io.BytesIO()
@@ -603,7 +608,12 @@ def admin_events_import():
         location  = str(row[4]).strip() if row[4] else ""
         capacity  = int(row[5]) if row[5] else 50
         status    = str(row[6]).strip() if row[6] in ("active", "cancelled") else "active"
-        wards_str = str(row[7]).strip() if row[7] else ""
+        # audience column added -- default to 'residential' for older exports without it
+        _aud_raw  = str(row[7]).strip() if len(row) > 7 and row[7] else "residential"
+        audience  = _aud_raw if _aud_raw in (
+            "residential", "general", "small_business", "multi_unit", "lra", "lec"
+        ) else "residential"
+        wards_str = str(row[8]).strip() if len(row) > 8 and row[8] else ""
 
         key = (name.lower(), edate, etime, location.lower())
         if key in existing_keys:
@@ -611,9 +621,9 @@ def admin_events_import():
             continue
 
         cur = upin_db().execute(
-            "INSERT INTO events (name, event_date, event_time, location, capacity, status) "
-            "VALUES (?,?,?,?,?,?)",
-            (name, edate, etime, location, capacity, status)
+            "INSERT INTO events (name, event_date, event_time, location, capacity, status, audience) "
+            "VALUES (?,?,?,?,?,?,?)",
+            (name, edate, etime, location, capacity, status, audience)
         )
         new_id = cur.lastrowid
         for ward in [w.strip() for w in wards_str.split(",") if w.strip()]:
