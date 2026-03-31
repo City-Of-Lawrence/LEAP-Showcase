@@ -175,8 +175,8 @@ TRANSLATIONS = {
         "es": "Iniciativa de la Ciudad de Lawrence",
     },
     "index_hero_body": {
-        "en": "LEAP is a new initiative to make energy more affordable for everyone in Lawrence \u2014 whether they live here or own property here.",
-        "es": "LEAP es una nueva iniciativa para hacer la energ\u00eda m\u00e1s asequible para todos en Lawrence \u2014 ya sea que vivan aqu\u00ed o tengan una propiedad aqu\u00ed.",
+        "en": "LEAP is a new initiative to make energy more affordable for everyone in Lawrence -- residents and property owners alike.",
+        "es": "LEAP es una nueva iniciativa para hacer la energ\u00eda m\u00e1s asequible para todos en Lawrence -- residentes y due\u00f1os de propiedades por igual.",
     },
     "index_hero_sub": {
         "en": "Renters, homeowners, condo owners, small businesses, and landlords are all welcome.",
@@ -1200,8 +1200,8 @@ TRANSLATIONS = {
         "es": "Que el Asesor de Energía Me Contacte",
     },
     "welcome_assistance_body": {
-        "en": "A City Energy Advocate will reach out to explain your options and walk you through the program at your own pace.",
-        "es": "Un Asesor de Energía de la Ciudad se comunicará para explicarle sus opciones y guiarle por el programa a su ritmo.",
+        "en": "A City Energy Advocate will reach out to explain your options and walk you through the programs at your own pace.",
+        "es": "Un Asesor de Energía de la Ciudad se comunicará para explicarle sus opciones y guiarle por los programas a su ritmo.",
     },
     "welcome_assistance_btn": {
         "en": "Request a Callback →",
@@ -1220,8 +1220,8 @@ TRANSLATIONS = {
         "es": "Ir a Mass Save →",
     },
     "welcome_civic_note": {
-        "en": "This is the City of Lawrence's energy affordability registration portal. Your registration here helps City staff track and support Mass Save program participation in Lawrence.",
-        "es": "Este es el portal de registro de asequibilidad energética de la Ciudad de Lawrence. Su registro aquí ayuda al personal de la Ciudad a dar seguimiento y apoyo a la participación en los programas de Mass Save en Lawrence.",
+        "en": "This registration portal helps the City of Lawrence track and support participation in Mass Save programs, making it easier to connect residents with available energy efficiency resources.",
+        "es": "Este portal de registro ayuda a la Ciudad de Lawrence a dar seguimiento y apoyo a la participación en los programas de Mass Save, facilitando la conexión de los residentes con los recursos de eficiencia energética disponibles.",
     },
     # ── already_rsvpd.html ────────────────────────────────────────────
     # Shown when a visitor tries to register for an event they're already in.
