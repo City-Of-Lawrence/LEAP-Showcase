@@ -60,7 +60,7 @@
     function filterStreets(query) {
       const list = document.getElementById('street-suggestions');
       const q = query.trim().toUpperCase();
-      if (q.length < 2) { list.style.display = 'none'; return; }
+      if (q.length < 1) { list.style.display = 'none'; return; }
 
       const matches = ALL_STREETS.filter(s => s.toUpperCase().includes(q)).slice(0, 12);
       if (matches.length === 0) { list.style.display = 'none'; return; }
