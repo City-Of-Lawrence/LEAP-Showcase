@@ -56,7 +56,7 @@
   }
   .lec-title-warning {
     font-family: 'Nunito', sans-serif;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 800;
     color: #c0392b;
     line-height: 1.2;
@@ -279,10 +279,10 @@
   <div class="lec-card lec-card-warning">
 
     <h1 class="lec-title-warning">&#9888; {{ t('lec_warning_title') }}</h1>
-    <p class="lec-body">{{ t('lec_warning_body') }}</p>
+    <p class="lec-body">{{ t('lec_warning_body') | safe }}</p>
 
     <div class="lec-stat-box">
-      <p style="margin: 0 0 12px 0;">{{ t('lec_warning_stat_1') }}</p>
+      <p style="margin: 0 0 12px 0;">{{ t('lec_warning_stat_1') | safe }}</p>
       <p style="margin: 0;">{{ t('lec_warning_stat_2') }}</p>
     </div>
 
@@ -304,7 +304,7 @@
     <img class="lec-program-logo"
          src="{{ url_for('static', filename='lec_logo.png') }}"
          alt="Lawrence Energy Choice">
-    <p class="lec-body">{{ t('lec_program_body') }}</p>
+    <p class="lec-body">{{ t('lec_program_body') | safe }}</p>
     <ul class="lec-value-list">
       {{ t('lec_program_bullets') | safe }}
     </ul>

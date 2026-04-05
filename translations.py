@@ -268,16 +268,24 @@ TRANSLATIONS = {
         "es": "Conozca a Su Proveedor de Electricidad",
     },
     "lec_warning_body": {
-        "en": "First Point Power, LLC. is the designated third-party electricity supplier for Lawrence Energy Choice (LEC) participants. If your electricity bill shows that you are enrolled with a different third-party supplier, carefully evaluate your situation before switching to LEC.",
-        "es": "First Point Power, LLC. es el proveedor de electricidad de terceros designado para los participantes de Lawrence Energy Choice (LEC). Si su factura de electricidad muestra que est\u00e1 inscrito con un proveedor de terceros diferente, eval\u00fae cuidadosamente su situaci\u00f3n antes de cambiarse a LEC.",
+        "en": "First Point Power, LLC. is the designated third-party electricity supplier for Lawrence Energy Choice (<strong>LEC</strong>) participants. If your electricity bill shows that you are enrolled with a different third-party supplier, carefully evaluate your situation before switching to <strong>LEC</strong>.",
+        "es": "First Point Power, LLC. es el proveedor de electricidad de terceros designado para los participantes de Lawrence Energy Choice (<strong>LEC</strong>). Si su factura de electricidad muestra que est\u00e1 inscrito con un proveedor de terceros diferente, eval\u00fae cuidadosamente su situaci\u00f3n antes de cambiarse a <strong>LEC</strong>.",
     },
     "lec_warning_stat_1": {
-        "en": "Some third-party suppliers charge a termination fee for leaving a contract early. Read your contract or contact your current supplier to determine whether termination fees apply to you. LEC wants you to avoid any surprise fees resulting from early termination.",
-        "es": "Algunos proveedores de terceros cobran una tarifa por cancelaci\u00f3n anticipada. Lea su contrato o comuniq\u00faese con su proveedor actual para saber si aplican cargos por cancelaci\u00f3n anticipada. LEC quiere que evite cargos sorpresa por cancelaci\u00f3n anticipada.",
+        "en": "Some third-party suppliers charge a termination fee for leaving a contract early. Read your contract or contact your current supplier to determine whether termination fees apply to you. <strong>LEC</strong> wants you to avoid any surprise fees resulting from early termination.",
+        "es": "Algunos proveedores de terceros cobran una tarifa por cancelaci\u00f3n anticipada. Lea su contrato o comuniq\u00faese con su proveedor actual para saber si aplican cargos por cancelaci\u00f3n anticipada. <strong>LEC</strong> quiere que evite cargos sorpresa por cancelaci\u00f3n anticipada.",
     },
     "lec_warning_stat_2": {
         "en": "Massachusetts Attorney General reports from 2018 and 2021 documented aggressive sales tactics and false promises from the third-party supplier industry. Nine years of data show that Massachusetts residents paid over $651 million more than necessary through individually-signed competitive supply contracts \u2014 with Gateway City residents, including Lawrence, disproportionately targeted.",
         "es": "Informes del Fiscal General de Massachusetts de 2018 y 2021 documentaron t\u00e1cticas de ventas agresivas y promesas falsas de la industria de proveedores de terceros. Nueve a\u00f1os de datos muestran que los residentes de Massachusetts pagaron m\u00e1s de $651 millones de m\u00e1s a trav\u00e9s de contratos de suministro competitivo firmados individualmente, con residentes de Gateway Cities, incluido Lawrence, afectados de manera desproporcionada.",
+    },
+    "lec_warning_action_heading": {
+        "en": "Beware of Scams",
+        "es": "Tenga Cuidado con las Estafas",
+    },
+    "lec_warning_action_body": {
+        "en": "Before agreeing to purchase electricity from any supplier that contacts you directly, read the full contract carefully. Understand the rate, how long it is fixed, and any termination penalties. To check whether your current supplier is the City program or an individual contract, look at your National Grid bill under the Supply section. First Point Power, LLC. means you are in the City program. If you need help, call the Massachusetts Attorney General\u2019s consumer hotline.",
+        "es": "Antes de aceptar comprar electricidad a cualquier proveedor que lo contacte directamente, lea el contrato completo con cuidado. Comprenda la tarifa, por cu\u00e1nto tiempo est\u00e1 fija y las penalidades por cancelaci\u00f3n anticipada. Para verificar si su proveedor actual es el programa de la Ciudad o un contrato individual, revise su factura de National Grid en la secci\u00f3n de Suministro. First Point Power, LLC. significa que est\u00e1 en el programa de la Ciudad. Si necesita ayuda, llame a la l\u00ednea de ayuda al consumidor del Fiscal General de Massachusetts.",
     },
     "lec_warning_ago_resources": {
         "en": "More information:",
@@ -293,8 +301,8 @@ TRANSLATIONS = {
         "es": "",
     },
     "lec_program_body": {
-        "en": "LEC is a state-approved City program that uses the City\u2019s collective buying power to secure competitive electricity rates. While savings cannot be guaranteed month-to-month, the goal is sustained lower costs over the life of the program.",
-        "es": "LEC es un programa municipal aprobado por el estado que usa el poder de compra colectivo de la Ciudad para obtener tarifas el\u00e9ctricas competitivas. Aunque los ahorros no se pueden garantizar mes a mes, el objetivo es reducir los costos a lo largo del programa.",
+        "en": "<strong>LEC</strong> is a state-approved City program that uses the City\u2019s collective buying power to secure competitive electricity rates. While savings cannot be guaranteed month-to-month, the goal is sustained lower costs over the life of the program.",
+        "es": "<strong>LEC</strong> es un programa municipal aprobado por el estado que usa el poder de compra colectivo de la Ciudad para obtener tarifas el\u00e9ctricas competitivas. Aunque los ahorros no se pueden garantizar mes a mes, el objetivo es reducir los costos a lo largo del programa.",
     },
     "lec_program_bullets": {
         "en": "<li><strong>Predictable Bills</strong> \u2014 Protection against seasonal rate spikes.</li><li><strong>Long-Term Value</strong> \u2014 Negotiated for sustained savings over time.</li><li><strong>Verified &amp; Secure</strong> \u2014 A City-vetted alternative to individually-solicited third-party contracts.</li>",
