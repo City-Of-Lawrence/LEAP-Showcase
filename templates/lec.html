@@ -54,6 +54,14 @@
     line-height: 1.25;
     margin-bottom: 18px;
   }
+  .lec-title-warning {
+    font-family: 'Nunito', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: #c0392b;
+    line-height: 1.2;
+    margin-bottom: 18px;
+  }
 
   /* Body text */
   .lec-body {
@@ -97,6 +105,13 @@
     font-size: 15px;
     color: #2e3a4e;
     margin-bottom: 8px;
+  }
+  .lec-contact-label {
+    font-weight: 700;
+    white-space: nowrap;
+    color: #1A3A6B;
+    flex-shrink: 0;
+    min-width: 200px;
   }
   .lec-contact-value a {
     color: #1A3A6B;
@@ -185,16 +200,7 @@
     margin: 0 0 18px 0;
   }
 
-  /* Contact label fixed width so values column aligns */
-  .lec-contact-label {
-    font-weight: 700;
-    white-space: nowrap;
-    color: #1A3A6B;
-    flex-shrink: 0;
-    min-width: 200px;
-  }
-
-  /* Value proposition bullet list in Section 2 */
+  /* Value proposition bullet list */
   .lec-value-list {
     list-style: none;
     padding: 0;
@@ -218,7 +224,7 @@
     font-weight: 800;
   }
 
-  /* Clickable Colonial logo replacing the text button */
+  /* Clickable Colonial logo */
   .lec-logo-link {
     flex: 1;
     min-width: 220px;
@@ -272,8 +278,7 @@
   {# ── SECTION 1: Competitive Supply Warning ───────────────────────── #}
   <div class="lec-card lec-card-warning">
 
-    <div class="lec-eyebrow lec-eyebrow-warning">&#9888; {{ t('lec_warning_eyebrow') }}</div>
-    <h1 class="lec-title">{{ t('lec_warning_title') }}</h1>
+    <h1 class="lec-title-warning">&#9888; {{ t('lec_warning_title') }}</h1>
     <p class="lec-body">{{ t('lec_warning_body') }}</p>
 
     <div class="lec-stat-box">
