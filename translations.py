@@ -316,6 +316,10 @@ TRANSLATIONS = {
         "en": "Program Administrator:",
         "es": "Administrador del Programa:",
     },
+    "lec_program_handoff": {
+        "en": "For full program details, rate information, and to opt in or opt out, visit the Lawrence Energy Choice program page.",
+        "es": "Para obtener detalles completos del programa, informaci\u00f3n sobre tarifas y para unirse o salir del programa, visite la p\u00e1gina del programa Lawrence Energy Choice.",
+    },
     # Action buttons
     "lec_btn_go": {
         "en": "Go to Lawrence Energy Choice Program \u2197",
