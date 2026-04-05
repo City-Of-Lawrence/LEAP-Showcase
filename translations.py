@@ -233,8 +233,8 @@ TRANSLATIONS = {
         "es": "Reducir Mi Factura de Energ\u00eda",
     },
     "help_aggregation_body": {
-        "en": "Save with Lawrence Energy Choice \u2014 a state-approved City program using collective buying power to secure competitive electricity rates. Savings are the goal, though not guaranteed month-to-month.",
-        "es": "Ahorre con Lawrence Energy Choice \u2014 un programa municipal aprobado por el estado que usa el poder de compra colectivo para obtener tarifas el\u00e9ctricas competitivas. El ahorro es el objetivo, aunque no se garantiza mes a mes.",
+        "en": "Save on electricity bills with Lawrence Energy Choice (LEC) \u2014 a state-approved program offered by the City of Lawrence. LEC harnesses our collective buying power to bring competitive rates to residents and small businesses. Savings is the goal, though not guaranteed month-to-month.",
+        "es": "Ahorre en su factura de electricidad con Lawrence Energy Choice (LEC) \u2014 un programa aprobado por el estado y ofrecido por la Ciudad de Lawrence. LEC aprovecha nuestro poder de compra colectivo para ofrecer tarifas competitivas a residentes y peque\u00f1os negocios. El ahorro es el objetivo, aunque no se garantiza mes a mes.",
     },
     "help_aggregation_btn": {
         "en": "Learn More \u2192",
@@ -268,12 +268,12 @@ TRANSLATIONS = {
         "es": "\u00bfTiene el Proveedor de Electricidad Correcto?",
     },
     "lec_warning_body": {
-        "en": "If you are enrolled in Lawrence\u2019s Community Electricity Program, your supplier is First Point Power, LLC., selected competitively by the City. That is the right supplier to be on. But if another company contacted you directly and signed you up for their own electric supply contract, that is a different matter entirely.",
-        "es": "Si est\u00e1 inscrito en el Programa Comunitario de Electricidad de Lawrence, su proveedor es First Point Power, LLC., seleccionado de forma competitiva por la Ciudad. Ese es el proveedor correcto. Pero si otra empresa lo contact\u00f3 directamente y lo inscribi\u00f3 en su propio contrato de suministro el\u00e9ctrico, eso es algo completamente diferente.",
+        "en": "First Point Power, LLC. is the designated third-party electricity supplier for Lawrence Energy Choice (LEC) participants. If your electricity bill shows that you are enrolled with a different third-party supplier, carefully evaluate your situation before switching to LEC.",
+        "es": "First Point Power, LLC. es el proveedor de electricidad de terceros designado para los participantes de Lawrence Energy Choice (LEC). Si su factura de electricidad muestra que est\u00e1 inscrito con un proveedor de terceros diferente, eval\u00fae cuidadosamente su situaci\u00f3n antes de cambiarse a LEC.",
     },
     "lec_warning_stat": {
-        "en": "In 2018, and again in 2021, the Massachusetts Attorney General\u2019s Office documented aggressive sales tactics and false promises of cheaper bills from the third-party supplier industry, and called for it to be shut down. Nine years of data show Massachusetts residents paid over $651 million more than necessary through individually-signed competitive supply contracts \u2014 with Gateway City residents, including Lawrence, disproportionately targeted.",
-        "es": "En 2018, y nuevamente en 2021, la Oficina del Fiscal General de Massachusetts document\u00f3 t\u00e1cticas de ventas agresivas y promesas falsas de facturas m\u00e1s baratas por parte de la industria de proveedores de terceros, y pidi\u00f3 que fuera eliminada. Nueve a\u00f1os de datos muestran que los residentes de Massachusetts pagaron m\u00e1s de $651 millones de d\u00f3lares de m\u00e1s a trav\u00e9s de contratos de suministro competitivo firmados individualmente, con residentes de Gateway Cities, incluido Lawrence, afectados de manera desproporcionada.",
+        "en": "Some third-party suppliers charge a termination fee for leaving a contract early. Read your contract or contact your current supplier to determine whether termination fees apply to you. LEC wants you to avoid any surprise fees resulting from early termination.\n\nMassachusetts Attorney General reports from 2018 and 2021 documented aggressive sales tactics and false promises from the third-party supplier industry. Nine years of data show that Massachusetts residents paid over $651 million more than necessary through individually-signed competitive supply contracts \u2014 with Gateway City residents, including Lawrence, disproportionately targeted.",
+        "es": "Algunos proveedores de terceros cobran una tarifa por cancelaci\u00f3n anticipada. Lea su contrato o comuniq\u00faese con su proveedor actual para saber si aplican cargos por cancelaci\u00f3n anticipada. LEC quiere que evite cargos sorpresa por cancelaci\u00f3n anticipada.\n\nInformes del Fiscal General de Massachusetts de 2018 y 2021 documentaron t\u00e1cticas de ventas agresivas y promesas falsas de la industria de proveedores de terceros. Nueve a\u00f1os de datos muestran que los residentes de Massachusetts pagaron m\u00e1s de $651 millones de m\u00e1s a trav\u00e9s de contratos de suministro competitivo firmados individualmente, con residentes de Gateway Cities, incluido Lawrence, afectados de manera desproporcionada.",
     },
     "lec_warning_action_heading": {
         "en": "Beware of Scams",
@@ -288,8 +288,8 @@ TRANSLATIONS = {
         "es": "L\u00ednea de Ayuda al Consumidor del Fiscal General:",
     },
     "lec_warning_ago_resources": {
-        "en": "Free multilingual fact sheets and more information:",
-        "es": "Hojas informativas multiling\u00fces gratuitas y m\u00e1s informaci\u00f3n:",
+        "en": "More information:",
+        "es": "M\u00e1s informaci\u00f3n:",
     },
     # Section 2: Lawrence Energy Choice municipal aggregation
     "lec_program_eyebrow": {
@@ -297,8 +297,8 @@ TRANSLATIONS = {
         "es": "Ahorre con Lawrence Energy Choice",
     },
     "lec_program_title": {
-        "en": "The City\u2019s Community Electricity Program",
-        "es": "El Programa Comunitario de Electricidad de la Ciudad",
+        "en": "",
+        "es": "",
     },
     "lec_program_body": {
         "en": "LEC is a state-approved City program that uses the City\u2019s collective buying power to secure competitive electricity rates. While savings cannot be guaranteed month-to-month, the goal is sustained lower costs over the life of the program.",

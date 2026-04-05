@@ -277,21 +277,7 @@
       {{ t('lec_warning_stat') }}
     </div>
 
-    <div class="lec-divider">
-      <div class="lec-divider-line"></div>
-      <span class="lec-divider-label">{{ t('lec_warning_action_heading') }}</span>
-      <div class="lec-divider-line"></div>
-    </div>
-
-    <p class="lec-body" style="margin-bottom: 18px;">{{ t('lec_warning_action_body') }}</p>
-
     <div class="lec-contact-row">
-      <span class="lec-contact-label">{{ t('lec_warning_ago_label') }}</span>
-      <span class="lec-contact-value">
-        <a href="tel:+16177278400">(617) 727-8400</a>
-      </span>
-    </div>
-    <div class="lec-contact-row" style="margin-bottom: 0;">
       <span class="lec-contact-label">{{ t('lec_warning_ago_resources') }}</span>
       <span class="lec-contact-value">
         <a href="https://www.mass.gov/competitive-electric-supply" target="_blank" rel="noopener">
@@ -309,19 +295,20 @@
     <img class="lec-program-logo"
          src="{{ url_for('static', filename='lec_logo.png') }}"
          alt="Lawrence Energy Choice">
-    <h2 class="lec-title">{{ t('lec_program_title') }}</h2>
     <p class="lec-body">{{ t('lec_program_body') }}</p>
     <ul class="lec-value-list">
       {{ t('lec_program_bullets') | safe }}
     </ul>
+
+    <p class="lec-body" style="margin-bottom: 24px; color: #1A3A6B; font-weight: 600;">
+      {{ t('lec_program_handoff') }}
+    </p>
 
     <div class="lec-divider">
       <div class="lec-divider-line"></div>
       <span class="lec-divider-label">{{ t('lec_program_optout_heading') }}</span>
       <div class="lec-divider-line"></div>
     </div>
-
-    <p class="lec-body" style="margin-bottom: 18px;">{{ t('lec_program_optout_body') }}</p>
 
     <div class="lec-contact-row">
       <span class="lec-contact-label">{{ t('lec_program_admin_label') }}</span>
@@ -344,10 +331,6 @@
         <a href="tel:+18664855858">(866) 485-5858 ext. 1</a>
       </span>
     </div>
-
-    <p class="lec-body" style="margin-top: 24px; margin-bottom: 0; color: #1A3A6B; font-weight: 600;">
-      {{ t('lec_program_handoff') }}
-    </p>
 
   </div>
 
