@@ -183,6 +183,14 @@
     text-decoration: none;
   }
 
+  /* LEC logo in Section 2 card */
+  .lec-program-logo {
+    display: block;
+    height: 72px;
+    width: auto;
+    margin: 0 0 18px 0;
+  }
+
   @media (max-width: 560px) {
     .lec-card { padding: 28px 20px 24px; }
     .lec-title { font-size: 21px; }
@@ -236,6 +244,9 @@
   <div class="lec-card lec-card-program">
 
     <div class="lec-eyebrow lec-eyebrow-program">{{ t('lec_program_eyebrow') }}</div>
+    <img class="lec-program-logo"
+         src="{{ url_for('static', filename='lec_logo.png') }}"
+         alt="Lawrence Energy Choice">
     <h2 class="lec-title">{{ t('lec_program_title') }}</h2>
     <p class="lec-body">{{ t('lec_program_body') }}</p>
 
