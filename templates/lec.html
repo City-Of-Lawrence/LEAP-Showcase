@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block title %}{{ t('help_aggregation_title') }} · Lawrence Energy Program{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { background: #F9F6F0; }
+
+  .lec-page-wrap { padding: 40px 16px 60px; }
+
+  /* Shared card shell */
+  .lec-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 40px rgba(26,58,107,0.10), 0 1px 4px rgba(0,0,0,0.04);
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto 28px;
+    padding: 40px 48px 36px;
+    animation: leapRise 0.55s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .lec-card:nth-child(2) { animation-delay: 0.1s; }
+  .lec-card:nth-child(3) { animation-delay: 0.2s; }
+
+  @keyframes leapRise {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Warning card: red-amber top border */
+  .lec-card-warning { border-top: 4px solid #c0392b; }
+
+  /* Program card: gold top border (matches landing page) */
+  .lec-card-program { border-top: 4px solid #C8960C; }
+
+  /* Eyebrow labels */
+  .lec-eyebrow {
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .lec-eyebrow-warning { color: #c0392b; }
+  .lec-eyebrow-program { color: #C8960C; }
+
+  /* Section titles */
+  .lec-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #1A3A6B;
+    line-height: 1.25;
+    margin-bottom: 18px;
+  }
+
+  /* Body text */
+  .lec-body {
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
+    color: #2e3a4e;
+    margin-bottom: 20px;
+  }
+
+  /* Stat callout box */
+  .lec-stat-box {
+    background: #fff5f5;
+    border-left: 4px solid #c0392b;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #5a1a1a;
+  }
+
+  /* Sub-heading within a card */
+  .lec-subheading {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: #1A3A6B;
+    margin-bottom: 10px;
+  }
+
+  /* Contact info rows */
+  .lec-contact-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    color: #2e3a4e;
+    margin-bottom: 8px;
+  }
+  .lec-contact-label {
+    font-weight: 700;
+    white-space: nowrap;
+    color: #1A3A6B;
+    flex-shrink: 0;
+  }
+  .lec-contact-value a {
+    color: #1A3A6B;
+    text-decoration: underline;
+    text-decoration-color: #C8960C;
+    text-underline-offset: 3px;
+  }
+  .lec-contact-value a:hover { color: #c0392b; }
+
+  /* Gold section divider */
+  .lec-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 22px;
+  }
+  .lec-divider-line { flex: 1; height: 1px; background: #e0e8f0; }
+  .lec-divider-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #C8960C;
+    white-space: nowrap;
+  }
+
+  /* Action buttons row */
+  .lec-actions {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    animation: leapRise 0.55s cubic-bezier(0.22,1,0.36,1) both;
+    animation-delay: 0.3s;
+  }
+  .lec-btn-primary {
+    flex: 1;
+    min-width: 220px;
+    display: inline-block;
+    background: #1A3A6B;
+    color: #ffffff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px 22px;
+    border-radius: 10px;
+    text-decoration: none;
+    text-align: center;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .lec-btn-primary:hover {
+    background: #14306b;
+    transform: translateY(-1px);
+    color: #ffffff;
+    text-decoration: none;
+  }
+  .lec-btn-secondary {
+    display: inline-block;
+    background: #F9F6F0;
+    color: #1A3A6B;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px 22px;
+    border-radius: 10px;
+    border: 2px solid #d0d8e4;
+    text-decoration: none;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  }
+  .lec-btn-secondary:hover {
+    border-color: #1A3A6B;
+    background: #eef2f7;
+    transform: translateY(-1px);
+    color: #1A3A6B;
+    text-decoration: none;
+  }
+
+  @media (max-width: 560px) {
+    .lec-card { padding: 28px 20px 24px; }
+    .lec-title { font-size: 21px; }
+    .lec-body  { font-size: 15px; }
+    .lec-actions { flex-direction: column; }
+    .lec-btn-primary, .lec-btn-secondary { min-width: unset; flex: unset; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lec-page-wrap">
+
+  {# ── SECTION 1: Competitive Supply Warning ───────────────────────── #}
+  <div class="lec-card lec-card-warning">
+
+    <div class="lec-eyebrow lec-eyebrow-warning">&#9888; {{ t('lec_warning_eyebrow') }}</div>
+    <h1 class="lec-title">{{ t('lec_warning_title') }}</h1>
+    <p class="lec-body">{{ t('lec_warning_body') }}</p>
+
+    <div class="lec-stat-box">
+      {{ t('lec_warning_stat') }}
+    </div>
+
+    <div class="lec-divider">
+      <div class="lec-divider-line"></div>
+      <span class="lec-divider-label">{{ t('lec_warning_action_heading') }}</span>
+      <div class="lec-divider-line"></div>
+    </div>
+
+    <p class="lec-body" style="margin-bottom: 18px;">{{ t('lec_warning_action_body') }}</p>
+
+    <div class="lec-contact-row">
+      <span class="lec-contact-label">{{ t('lec_warning_ago_label') }}</span>
+      <span class="lec-contact-value">
+        <a href="tel:+16177278400">(617) 727-8400</a>
+      </span>
+    </div>
+    <div class="lec-contact-row" style="margin-bottom: 0;">
+      <span class="lec-contact-label">{{ t('lec_warning_ago_resources') }}</span>
+      <span class="lec-contact-value">
+        <a href="https://www.mass.gov/competitive-electric-supply" target="_blank" rel="noopener">
+          mass.gov/competitive-electric-supply &#8599;
+        </a>
+      </span>
+    </div>
+
+  </div>
+
+  {# ── SECTION 2: Lawrence Energy Choice Program ───────────────────── #}
+  <div class="lec-card lec-card-program">
+
+    <div class="lec-eyebrow lec-eyebrow-program">{{ t('lec_program_eyebrow') }}</div>
+    <h2 class="lec-title">{{ t('lec_program_title') }}</h2>
+    <p class="lec-body">{{ t('lec_program_body') }}</p>
+
+    <div class="lec-divider">
+      <div class="lec-divider-line"></div>
+      <span class="lec-divider-label">{{ t('lec_program_optout_heading') }}</span>
+      <div class="lec-divider-line"></div>
+    </div>
+
+    <p class="lec-body" style="margin-bottom: 18px;">{{ t('lec_program_optout_body') }}</p>
+
+    <div class="lec-contact-row">
+      <span class="lec-contact-label">{{ t('lec_program_admin_label') }}</span>
+      <span class="lec-contact-value">
+        Colonial Power Group &mdash;
+        <a href="https://colonialpowergroup.com/lawrence/" target="_blank" rel="noopener">
+          colonialpowergroup.com/lawrence &#8599;
+        </a>
+      </span>
+    </div>
+    <div class="lec-contact-row">
+      <span class="lec-contact-label">First Point Power:</span>
+      <span class="lec-contact-value">
+        <a href="tel:+18888751711">(888) 875-1711</a>
+      </span>
+    </div>
+    <div class="lec-contact-row" style="margin-bottom: 0;">
+      <span class="lec-contact-label">Colonial Power Group:</span>
+      <span class="lec-contact-value">
+        <a href="tel:+18664855858">(866) 485-5858 ext. 1</a>
+      </span>
+    </div>
+
+  </div>
+
+  {# ── ACTION BUTTONS ─────────────────────────────────────────────── #}
+  <div class="lec-actions">
+    <a href="https://colonialpowergroup.com/lawrence/" target="_blank" rel="noopener"
+       class="lec-btn-primary">
+      {{ t('lec_btn_go') }}
+    </a>
+    <a href="{{ url_for('public.index') }}" class="lec-btn-secondary">
+      {{ t('lec_btn_back') }}
+    </a>
+  </div>
+
+</div>
+{% endblock %}

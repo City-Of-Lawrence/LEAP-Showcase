@@ -85,6 +85,20 @@ def start_small_business():
 
 
 # ------------------------------------------------------------------
+# LEC -- Lower My Energy Bills interstitial
+# ------------------------------------------------------------------
+
+@public.route("/lec")
+def lec():
+    """Lawrence Energy Choice interstitial page.
+    Purely informational -- no session or DB interaction.
+    Warns about competitive supply contracts first, then summarizes
+    the City's municipal aggregation program (Lawrence Energy Choice).
+    """
+    return render_template("lec.html")
+
+
+# ------------------------------------------------------------------
 # QR / UPIN entry points
 # ------------------------------------------------------------------
 

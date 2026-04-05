@@ -257,6 +257,75 @@ TRANSLATIONS = {
         "es": "Comenzar \u2192",
     },
 
+    # ── lec.html — Lower My Energy Bills interstitial ────────────────
+    # Section 1: Competitive supply consumer protection warning
+    "lec_warning_eyebrow": {
+        "en": "Important Information",
+        "es": "Informaci\u00f3n Importante",
+    },
+    "lec_warning_title": {
+        "en": "Are You Paying Too Much for Electricity?",
+        "es": "\u00bfEst\u00e1 Pagando Demasiado por la Electricidad?",
+    },
+    "lec_warning_body": {
+        "en": "Check your National Grid bill for a line that says \u201cSupplier.\u201d If it shows a company other than National Grid, you are on a competitive supply contract -- and you may be paying significantly more than you need to.",
+        "es": "Revise su factura de National Grid para encontrar una l\u00ednea que diga \u201cProveedor.\u201d Si muestra una empresa que no es National Grid, tiene un contrato con un proveedor competitivo -- y puede estar pagando mucho m\u00e1s de lo necesario.",
+    },
+    "lec_warning_stat": {
+        "en": "The Massachusetts Attorney General\u2019s Office has documented that residential customers statewide paid over $651 million more than necessary through competitive supply contracts over the past nine years. Lawrence residents -- like many Gateway City residents -- have been specifically targeted by these companies.",
+        "es": "La Oficina del Fiscal General de Massachusetts ha documentado que los clientes residenciales en todo el estado pagaron m\u00e1s de $651 millones de d\u00f3lares de m\u00e1s a trav\u00e9s de contratos de proveedores competitivos durante los \u00faltimos nueve a\u00f1os. Los residentes de Lawrence -- como muchos residentes de Gateway Cities -- han sido especialmente afectados por estas empresas.",
+    },
+    "lec_warning_action_heading": {
+        "en": "What You Can Do",
+        "es": "Lo Que Puede Hacer",
+    },
+    "lec_warning_action_body": {
+        "en": "Contact your supplier directly to cancel and return to National Grid Basic Service, or call the Massachusetts Attorney General\u2019s consumer hotline for free help.",
+        "es": "Comun\u00edquese directamente con su proveedor para cancelar y volver al servicio b\u00e1sico de National Grid, o llame a la l\u00ednea de ayuda al consumidor del Fiscal General de Massachusetts para obtener ayuda gratuita.",
+    },
+    "lec_warning_ago_label": {
+        "en": "AGO Consumer Hotline:",
+        "es": "L\u00ednea de Ayuda al Consumidor del Fiscal General:",
+    },
+    "lec_warning_ago_resources": {
+        "en": "Free multilingual fact sheets and more information:",
+        "es": "Hojas informativas multiling\u00fces gratuitas y m\u00e1s informaci\u00f3n:",
+    },
+    # Section 2: Lawrence Energy Choice municipal aggregation
+    "lec_program_eyebrow": {
+        "en": "Lawrence Energy Choice",
+        "es": "Lawrence Energy Choice",
+    },
+    "lec_program_title": {
+        "en": "The City\u2019s Community Electricity Program",
+        "es": "El Programa Comunitario de Electricidad de la Ciudad",
+    },
+    "lec_program_body": {
+        "en": "If you are a National Grid Basic Service customer in Lawrence, you are likely already enrolled in the City\u2019s municipal electricity aggregation program at no extra cost. This program, administered by Colonial Power Group on behalf of the City, provides a competitively procured fixed rate.",
+        "es": "Si usted es cliente del servicio b\u00e1sico de National Grid en Lawrence, es probable que ya est\u00e9 inscrito en el programa municipal de agregaci\u00f3n el\u00e9ctrica de la Ciudad sin costo adicional. Este programa, administrado por Colonial Power Group en nombre de la Ciudad, ofrece una tarifa fija obtenida de forma competitiva.",
+    },
+    "lec_program_optout_heading": {
+        "en": "To Opt Out or Opt In",
+        "es": "Para Salir o Unirse al Programa",
+    },
+    "lec_program_optout_body": {
+        "en": "To opt out, or to opt in if you are not currently on National Grid Basic Service, contact Colonial Power Group:",
+        "es": "Para salir del programa, o para unirse si actualmente no tiene el servicio b\u00e1sico de National Grid, comun\u00edquese con Colonial Power Group:",
+    },
+    "lec_program_admin_label": {
+        "en": "Program Administrator:",
+        "es": "Administrador del Programa:",
+    },
+    # Action buttons
+    "lec_btn_go": {
+        "en": "Go to Lawrence Energy Choice Program \u2197",
+        "es": "Ir al Programa Lawrence Energy Choice \u2197",
+    },
+    "lec_btn_back": {
+        "en": "\u2190 Back to Home",
+        "es": "\u2190 Volver al Inicio",
+    },
+
     # ── start_generic.html ───────────────────────────────────────────
     "start_title": {
         "en": "Who Are You?",

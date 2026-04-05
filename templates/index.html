@@ -179,12 +179,10 @@
         <span class="leap-tile-chevron">&#8250;</span>
       </a>
 
-      {# Tile 3: Lower My Bills (Colonial Power Group -- external, opens new tab) #}
-      <a href="https://colonialpowergroup.com/lawrence/" target="_blank" rel="noopener" class="leap-tile">
+      {# Tile 3: Lower My Bills -- routes to LEC interstitial page #}
+      <a href="{{ url_for('public.lec') }}" class="leap-tile">
         <div class="leap-tile-icon">&#9889;</div>
-        <div class="leap-tile-title">
-          {{ t('help_aggregation_title') }}<span class="ext-icon">&#8599;</span>
-        </div>
+        <div class="leap-tile-title">{{ t('help_aggregation_title') }}</div>
         <p class="leap-tile-body">{{ t('help_aggregation_body') }}</p>
         <span class="leap-tile-chevron">&#8250;</span>
       </a>
