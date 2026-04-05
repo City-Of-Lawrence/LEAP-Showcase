@@ -191,6 +191,68 @@
     margin: 0 0 18px 0;
   }
 
+  /* Value proposition bullet list in Section 2 */
+  .lec-value-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+  }
+  .lec-value-list li {
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #2e3a4e;
+    padding: 6px 0 6px 22px;
+    position: relative;
+    border-bottom: 1px solid #eef2f7;
+  }
+  .lec-value-list li:last-child { border-bottom: none; }
+  .lec-value-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #C8960C;
+    font-weight: 800;
+  }
+
+  /* Clickable Colonial logo replacing the text button */
+  .lec-logo-link {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 2px solid #d0d8e4;
+    border-radius: 10px;
+    padding: 12px 20px;
+    text-decoration: none;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    cursor: pointer;
+  }
+  .lec-logo-link:hover {
+    border-color: #1A3A6B;
+    box-shadow: 0 4px 16px rgba(26,58,107,0.12);
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+  .lec-logo-link img {
+    height: 72px;
+    width: auto;
+    display: block;
+  }
+  .lec-logo-link-hint {
+    display: block;
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1A3A6B;
+    text-align: center;
+    margin-top: 6px;
+  }
+
   @media (max-width: 560px) {
     .lec-card { padding: 28px 20px 24px; }
     .lec-title { font-size: 21px; }
@@ -249,6 +311,9 @@
          alt="Lawrence Energy Choice">
     <h2 class="lec-title">{{ t('lec_program_title') }}</h2>
     <p class="lec-body">{{ t('lec_program_body') }}</p>
+    <ul class="lec-value-list">
+      {{ t('lec_program_bullets') | safe }}
+    </ul>
 
     <div class="lec-divider">
       <div class="lec-divider-line"></div>
@@ -289,8 +354,12 @@
   {# ── ACTION BUTTONS ─────────────────────────────────────────────── #}
   <div class="lec-actions">
     <a href="https://colonialpowergroup.com/lawrence/" target="_blank" rel="noopener"
-       class="lec-btn-primary">
-      {{ t('lec_btn_go') }}
+       class="lec-logo-link" title="{{ t('lec_btn_go_alt') }}">
+      <span>
+        <img src="{{ url_for('static', filename='colonial_logo.png') }}"
+             alt="{{ t('lec_btn_go_alt') }}">
+        <span class="lec-logo-link-hint">Click to visit program page &#8599;</span>
+      </span>
     </a>
     <a href="{{ url_for('public.index') }}" class="lec-btn-secondary">
       {{ t('lec_btn_back') }}

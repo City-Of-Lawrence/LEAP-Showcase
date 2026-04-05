@@ -233,8 +233,8 @@ TRANSLATIONS = {
         "es": "Reducir Mi Factura de Energ\u00eda",
     },
     "help_aggregation_body": {
-        "en": "Lawrence\u2019s community electricity program, managed on behalf of the City \u2014 the goal is savings over the life of the program, though future rates cannot be guaranteed.",
-        "es": "El programa comunitario de electricidad de Lawrence, administrado en nombre de la Ciudad \u2014 el objetivo es generar ahorros durante la vigencia del programa, aunque no se pueden garantizar las tarifas futuras.",
+        "en": "Save with Lawrence Energy Choice \u2014 a state-approved City program using collective buying power to secure competitive electricity rates. Savings are the goal, though not guaranteed month-to-month.",
+        "es": "Ahorre con Lawrence Energy Choice \u2014 un programa municipal aprobado por el estado que usa el poder de compra colectivo para obtener tarifas el\u00e9ctricas competitivas. El ahorro es el objetivo, aunque no se garantiza mes a mes.",
     },
     "help_aggregation_btn": {
         "en": "Learn More \u2192",
@@ -293,16 +293,20 @@ TRANSLATIONS = {
     },
     # Section 2: Lawrence Energy Choice municipal aggregation
     "lec_program_eyebrow": {
-        "en": "Lawrence Energy Choice",
-        "es": "Lawrence Energy Choice",
+        "en": "Save with Lawrence Energy Choice",
+        "es": "Ahorre con Lawrence Energy Choice",
     },
     "lec_program_title": {
         "en": "The City\u2019s Community Electricity Program",
         "es": "El Programa Comunitario de Electricidad de la Ciudad",
     },
     "lec_program_body": {
-        "en": "If you are a National Grid Basic Service customer in Lawrence, you are likely already enrolled in the City\u2019s municipal electricity aggregation program at no extra cost. This program, administered by Colonial Power Group on behalf of the City, provides a competitively procured fixed rate.",
-        "es": "Si usted es cliente del servicio b\u00e1sico de National Grid en Lawrence, es probable que ya est\u00e9 inscrito en el programa municipal de agregaci\u00f3n el\u00e9ctrica de la Ciudad sin costo adicional. Este programa, administrado por Colonial Power Group en nombre de la Ciudad, ofrece una tarifa fija obtenida de forma competitiva.",
+        "en": "LEC is a state-approved City program that uses the City\u2019s collective buying power to secure competitive electricity rates. While savings cannot be guaranteed month-to-month, the goal is sustained lower costs over the life of the program.",
+        "es": "LEC es un programa municipal aprobado por el estado que usa el poder de compra colectivo de la Ciudad para obtener tarifas el\u00e9ctricas competitivas. Aunque los ahorros no se pueden garantizar mes a mes, el objetivo es reducir los costos a lo largo del programa.",
+    },
+    "lec_program_bullets": {
+        "en": "<li><strong>Predictable Bills</strong> \u2014 Protection against seasonal rate spikes.</li><li><strong>Long-Term Value</strong> \u2014 Negotiated for sustained savings over time.</li><li><strong>Verified &amp; Secure</strong> \u2014 A City-vetted alternative to individually-solicited third-party contracts.</li>",
+        "es": "<li><strong>Facturas Predecibles</strong> \u2014 Protecci\u00f3n contra los aumentos de tarifas estacionales.</li><li><strong>Valor a Largo Plazo</strong> \u2014 Negociado para ahorros sostenidos con el tiempo.</li><li><strong>Verificado y Seguro</strong> \u2014 Una alternativa respaldada por la Ciudad frente a los contratos de terceros solicitados individualmente.</li>",
     },
     "lec_program_optout_heading": {
         "en": "To Opt Out or Opt In",
@@ -317,13 +321,17 @@ TRANSLATIONS = {
         "es": "Administrador del Programa:",
     },
     "lec_program_handoff": {
-        "en": "For full program details, rate information, and to opt in or opt out, visit the Lawrence Energy Choice program page.",
-        "es": "Para obtener detalles completos del programa, informaci\u00f3n sobre tarifas y para unirse o salir del programa, visite la p\u00e1gina del programa Lawrence Energy Choice.",
+        "en": "For full program details, rate information, and to opt in or opt out, visit the Lawrence Energy Choice program page, administered by Colonial Power Group.",
+        "es": "Para obtener detalles completos del programa, informaci\u00f3n sobre tarifas y para unirse o salir del programa, visite la p\u00e1gina del programa Lawrence Energy Choice, administrado por Colonial Power Group.",
     },
     # Action buttons
     "lec_btn_go": {
         "en": "Go to Lawrence Energy Choice Program \u2197",
         "es": "Ir al Programa Lawrence Energy Choice \u2197",
+    },
+    "lec_btn_go_alt": {
+        "en": "Visit the Lawrence Energy Choice program page (Colonial Power Group)",
+        "es": "Visitar la p\u00e1gina del programa Lawrence Energy Choice (Colonial Power Group)",
     },
     "lec_btn_back": {
         "en": "\u2190 Back to Home",
