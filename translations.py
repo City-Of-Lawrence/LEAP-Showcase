@@ -233,8 +233,8 @@ TRANSLATIONS = {
         "es": "Reducir Mi Factura de Energ\u00eda",
     },
     "help_aggregation_body": {
-        "en": "Lawrence's municipal electricity aggregation program \u2014 automatically lower your electric rate as a City resident.",
-        "es": "El programa municipal de agregaci\u00f3n el\u00e9ctrica de Lawrence \u2014 reduzca autom\u00e1ticamente su tarifa el\u00e9ctrica como residente de la Ciudad.",
+        "en": "Lawrence\u2019s community electricity program, managed on behalf of the City \u2014 the goal is savings over the life of the program, though future rates cannot be guaranteed.",
+        "es": "El programa comunitario de electricidad de Lawrence, administrado en nombre de la Ciudad \u2014 el objetivo es generar ahorros durante la vigencia del programa, aunque no se pueden garantizar las tarifas futuras.",
     },
     "help_aggregation_btn": {
         "en": "Learn More \u2192",
@@ -258,30 +258,30 @@ TRANSLATIONS = {
     },
 
     # ── lec.html — Lower My Energy Bills interstitial ────────────────
-    # Section 1: Competitive supply consumer protection warning
+    # Section 1: Know Your Supplier -- framing
     "lec_warning_eyebrow": {
-        "en": "Important Information",
-        "es": "Informaci\u00f3n Importante",
+        "en": "Know Your Electricity Supplier",
+        "es": "Conozca a Su Proveedor de Electricidad",
     },
     "lec_warning_title": {
-        "en": "Are You Paying Too Much for Electricity?",
-        "es": "\u00bfEst\u00e1 Pagando Demasiado por la Electricidad?",
+        "en": "Are You on the Right Electric Supply?",
+        "es": "\u00bfTiene el Proveedor de Electricidad Correcto?",
     },
     "lec_warning_body": {
-        "en": "Check your National Grid bill for a line that says \u201cSupplier.\u201d If it shows a company other than National Grid, you are on a competitive supply contract -- and you may be paying significantly more than you need to.",
-        "es": "Revise su factura de National Grid para encontrar una l\u00ednea que diga \u201cProveedor.\u201d Si muestra una empresa que no es National Grid, tiene un contrato con un proveedor competitivo -- y puede estar pagando mucho m\u00e1s de lo necesario.",
+        "en": "If you are enrolled in Lawrence\u2019s Community Electricity Program, your supplier is First Point Power, LLC., selected competitively by the City. That is the right supplier to be on. But if another company contacted you directly and signed you up for their own electric supply contract, that is a different matter entirely.",
+        "es": "Si est\u00e1 inscrito en el Programa Comunitario de Electricidad de Lawrence, su proveedor es First Point Power, LLC., seleccionado de forma competitiva por la Ciudad. Ese es el proveedor correcto. Pero si otra empresa lo contact\u00f3 directamente y lo inscribi\u00f3 en su propio contrato de suministro el\u00e9ctrico, eso es algo completamente diferente.",
     },
     "lec_warning_stat": {
-        "en": "The Massachusetts Attorney General\u2019s Office has documented that residential customers statewide paid over $651 million more than necessary through competitive supply contracts over the past nine years. Lawrence residents -- like many Gateway City residents -- have been specifically targeted by these companies.",
-        "es": "La Oficina del Fiscal General de Massachusetts ha documentado que los clientes residenciales en todo el estado pagaron m\u00e1s de $651 millones de d\u00f3lares de m\u00e1s a trav\u00e9s de contratos de proveedores competitivos durante los \u00faltimos nueve a\u00f1os. Los residentes de Lawrence -- como muchos residentes de Gateway Cities -- han sido especialmente afectados por estas empresas.",
+        "en": "In 2018, and again in 2021, the Massachusetts Attorney General\u2019s Office documented aggressive sales tactics and false promises of cheaper bills from the third-party supplier industry, and called for it to be shut down. Nine years of data show Massachusetts residents paid over $651 million more than necessary through individually-signed competitive supply contracts \u2014 with Gateway City residents, including Lawrence, disproportionately targeted.",
+        "es": "En 2018, y nuevamente en 2021, la Oficina del Fiscal General de Massachusetts document\u00f3 t\u00e1cticas de ventas agresivas y promesas falsas de facturas m\u00e1s baratas por parte de la industria de proveedores de terceros, y pidi\u00f3 que fuera eliminada. Nueve a\u00f1os de datos muestran que los residentes de Massachusetts pagaron m\u00e1s de $651 millones de d\u00f3lares de m\u00e1s a trav\u00e9s de contratos de suministro competitivo firmados individualmente, con residentes de Gateway Cities, incluido Lawrence, afectados de manera desproporcionada.",
     },
     "lec_warning_action_heading": {
-        "en": "What You Can Do",
-        "es": "Lo Que Puede Hacer",
+        "en": "Beware of Scams",
+        "es": "Tenga Cuidado con las Estafas",
     },
     "lec_warning_action_body": {
-        "en": "Contact your supplier directly to cancel and return to National Grid Basic Service, or call the Massachusetts Attorney General\u2019s consumer hotline for free help.",
-        "es": "Comun\u00edquese directamente con su proveedor para cancelar y volver al servicio b\u00e1sico de National Grid, o llame a la l\u00ednea de ayuda al consumidor del Fiscal General de Massachusetts para obtener ayuda gratuita.",
+        "en": "Before agreeing to purchase electricity from any supplier that contacts you directly, read the full contract carefully. Understand the rate, how long it is fixed, and any termination penalties. To check whether your current supplier is the City program or an individual contract, look at your National Grid bill under the Supply section. First Point Power, LLC. means you are in the City program. If you need help, call the Massachusetts Attorney General\u2019s consumer hotline.",
+        "es": "Antes de aceptar comprar electricidad a cualquier proveedor que lo contacte directamente, lea el contrato completo con cuidado. Comprenda la tarifa, por cu\u00e1nto tiempo est\u00e1 fija y las penalidades por cancelaci\u00f3n anticipada. Para verificar si su proveedor actual es el programa de la Ciudad o un contrato individual, revise su factura de National Grid en la secci\u00f3n de Suministro. First Point Power, LLC. significa que est\u00e1 en el programa de la Ciudad. Si necesita ayuda, llame a la l\u00ednea de ayuda al consumidor del Fiscal General de Massachusetts.",
     },
     "lec_warning_ago_label": {
         "en": "AGO Consumer Hotline:",
