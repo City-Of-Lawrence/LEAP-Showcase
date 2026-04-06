@@ -203,8 +203,8 @@ TRANSLATIONS = {
         "es": "\u00bfTiene una Carta o UPIN?",
     },
     "index_have_upin_desc": {
-        "en": "Enter the UPIN from your City letter or scanned QR code.",
-        "es": "Ingrese el UPIN de su carta de la Ciudad o del c\u00f3digo QR escaneado.",
+        "en": "Enter the UPIN from your City letter.",
+        "es": "Ingrese el UPIN de su carta de la Ciudad.",
     },
 
     # ── how_can_we_help.html — interstitial ─────────────────────────
