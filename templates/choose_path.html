@@ -117,15 +117,7 @@
 
   <div class="cp-cards">
 
-    {# Card 1 — No letter: fully clickable anchor card #}
-    <a href="{{ url_for('public.start_generic') }}" class="cp-card">
-      <div class="cp-icon">&#127968;</div>
-      <div class="cp-card-title">{{ t('index_no_letter_title') }}</div>
-      <p class="cp-card-body">{{ t('index_no_letter_desc') }}</p>
-      <span class="cp-card-chevron">&#8250;</span>
-    </a>
-
-    {# Card 2 — Have a letter / UPIN: form card, user must type code #}
+    {# Card 1 — Have a letter / UPIN: form card, user must type code #}
     <div class="cp-card">
       <div class="cp-icon">&#9993;</div>
       <div class="cp-card-title">{{ t('index_have_upin_title') }}</div>
@@ -141,6 +133,14 @@
         </button>
       </form>
     </div>
+
+    {# Card 2 — No letter: fully clickable anchor card #}
+    <a href="{{ url_for('public.start_generic') }}" class="cp-card">
+      <div class="cp-icon">&#127968;</div>
+      <div class="cp-card-title">{{ t('index_no_letter_title') }}</div>
+      <p class="cp-card-body">{{ t('index_no_letter_desc') }}</p>
+      <span class="cp-card-chevron">&#8250;</span>
+    </a>
 
   </div>
 

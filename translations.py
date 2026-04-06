@@ -233,8 +233,8 @@ TRANSLATIONS = {
         "es": "Reducir Mi Factura de Energ\u00eda",
     },
     "help_aggregation_body": {
-        "en": "Save on electricity bills with Lawrence Energy Choice (LEC) \u2014 a state-approved program offered by the City of Lawrence. LEC harnesses our collective buying power to bring competitive rates to residents and small businesses. Savings is the goal, though not guaranteed month-to-month.",
-        "es": "Ahorre en su factura de electricidad con Lawrence Energy Choice (LEC) \u2014 un programa aprobado por el estado y ofrecido por la Ciudad de Lawrence. LEC aprovecha nuestro poder de compra colectivo para ofrecer tarifas competitivas a residentes y peque\u00f1os negocios. El ahorro es el objetivo, aunque no se garantiza mes a mes.",
+        "en": "Save on electricity bills with Lawrence Energy Choice (<strong>LEC</strong>) \u2014 a state-approved program offered by the City of Lawrence. <strong>LEC</strong> harnesses our collective buying power to bring competitive rates to residents and small businesses. Savings is the goal, though not guaranteed month-to-month.",
+        "es": "Ahorre en su factura de electricidad con Lawrence Energy Choice (<strong>LEC</strong>) \u2014 un programa aprobado por el estado y ofrecido por la Ciudad de Lawrence. <strong>LEC</strong> aprovecha nuestro poder de compra colectivo para ofrecer tarifas competitivas a residentes y peque\u00f1os negocios. El ahorro es el objetivo, aunque no se garantiza mes a mes.",
     },
     "help_aggregation_btn": {
         "en": "Learn More \u2192",

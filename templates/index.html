@@ -183,7 +183,7 @@
       <a href="{{ url_for('public.lec') }}" class="leap-tile">
         <div class="leap-tile-icon">&#9889;</div>
         <div class="leap-tile-title">{{ t('help_aggregation_title') }}</div>
-        <p class="leap-tile-body">{{ t('help_aggregation_body') }}</p>
+        <p class="leap-tile-body">{{ t('help_aggregation_body') | safe }}</p>
         <span class="leap-tile-chevron">&#8250;</span>
       </a>
 
