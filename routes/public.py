@@ -380,31 +380,11 @@ def address_pick():
             session["normalized_address"] = display_address
             session["service_unit"]       = service_unit
             session["is_repeat_visit"]    = False
-            if session.get("role") == "renter":
-                save_registration({
-                    "account_number":      "MANUAL",
-                    "upin_used":           "manual",
-                    "normalized_address":  display_address,
-                    "service_unit":        normalize_unit(service_unit) if service_unit else "",
-                    "role":                "renter",
-                    "intent":              "pending",
-                    "unit_count_reported": None,
-                    "unit_count_known":    None,
-                    "unit_count_flag":     None,
-                    "mass_save_enrolled":  None,
-                    "needs_callback":      None,
-                    "event_rsvp_id":       None,
-                    "contact_name":        "",
-                    "contact_phone":       "",
-                    "contact_email":       "",
-                    "ip_address":          request.remote_addr,
-                    "pending_upin":        "yes",
-                })
-                lang = session.get("lang", "en")
-                session.clear()
-                session["lang"] = lang
-                return redirect(url_for("public.zombie_holding"))
-            return redirect(url_for("public.select_intent"))
+            # Street was found in City DB -- resident cleared address verification.
+            # Not a zombie. Continue to normal flow regardless of role.
+            if role == "landlord":
+                return redirect(url_for("public.landlord_units"))
+            return redirect(url_for("public.welcome"))
 
         if not account_number:
             return render_template("address_pick.html", addresses=addresses,
@@ -688,7 +668,10 @@ def landlord_intent():
 def event_select():
     if not session.get("account_number"):
         return redirect(url_for("public.index"))
-    if session.get("role") == "renter" and not session.get("upin_plain"):
+    # Zombie guard: only true zombies (address not found in any City DB) cannot RSVP.
+    # Street-path registrants whose address was found (account_number != NOT_FOUND)
+    # are trusted residents and may RSVP even without a UPIN.
+    if session.get("account_number") == "NOT_FOUND":
         return redirect(url_for("public.zombie_holding"))
 
     n = int(get_setting("events_to_show", "2"))
@@ -767,10 +750,11 @@ def welcome():
 
         if choice == "event":
             session["intent"] = "event"
-            # Zombie guard: street-path renters (no upin_plain) cannot RSVP.
-            # Route them directly to zombie_holding rather than letting
-            # event_select redirect them -- cleaner and avoids session side-effects.
-            if session.get("role") == "renter" and not session.get("upin_plain"):
+            # Zombie guard: only true zombies (address not found in any City DB)
+            # cannot RSVP for events. Any resident whose address was found in
+            # LEAPMailings_clean or the Assessor DB may RSVP regardless of
+            # whether they have a UPIN yet.
+            if session.get("account_number") == "NOT_FOUND":
                 return redirect(url_for("public.zombie_holding"))
             n = int(get_setting("events_to_show", "2"))
             session["no_events_notify"] = len(get_upcoming_events(role=session.get("role", ""), limit=n)) == 0
@@ -874,10 +858,7 @@ def contact_info():
         return redirect(url_for("public.index"))
 
     if request.method == "POST":
-        is_zombie = (
-            session.get("role") == "renter"
-            and not session.get("upin_plain")
-        )
+        is_zombie = session.get("account_number") == "NOT_FOUND"
         save_registration({
             "account_number":      session["account_number"],
             "upin_used":           session.get("upin_used", "manual"),
