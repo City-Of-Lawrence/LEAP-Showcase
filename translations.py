@@ -568,8 +568,8 @@ TRANSLATIONS = {
         "es": "Próximo paso: Inscríbase con Mass Save",
     },
     "done_next_step_body": {
-        "en": "To receive no-cost energy upgrades, you must enroll directly with Mass Save. It's free and takes about 5 minutes.",
-        "es": "Para recibir mejoras de energía sin costo, debe inscribirse directamente con Mass Save. Es gratis y toma unos 5 minutos.",
+        "en": "To receive no-cost energy upgrades, you must enroll directly with Mass Save. It's no-cost and takes about 5 minutes.",
+        "es": "Para recibir mejoras de energía sin costo, debe inscribirse directamente con Mass Save. Es sin costo y toma unos 5 minutos.",
     },
     "done_masssave_btn": {
         "en": "Go to masssave.com/Lawrence →",
@@ -1265,8 +1265,8 @@ TRANSLATIONS = {
         "es": "Asistir a una Sesión Informativa de la Ciudad",
     },
     "welcome_event_body": {
-        "en": "Reserve your spot at an upcoming free energy information session hosted by the City of Lawrence.",
-        "es": "Reserve su lugar en una próxima sesión informativa gratuita sobre energía organizada por la Ciudad de Lawrence.",
+        "en": "Reserve your spot at an upcoming no-cost energy information session hosted by the City of Lawrence.",
+        "es": "Reserve su lugar en una próxima sesión informativa sin costo sobre energía organizada por la Ciudad de Lawrence.",
     },
     "welcome_event_btn": {
         "en": "See Available Sessions →",
@@ -1289,8 +1289,8 @@ TRANSLATIONS = {
         "es": "Inscribirse con Mass Save Ahora",
     },
     "welcome_enroll_body": {
-        "en": "Go directly to the Mass Save enrollment page to sign up for no-cost energy upgrades. Free and takes about 5 minutes.",
-        "es": "Vaya directamente a la página de inscripción de Mass Save para solicitar mejoras de energía sin costo. Es gratis y toma unos 5 minutos.",
+        "en": "Go directly to the Mass Save enrollment page to sign up for no-cost energy upgrades. It's no-cost and takes about 5 minutes.",
+        "es": "Vaya directamente a la página de inscripción de Mass Save para solicitar mejoras de energía sin costo. Es sin costo y toma unos 5 minutos.",
     },
     "welcome_enroll_btn": {
         "en": "Go to Mass Save →",
