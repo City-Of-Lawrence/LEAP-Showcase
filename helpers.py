@@ -1,16 +1,6 @@
 """
 helpers.py -- LEAP Portal
 Shared helper functions used by both public and admin routes.
-
-Outreach DB migration note (April 2026):
-  Source changed from LEAPMailings_clean.sqlite / Outreach_Master_Unified
-  to lawrence_energy.sqlite / mailing_addresses.
-  SQL aliases preserve column names consumed downstream -- no Python changes
-  below the query layer were needed.
-  Residential/commercial filtering by tariff deferred: Lawrence housing stock
-  includes residential units billed under G-1 (mixed-use buildings), so
-  filtering would silently exclude legitimate residents. All addresses shown;
-  user selects their unit. Revisit post-pilot if UX feedback warrants it.
 """
 
 import re
@@ -108,10 +98,6 @@ def search_streets_by_role(street_name: str, role: str):
     Step 1 -- find distinct street names matching input.
     Returns list of matching street name strings.
     Role determines which DB(s) to query.
-
-    Outreach DB: queries mailing_addresses.street_name directly (pre-parsed
-    column -- cleaner than splitting full_address as was done with
-    Outreach_Master_Unified.Service_Address).
     """
     pattern = f"%{street_name.strip().upper()}%"
     streets = set()
@@ -129,25 +115,27 @@ def search_streets_by_role(street_name: str, role: str):
                 streets.add(parts[1].strip())
         # Always query outreach DB in parallel -- not a fallback
         rows = outreach_db().execute(
-            """SELECT DISTINCT street_name FROM mailing_addresses
-               WHERE UPPER(street_name) LIKE ?
-               ORDER BY street_name LIMIT 200""",
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               ORDER BY Service_Address LIMIT 200""",
             (pattern,)
         ).fetchall()
         for r in rows:
-            if r["street_name"]:
-                streets.add(r["street_name"].strip())
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
 
     elif role == "renter":
         rows = outreach_db().execute(
-            """SELECT DISTINCT street_name FROM mailing_addresses
-               WHERE UPPER(street_name) LIKE ?
-               ORDER BY street_name LIMIT 200""",
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               ORDER BY Service_Address LIMIT 200""",
             (pattern,)
         ).fetchall()
         for r in rows:
-            if r["street_name"]:
-                streets.add(r["street_name"].strip())
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
 
     elif role == "owner_occupant":
         # Master DB only -- owner-occupants are single-family homeowners,
@@ -165,14 +153,15 @@ def search_streets_by_role(street_name: str, role: str):
 
     else:  # property_manager, small_business -- both DBs
         rows = outreach_db().execute(
-            """SELECT DISTINCT street_name FROM mailing_addresses
-               WHERE UPPER(street_name) LIKE ?
-               ORDER BY street_name LIMIT 200""",
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               ORDER BY Service_Address LIMIT 200""",
             (pattern,)
         ).fetchall()
         for r in rows:
-            if r["street_name"]:
-                streets.add(r["street_name"].strip())
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
         rows = master_db().execute(
             """SELECT DISTINCT normalized_address FROM Assessment_L_Parcels
                WHERE UPPER(normalized_address) LIKE ?
@@ -192,9 +181,6 @@ def get_all_streets_by_role(role: str):
     Returns the full sorted list of distinct street names for the given role.
     Used to populate the live filter on the street search screen.
     Same DB logic as search_streets_by_role but with no filter pattern.
-
-    Outreach DB: ~800 distinct street names from 55,206 rows -- SQLite returns
-    this in microseconds. No optimisation needed.
     """
     streets = set()
 
@@ -208,21 +194,23 @@ def get_all_streets_by_role(role: str):
             if len(parts) == 2:
                 streets.add(parts[1].strip())
         rows = outreach_db().execute(
-            """SELECT DISTINCT street_name FROM mailing_addresses
-               ORDER BY street_name"""
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               ORDER BY Service_Address"""
         ).fetchall()
         for r in rows:
-            if r["street_name"]:
-                streets.add(r["street_name"].strip())
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
 
     elif role == "renter":
         rows = outreach_db().execute(
-            """SELECT DISTINCT street_name FROM mailing_addresses
-               ORDER BY street_name"""
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               ORDER BY Service_Address"""
         ).fetchall()
         for r in rows:
-            if r["street_name"]:
-                streets.add(r["street_name"].strip())
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
 
     elif role == "owner_occupant":
         # Master DB only -- owner-occupants are single-family homeowners
@@ -237,12 +225,13 @@ def get_all_streets_by_role(role: str):
 
     else:  # property_manager, small_business
         rows = outreach_db().execute(
-            """SELECT DISTINCT street_name FROM mailing_addresses
-               ORDER BY street_name"""
+            """SELECT DISTINCT Service_Address FROM Outreach_Master_Unified
+               ORDER BY Service_Address"""
         ).fetchall()
         for r in rows:
-            if r["street_name"]:
-                streets.add(r["street_name"].strip())
+            parts = r["Service_Address"].split(" ", 1)
+            if len(parts) == 2:
+                streets.add(parts[1].strip())
         rows = master_db().execute(
             """SELECT DISTINCT normalized_address FROM Assessment_L_Parcels
                ORDER BY normalized_address"""
@@ -259,19 +248,8 @@ def search_addresses_on_street(street_name: str, role: str):
     """
     Step 2 -- return all addresses on a confirmed street name.
     Each result is a dict with: account_number, display_address, service_unit, source
-
-    Outreach DB: queries mailing_addresses with SQL aliases that preserve the
-    column names (Service_Address, Service_Unit, Account_Number) consumed by
-    the Python code below each query -- no changes needed to deduplication
-    keys or result dict construction.
-
-    street_name is pre-parsed in mailing_addresses, so we match on the
-    street_name column directly rather than a LIKE pattern on full_address.
-    street_number LIKE is used to allow partial number matches if needed, but
-    an exact street_name match is sufficient for the address picker flow.
     """
-    # Pattern for master DB (normalized_address = "123 BROADWAY ST")
-    master_pattern = f"% {street_name.strip().upper()}%"
+    pattern = f"% {street_name.strip().upper()}%"
     results = []
     seen = set()
 
@@ -281,7 +259,7 @@ def search_addresses_on_street(street_name: str, role: str):
                FROM Assessment_L_Parcels
                WHERE UPPER(normalized_address) LIKE ?
                ORDER BY normalized_address LIMIT 200""",
-            (master_pattern,)
+            (pattern,)
         ).fetchall()
         for r in rows:
             key = r["account_number"]
@@ -295,14 +273,11 @@ def search_addresses_on_street(street_name: str, role: str):
                 })
         # Always query outreach DB in parallel -- not a fallback
         rows = outreach_db().execute(
-            """SELECT DISTINCT
-                   account_number  AS Account_Number,
-                   full_address    AS Service_Address,
-                   unit            AS Service_Unit
-               FROM mailing_addresses
-               WHERE UPPER(street_name) = UPPER(?)
-               ORDER BY full_address, unit LIMIT 500""",
-            (street_name.strip(),)
+            """SELECT DISTINCT Account_Number, Service_Address, Service_Unit
+               FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               ORDER BY Service_Address, Service_Unit LIMIT 500""",
+            (pattern,)
         ).fetchall()
         for r in rows:
             key = r["Account_Number"]
@@ -327,7 +302,7 @@ def search_addresses_on_street(street_name: str, role: str):
                FROM Assessment_L_Parcels
                WHERE UPPER(normalized_address) LIKE ?
                ORDER BY normalized_address LIMIT 200""",
-            (master_pattern,)
+            (pattern,)
         ).fetchall()
         for r in rows:
             key = r["account_number"]
@@ -342,15 +317,12 @@ def search_addresses_on_street(street_name: str, role: str):
 
     elif role == "renter":
         rows = outreach_db().execute(
-            """SELECT
-                   full_address    AS Service_Address,
-                   unit            AS Service_Unit,
-                   account_number  AS Account_Number
-               FROM mailing_addresses
-               WHERE UPPER(street_name) = UPPER(?)
-               GROUP BY full_address, unit
-               ORDER BY full_address, unit LIMIT 500""",
-            (street_name.strip(),)
+            """SELECT Service_Address, Service_Unit, Account_Number
+               FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               GROUP BY Service_Address, Service_Unit
+               ORDER BY Service_Address, Service_Unit LIMIT 500""",
+            (pattern,)
         ).fetchall()
         for r in rows:
             key = f"{r['Service_Address']}|{r['Service_Unit']}"
@@ -368,15 +340,12 @@ def search_addresses_on_street(street_name: str, role: str):
 
     else:  # others -- both DBs, outreach first
         rows = outreach_db().execute(
-            """SELECT
-                   full_address    AS Service_Address,
-                   unit            AS Service_Unit,
-                   account_number  AS Account_Number
-               FROM mailing_addresses
-               WHERE UPPER(street_name) = UPPER(?)
-               GROUP BY full_address, unit
-               ORDER BY full_address, unit LIMIT 500""",
-            (street_name.strip(),)
+            """SELECT Service_Address, Service_Unit, Account_Number
+               FROM Outreach_Master_Unified
+               WHERE UPPER(Service_Address) LIKE ?
+               GROUP BY Service_Address, Service_Unit
+               ORDER BY Service_Address, Service_Unit LIMIT 500""",
+            (pattern,)
         ).fetchall()
         for r in rows:
             key = f"{r['Service_Address']}|{r['Service_Unit']}"
@@ -396,7 +365,7 @@ def search_addresses_on_street(street_name: str, role: str):
                FROM Assessment_L_Parcels
                WHERE UPPER(normalized_address) LIKE ?
                ORDER BY normalized_address LIMIT 200""",
-            (master_pattern,)
+            (pattern,)
         ).fetchall()
         for r in rows:
             key = r["account_number"]

@@ -11,7 +11,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 DB_UPIN     = os.environ.get("DB_UPIN",     os.path.join(BASE_DIR, "upinmgmt.sqlite"))
 DB_MASTER   = os.environ.get("DB_MASTER",   os.path.join(BASE_DIR, "lawrence_master.sqlite"))
-DB_OUTREACH = os.environ.get("DB_OUTREACH", os.path.join(BASE_DIR, "lawrence_energy.sqlite"))
+DB_OUTREACH = os.environ.get("DB_OUTREACH", os.path.join(BASE_DIR, "LEAPMailings_clean.sqlite"))
 
 
 # ------------------------------------------------------------------
