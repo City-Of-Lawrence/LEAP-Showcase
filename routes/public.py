@@ -56,7 +56,25 @@ def set_language(lang):
 
 @public.route("/")
 def index():
-    return render_template("index.html")
+    upin_plain  = request.args.get("upin", "").strip().upper()
+    upin_status = None   # None | "valid" | "invalid"
+    upin_dest   = None   # URL to wire the Energy Upgrades tile to
+
+    if upin_plain:
+        row = lookup_by_upin(upin_plain)
+        if row:
+            upin_status = "valid"
+            if row["upin_type"] == "unit":
+                upin_dest = url_for("public.renter_login", upin=upin_plain)
+            else:
+                upin_dest = url_for("public.register_qr",  upin=upin_plain)
+        else:
+            upin_status = "invalid"
+            upin_dest   = url_for("public.choose_path")
+
+    return render_template("index.html",
+                           upin_status=upin_status,
+                           upin_dest=upin_dest)
 
 
 # ------------------------------------------------------------------

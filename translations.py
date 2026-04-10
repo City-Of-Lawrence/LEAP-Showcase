@@ -207,6 +207,16 @@ TRANSLATIONS = {
         "es": "Ingrese el UPIN de su carta de la Ciudad.",
     },
 
+    # ── index.html — UPIN tile status messages ───────────────────────
+    "index_upin_welcome": {
+        "en": "Welcome! Tap to continue \u2192",
+        "es": "\u00a1Bienvenido/a! Toque para continuar \u2192",
+    },
+    "index_upin_error": {
+        "en": "Something went wrong \u2014 please continue registration \u2192",
+        "es": "Algo sali\u00f3 mal \u2014 por favor contin\u00fae su registro \u2192",
+    },
+
     # ── how_can_we_help.html — interstitial ─────────────────────────
     "help_title": {
         "en": "How Can We Help You?",
@@ -221,8 +231,8 @@ TRANSLATIONS = {
         "es": "Mejoras Energ\u00e9ticas",
     },
     "help_masssave_body": {
-        "en": "No-cost home energy improvements through Mass Save\u00ae \u2014 insulation, heat pumps, thermostats, and more.",
-        "es": "Mejoras de energ\u00eda en el hogar sin costo a trav\u00e9s de Mass Save\u00ae \u2014 aislamiento, bombas de calor, termostatos y m\u00e1s.",
+        "en": "No-cost home energy improvements through Mass Save\u00ae programs \u2014 insulation, heat pumps, thermostats, and more.",
+        "es": "Mejoras de energ\u00eda en el hogar sin costo a trav\u00e9s de los programas de Mass Save\u00ae \u2014 aislamiento, bombas de calor, termostatos y m\u00e1s.",
     },
     "help_masssave_btn": {
         "en": "Get Started \u2192",
@@ -564,16 +574,16 @@ TRANSLATIONS = {
         "es": "Gracias por registrarse con el Proyecto de Asequibilidad Energética de Lawrence (LEAP). Un miembro del personal de la Ciudad puede darle seguimiento si solicitó asistencia.",
     },
     "done_next_step_title": {
-        "en": "Next step: Enroll with Mass Save",
-        "es": "Próximo paso: Inscríbase con Mass Save",
+        "en": "Next step: Get Started with Energy-Saving Upgrades",
+        "es": "Próximo paso: Comience con las Mejoras de Ahorro Energético",
     },
     "done_next_step_body": {
-        "en": "To receive no-cost energy upgrades, you must enroll directly with Mass Save. It's no-cost and takes about 5 minutes.",
-        "es": "Para recibir mejoras de energía sin costo, debe inscribirse directamente con Mass Save. Es sin costo y toma unos 5 minutos.",
+        "en": "Go to Lawrence's Mass Save partnership page to learn about no-cost energy upgrades. It's no-cost and takes about 5 minutes to get started.",
+        "es": "Visite la página de asociación de Mass Save de Lawrence para conocer las mejoras de energía sin costo. Es sin costo y toma unos 5 minutos para comenzar.",
     },
     "done_masssave_btn": {
-        "en": "Go to masssave.com/Lawrence →",
-        "es": "Ir a masssave.com/Lawrence →",
+        "en": "Get Started with Energy-Saving Upgrades \u2192",
+        "es": "Comenzar con las Mejoras de Ahorro Energ\u00e9tico \u2192",
     },
     "done_questions": {
         "en": "Questions? Call the City at",

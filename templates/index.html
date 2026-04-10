@@ -110,6 +110,24 @@
     color:#5a6a80; opacity:0.7;
   }
 
+  /* UPIN-aware tile states */
+  a.leap-tile--upin-ready {
+    border-color:#1A3A6B;
+    background:#f0f4fb;
+  }
+  a.leap-tile--upin-error {
+    border-color:#c0392b;
+    background:#fff5f5;
+  }
+
+  /* UPIN status message line inside tile */
+  .leap-tile-upin-msg {
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:700;
+    margin-top:12px; margin-bottom:0; line-height:1.4;
+  }
+  .leap-tile-upin-msg--ok  { color:#1A3A6B; }
+  .leap-tile-upin-msg--err { color:#c0392b; }
+
   @media (max-width:560px) {
     .leap-badge { padding:8px 12px 8px 18px; gap:10px; top:12%; }
     .leap-badge-text { font-size:14px; }
@@ -164,10 +182,18 @@
     <div class="leap-tiles">
 
       {# Tile 1: Energy Upgrades (Mass Save) #}
-      <a href="{{ url_for('public.choose_path') }}" class="leap-tile">
+      {# href: role-specific UPIN dest if valid, choose-path if invalid, choose-path if no UPIN #}
+      <a href="{{ upin_dest if upin_dest else url_for('public.choose_path') }}"
+         class="leap-tile{% if upin_status == 'valid' %} leap-tile--upin-ready{% elif upin_status == 'invalid' %} leap-tile--upin-error{% endif %}">
         <div class="leap-tile-icon">&#127968;</div>
         <div class="leap-tile-title">{{ t('help_masssave_title') }}</div>
         <p class="leap-tile-body">{{ t('help_masssave_body') }}</p>
+        {# UPIN status message — shown only when a UPIN was present in the URL #}
+        {% if upin_status == 'valid' %}
+          <p class="leap-tile-upin-msg leap-tile-upin-msg--ok">{{ t('index_upin_welcome') }}</p>
+        {% elif upin_status == 'invalid' %}
+          <p class="leap-tile-upin-msg leap-tile-upin-msg--err">{{ t('index_upin_error') }}</p>
+        {% endif %}
         <span class="leap-tile-chevron">&#8250;</span>
       </a>
 
