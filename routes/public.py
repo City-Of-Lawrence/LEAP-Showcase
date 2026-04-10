@@ -457,6 +457,7 @@ def address_not_found_confirm():
             "contact_email":       "",
             "ip_address":          request.remote_addr,
             "pending_upin":        "yes",
+            "reported_fuel":       None,
         })
         lang = session.get("lang", "en")
         session.clear()
@@ -851,6 +852,7 @@ def contact_info():
             "contact_email":       request.form.get("contact_email", "").strip(),
             "ip_address":          request.remote_addr,
             "pending_upin":        None,
+            "reported_fuel":       None,
         })
         return redirect(url_for("public.done"))
 
