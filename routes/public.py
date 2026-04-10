@@ -322,6 +322,7 @@ def address_street():
                 if role in ("landlord", "property_manager"):
                     return render_template("address_street.html",
                         role=dict(get_roles(lang)).get(role, ""),
+                        all_streets=get_all_streets_by_role(role),
                         error=t("error_street_not_found", lang)
                               + " <a href='/address/not-found'>"
                               + t("error_street_not_found_link", lang) + "</a>.")
@@ -457,7 +458,6 @@ def address_not_found_confirm():
             "contact_email":       "",
             "ip_address":          request.remote_addr,
             "pending_upin":        "yes",
-            "reported_fuel":       None,
         })
         lang = session.get("lang", "en")
         session.clear()
@@ -852,7 +852,6 @@ def contact_info():
             "contact_email":       request.form.get("contact_email", "").strip(),
             "ip_address":          request.remote_addr,
             "pending_upin":        None,
-            "reported_fuel":       None,
         })
         return redirect(url_for("public.done"))
 
