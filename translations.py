@@ -552,8 +552,8 @@ TRANSLATIONS = {
         "es": "Correo Electrónico",
     },
     "contact_privacy_note": {
-        "en": "Your contact information is used only by City staff to coordinate outreach and support. It is never shared with third parties.",
-        "es": "Su información de contacto es usada únicamente por el personal de la Ciudad para coordinar comunicaciones y apoyo. Nunca se comparte con terceros.",
+        "en": "Your contact information is used only by City staff to coordinate outreach and support. As a City-operated program, LEAP is subject to Massachusetts Public Records Law; in limited legal circumstances, information may be subject to disclosure.",
+        "es": "Su información de contacto es usada únicamente por el personal de la Ciudad para coordinar comunicaciones y apoyo. Como programa operado por la Ciudad, LEAP está sujeto a la Ley de Registros Públicos de Massachusetts; en circunstancias legales limitadas, la información puede estar sujeta a divulgación.",
     },
     "contact_finish_btn": {
         "en": "Finish →",
