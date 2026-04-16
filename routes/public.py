@@ -904,8 +904,6 @@ def contact_info():
         session["lang"] = lang
         if is_zombie:
             return redirect(url_for("public.zombie_holding"))
-        if intent == "enroll":
-            return redirect(_masssave_url())
         return redirect(url_for("public.done"))
 
     # Pre-fill contact fields

@@ -346,8 +346,8 @@ TRANSLATIONS = {
 
     # ── start_generic.html ───────────────────────────────────────────
     "start_title": {
-        "en": "Who Are You?",
-        "es": "¿Quién es Usted?",
+        "en": "How Are You Connected to This Property?",
+        "es": "¿Cómo Está Relacionado/a con Esta Propiedad?",
     },
     "start_subtitle": {
         "en": "Tell us your role so we can look up the right information for you.",
@@ -1010,8 +1010,8 @@ TRANSLATIONS = {
         "es": "Inscribirse con Mass Save ahora",
     },
     "levents_enroll_body": {
-        "en": "We'll take you directly to the Mass Save enrollment page.",
-        "es": "Le llevaremos directamente a la página de inscripción de Mass Save.",
+        "en": "Go to the Mass Save website to begin your Energy Assessment and explore available incentives and upgrades. The process is quick and typically takes about 5 minutes to get started.",
+        "es": "Vaya al sitio web de Mass Save para comenzar su Evaluación Energética y explorar los incentivos y mejoras disponibles. El proceso es rápido y generalmente toma unos 5 minutos para comenzar.",
     },
     "levents_callback_title": {
         "en": "Please contact me — I need help understanding the program",
@@ -1299,8 +1299,8 @@ TRANSLATIONS = {
         "es": "Inscribirse con Mass Save Ahora",
     },
     "welcome_enroll_body": {
-        "en": "Go directly to the Mass Save enrollment page to sign up for no-cost energy upgrades. It's no-cost and takes about 5 minutes.",
-        "es": "Vaya directamente a la página de inscripción de Mass Save para solicitar mejoras de energía sin costo. Es sin costo y toma unos 5 minutos.",
+        "en": "Go to the Mass Save website to begin your Energy Assessment and explore available incentives and upgrades. The process is quick and typically takes about 5 minutes to get started.",
+        "es": "Vaya al sitio web de Mass Save para comenzar su Evaluación Energética y explorar los incentivos y mejoras disponibles. El proceso es rápido y generalmente toma unos 5 minutos para comenzar.",
     },
     "welcome_enroll_btn": {
         "en": "Go to Mass Save →",
