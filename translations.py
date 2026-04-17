@@ -243,8 +243,8 @@ TRANSLATIONS = {
         "es": "Reducir Mi Factura de Energ\u00eda",
     },
     "help_aggregation_body": {
-        "en": "Lawrence Energy Choice (<strong>LEC</strong>) is a state-approved City program that pools residents\u2019 buying power for competitive electricity rates. Savings is the goal, though not guaranteed month-to-month.",
-        "es": "Lawrence Energy Choice (<strong>LEC</strong>) es un programa municipal aprobado por el estado que combina el poder de compra de los residentes para obtener tarifas el\u00e9ctricas competitivas. El ahorro es el objetivo, aunque no se garantiza mes a mes.",
+        "en": "Lawrence Energy Choice (<strong>LEC</strong>) is a state-approved City program that pools residents\u2019 buying power for competitive electricity rates.",
+        "es": "Lawrence Energy Choice (<strong>LEC</strong>) es un programa municipal aprobado por el estado que combina el poder de compra de los residentes para obtener tarifas el\u00e9ctricas competitivas.",
     },
     "help_aggregation_btn": {
         "en": "Learn More \u2192",
