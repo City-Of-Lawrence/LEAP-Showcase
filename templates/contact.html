@@ -71,7 +71,7 @@
 
     <div class="btn-row">
       <button type="submit" class="btn btn-primary">{{ t('contact_finish_btn') }}</button>
-      <button type="submit" class="btn btn-outline"
+      <button type="submit" name="_skip" value="1" class="btn btn-outline"
               formnovalidate onclick="clearOptional()">
         {{ t('contact_skip_btn') }}
       </button>
@@ -79,8 +79,10 @@
   </form>
 </div>
 
-{% block head %}
 <script>
+// clearOptional must be in global scope so the inline onclick can reach it.
+// Defined here (after DOM is partially parsed) rather than in a block head
+// to avoid Jinja block-ordering issues.
 function clearOptional() {
   document.getElementById("contact_name").value  = "";
   document.getElementById("contact_phone").value = "";
@@ -88,10 +90,10 @@ function clearOptional() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  const phone = document.getElementById("contact_phone");
-  phone.addEventListener("input", function (e) {
-    let digits = this.value.replace(/\D/g, "").substring(0, 10);
-    let formatted = "";
+  var phone = document.getElementById("contact_phone");
+  phone.addEventListener("input", function () {
+    var digits = this.value.replace(/\D/g, "").substring(0, 10);
+    var formatted = "";
     if (digits.length === 0)      formatted = "";
     else if (digits.length <= 3)  formatted = "(" + digits;
     else if (digits.length <= 6)  formatted = "(" + digits.substring(0, 3) + ") " + digits.substring(3);
@@ -99,14 +101,12 @@ document.addEventListener("DOMContentLoaded", function () {
     this.value = formatted;
   });
   phone.addEventListener("keydown", function (e) {
-    const allowed = ["Backspace","Delete","Tab","Escape","Enter",
-                     "ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"];
+    var allowed = ["Backspace","Delete","Tab","Escape","Enter",
+                   "ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"];
     if (allowed.includes(e.key)) return;
     if (e.key >= "0" && e.key <= "9") return;
     e.preventDefault();
   });
 });
 </script>
-{% endblock %}
-
 {% endblock %}

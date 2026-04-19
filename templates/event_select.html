@@ -59,7 +59,7 @@
   {% endif %}
   {% endfor %}
 
-  <form method="POST" action="{{ url_for('public.event_select') }}">
+  <form id="event-form" method="POST" action="{{ url_for('public.event_select') }}">
 
     {% if events %}
     <div class="choices" style="margin-bottom:1.4rem;">
@@ -149,4 +149,18 @@
   </form>
 
 </div>
+
+<script>
+// Auto-advance when "No thanks" is selected -- no need to press Continue
+document.addEventListener("DOMContentLoaded", function () {
+  var noneRadio = document.getElementById("event_none");
+  if (noneRadio) {
+    noneRadio.addEventListener("change", function () {
+      if (this.checked) {
+        document.getElementById("event-form").submit();
+      }
+    });
+  }
+});
+</script>
 {% endblock %}

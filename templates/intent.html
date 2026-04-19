@@ -20,7 +20,7 @@
   <div class="alert alert-error">{{ error }}</div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('public.landlord_intent') if session.get('role') == 'landlord' else url_for('public.select_intent') }}">
+  <form id="intent-form" method="POST" action="{{ url_for('public.landlord_intent') if session.get('role') == 'landlord' else url_for('public.select_intent') }}">
     <div class="choices">
       {% for value, label in intents %}
       <div>
@@ -29,7 +29,9 @@
       </div>
       {% endfor %}
     </div>
-    <button type="submit" class="btn btn-primary">{{ t('continue_btn') }}</button>
+    {# Hidden fallback submit -- used if JS is disabled #}
+    <button type="submit" class="btn btn-primary" id="intent-continue-btn"
+            style="display:none;">{{ t('continue_btn') }}</button>
   </form>
 
   <div class="alert alert-info" style="margin-top:1.4rem;">
@@ -41,4 +43,27 @@
   </div>
 
 </div>
+
+<script>
+// Auto-advance on selection -- no Continue button needed.
+// Fallback button is revealed if JS fails.
+document.addEventListener("DOMContentLoaded", function () {
+  var radios = document.querySelectorAll('#intent-form input[type="radio"]');
+  var btn    = document.getElementById("intent-continue-btn");
+
+  // Show fallback button in case JS is slow / partially loaded
+  if (btn) btn.style.display = "";
+
+  radios.forEach(function (radio) {
+    radio.addEventListener("change", function () {
+      if (this.checked) {
+        // Brief visual feedback before submit so the selection feels registered
+        setTimeout(function () {
+          document.getElementById("intent-form").submit();
+        }, 120);
+      }
+    });
+  });
+});
+</script>
 {% endblock %}
