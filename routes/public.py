@@ -57,6 +57,9 @@ def set_language(lang):
 @public.route("/")
 def index():
     upin_plain  = request.args.get("upin", "").strip().upper()
+    inviting_event_id = request.args.get("event_id", type=int)
+    if inviting_event_id:
+        session["inviting_event_id"] = inviting_event_id
     upin_status = None   # None | "valid" | "invalid"
     upin_dest   = None   # URL to wire the Energy Upgrades tile to
 
@@ -123,6 +126,9 @@ def lec():
 @public.route("/register")
 def register_qr():
     upin_plain = request.args.get("upin", "").strip().upper()
+    inviting_event_id = request.args.get("event_id", type=int)
+    if inviting_event_id:
+        session["inviting_event_id"] = inviting_event_id
     if not upin_plain:
         return render_template("error.html",
             message=t("error_upin_missing", get_lang())), 400
@@ -215,6 +221,9 @@ def _complete_renter_upin_login(upin_plain, row):
 def renter_login():
     error = None
     upin_from_qr = request.args.get("upin", "").strip().upper()
+    inviting_event_id = request.args.get("event_id", type=int)
+    if inviting_event_id:
+        session["inviting_event_id"] = inviting_event_id
     if request.method == "GET" and upin_from_qr:
         row = lookup_by_upin(upin_from_qr)
         if not row or row["upin_type"] != "unit":
