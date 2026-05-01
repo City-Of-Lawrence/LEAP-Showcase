@@ -61,7 +61,8 @@ def init_schema():
             registered_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             ip_address            TEXT,
             pending_upin          TEXT,
-            reported_fuel         TEXT
+            reported_fuel         TEXT,
+            inviting_event_id     INTEGER
         )
     """)
 
@@ -148,7 +149,8 @@ def ensure_schema():
             registered_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             ip_address            TEXT,
             pending_upin          TEXT,
-            reported_fuel         TEXT
+            reported_fuel         TEXT,
+            inviting_event_id     INTEGER
         )
     """)
 
@@ -156,6 +158,7 @@ def ensure_schema():
     for col_sql in [
         "ALTER TABLE registrations ADD COLUMN pending_upin TEXT",
         "ALTER TABLE registrations ADD COLUMN reported_fuel TEXT",
+        "ALTER TABLE registrations ADD COLUMN inviting_event_id INTEGER",
     ]:
         try:
             cur.execute(col_sql)

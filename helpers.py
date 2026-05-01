@@ -459,22 +459,31 @@ def get_prior_registration_summary(account_number, service_unit=""):
         ).fetchone()
 
 def save_registration(data):
-    """Normalise service_unit then INSERT a registration row. Returns new row id."""
+    """Normalise service_unit then INSERT a registration row. Returns new row id.
+
+    If the caller did not pass inviting_event_id, fall back to the session
+    key set by the QR-landing routes (index / register_qr / renter_login).
+    Lets attribution flow from the QR scan through to the persisted record
+    without requiring every call site to thread the value explicitly.
+    """
     if data.get("service_unit"):
         data["service_unit"] = normalize_unit(data["service_unit"])
+    if "inviting_event_id" not in data:
+        from flask import session
+        data["inviting_event_id"] = session.get("inviting_event_id")
     cur = upin_db().execute(
         """INSERT INTO registrations (
             account_number, upin_used, normalized_address, service_unit,
             role, intent, unit_count_reported, unit_count_known,
             unit_count_flag, mass_save_enrolled, needs_callback,
             event_rsvp_id, contact_name, contact_phone, contact_email,
-            ip_address, pending_upin, reported_fuel
+            ip_address, pending_upin, reported_fuel, inviting_event_id
         ) VALUES (
             :account_number, :upin_used, :normalized_address, :service_unit,
             :role, :intent, :unit_count_reported, :unit_count_known,
             :unit_count_flag, :mass_save_enrolled, :needs_callback,
             :event_rsvp_id, :contact_name, :contact_phone, :contact_email,
-            :ip_address, :pending_upin, :reported_fuel
+            :ip_address, :pending_upin, :reported_fuel, :inviting_event_id
         )""",
         data
     )
