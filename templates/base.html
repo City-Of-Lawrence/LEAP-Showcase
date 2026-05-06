@@ -7,6 +7,7 @@
   <style>
     /* Ã¢”‚¬Ã¢”‚¬ Reset & base Ã¢”‚¬Ã¢”‚¬ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; max-width: 100vw; overflow-x: hidden; }
     body {
       font-family: "Segoe UI", Arial, sans-serif;
       background: #f4f6f8;
@@ -66,17 +67,23 @@
     }
 
     /* Ã¢”‚¬Ã¢”‚¬ Main content area Ã¢”‚¬Ã¢”‚¬ */
+    /* Narrow column on purpose: matches /start's .sg-wrap (600px) so every    */
+    /* step in the registration flow — role, address, intent, contact, done — */
+    /* shares the same compact card width. On phones/narrow tablets the 92vw  */
+    /* lower bound keeps a comfortable side margin.                            */
     main {
-      max-width: 640px;
+      width: clamp(320px, 92vw, 640px);
       margin: 2rem auto;
       padding: 0 1rem;
     }
     main.wide {
+      width: 100%;
       max-width: 100%;
       margin: 1.5rem 0;
       padding: 0 1.5rem;
     }
     main.full-bleed {
+      width: 100%;
       max-width: 100%;
       margin: 0;
       padding: 0;
