@@ -566,12 +566,36 @@ TRANSLATIONS = {
 
     # ── done.html ────────────────────────────────────────────────────
     "done_title": {
-        "en": "You're All Set!",
-        "es": "¡Todo Listo!",
+        "en": "Registration Complete: Now, Complete Your Official Enrollment",
+        "es": "Registro Completo: Ahora, Complete su Inscripción Oficial",
     },
     "done_subtitle": {
-        "en": "Thank you for registering with the Lawrence Energy Affordability Project (LEAP). A City staff member may follow up if you requested assistance.",
-        "es": "Gracias por registrarse con el Proyecto de Asequibilidad Energética de Lawrence (LEAP). Un miembro del personal de la Ciudad puede darle seguimiento si solicitó asistencia.",
+        "en": "The City of Lawrence is still with you. Mass Save handles the next step, and we're tracking your progress to make sure nothing falls through.",
+        "es": "La Ciudad de Lawrence sigue con usted. Mass Save maneja el próximo paso, y estamos siguiendo su progreso para asegurar que nada se quede atrás.",
+    },
+    "done_safety_net_title": {
+        "en": "Stuck on the Mass Save site?",
+        "es": "¿Atascado en el sitio de Mass Save?",
+    },
+    "done_safety_net_body": {
+        "en": "If anything is unclear or you can't finish the form, your Energy Advocate is here to help — there's no rush.",
+        "es": "Si algo no está claro o no puede completar el formulario, su Asesor de Energía está aquí para ayudar — no hay prisa.",
+    },
+    "done_advocate_phone": {
+        "en": "(978) 315-9255",
+        "es": "(978) 315-9255",
+    },
+    "done_advocate_whatsapp_aria": {
+        "en": "Message your Energy Advocate on WhatsApp",
+        "es": "Envíe un mensaje a su Asesor de Energía por WhatsApp",
+    },
+    "done_bridge_label_city": {
+        "en": "City of Lawrence",
+        "es": "Ciudad de Lawrence",
+    },
+    "done_bridge_label_masssave": {
+        "en": "Mass Save®",
+        "es": "Mass Save®",
     },
     "done_next_step_title": {
         "en": "Next step: Get Started with Energy-Saving Upgrades",
