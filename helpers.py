@@ -542,7 +542,10 @@ def get_upcoming_events(role: str = "", limit: int = 2):
            ORDER BY e.event_date, e.event_time""",
         [today] + audiences
     ).fetchall()
-    available = [r for r in rows if r["rsvp_count"] < r["capacity"]]
+    # Defensive: capacity should always be set (NOT NULL DEFAULT 50 in schema), but
+    # legacy rows imported from an earlier schema may have NULL — treat as full so
+    # the event doesn't surface to residents until capacity is corrected by staff.
+    available = [r for r in rows if (r["rsvp_count"] or 0) < (r["capacity"] or 0)]
     return available[:limit]
 
 def get_event_wards(event_id):
