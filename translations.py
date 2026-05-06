@@ -574,12 +574,12 @@ TRANSLATIONS = {
         "es": "La Ciudad de Lawrence sigue con usted. Mass Save maneja el próximo paso, y estamos siguiendo su progreso para asegurar que nada se quede atrás.",
     },
     "done_safety_net_title": {
-        "en": "Stuck on the Mass Save site?",
-        "es": "¿Atascado en el sitio de Mass Save?",
+        "en": "Need help with the Mass Save site?",
+        "es": "¿Necesita ayuda con el sitio de Mass Save?",
     },
     "done_safety_net_body": {
-        "en": "If anything is unclear or you can't finish the form, your Energy Advocate is here to help — there's no rush.",
-        "es": "Si algo no está claro o no puede completar el formulario, su Asesor de Energía está aquí para ayudar — no hay prisa.",
+        "en": "If anything is unclear or you can't finish the form, your Energy Advocate is here to help.",
+        "es": "Si algo no está claro o no puede completar el formulario, su Asesor de Energía está aquí para ayudar.",
     },
     "done_advocate_phone": {
         "en": "(978) 315-9255",
@@ -604,10 +604,6 @@ TRANSLATIONS = {
     "done_next_step_body": {
         "en": "Go to Lawrence's Mass Save partnership page to learn about no-cost energy upgrades. It's no-cost and takes about 5 minutes to get started.",
         "es": "Visite la página de asociación de Mass Save de Lawrence para conocer las mejoras de energía sin costo. Es sin costo y toma unos 5 minutos para comenzar.",
-    },
-    "done_masssave_btn": {
-        "en": "Get Started with Energy-Saving Upgrades \u2192",
-        "es": "Comenzar con las Mejoras de Ahorro Energ\u00e9tico \u2192",
     },
     "done_questions": {
         "en": "Questions? Call the City at",

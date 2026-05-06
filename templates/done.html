@@ -20,17 +20,10 @@
   </p>
   {% endif %}
 
-  <div class="alert alert-info" style="text-align:left; margin-bottom:1.6rem;">
-    <strong>{{ t('done_next_step_title') }}</strong><br>
-    {{ t('done_next_step_body') }}
-  </div>
-
-  {# Partnership lockup: two wordmarks joined by a hairline whose color shifts from   #}
-  {# navy to green at the midpoint, signalling "transition between partners" rather  #}
-  {# than "redirected away." Uppercase + letter-spacing borrows the visual language  #}
-  {# of official seals & wordmarks (USPS, MTA, gov agencies) — quiet authority, no   #}
-  {# decoration. The Lawrence-Seal.png is intentionally dropped: it has "Mayor Brian #}
-  {# De Peña" baked into the bitmap and dates the asset to one administration.       #}
+  {# Partnership lockup: two wordmarks literally joined by a bridge — the City of    #}
+  {# Lawrence ↔ Mass Save partnership rendered as a crossing, not a hairline. The    #}
+  {# image is decorative; the labels carry the meaning, so the <img> is aria-hidden  #}
+  {# and the surrounding container provides the accessible name.                     #}
   <div style="display:flex; align-items:center; justify-content:center; gap:0;
               margin: 0 0 1.2rem 0; flex-wrap:wrap;"
        aria-label="City of Lawrence and Mass Save partnership">
@@ -45,12 +38,10 @@
       border-radius:3px;
       white-space:nowrap;
     ">{{ t('done_bridge_label_city') }}</span>
-    <span aria-hidden="true" style="
-      width:30px;
-      height:2px;
-      flex-shrink:0;
-      background:linear-gradient(to right, #1a3a5c 0%, #1a3a5c 50%, #1a6b3a 50%, #1a6b3a 100%);
-    "></span>
+    <img src="{{ url_for('static', filename='bridge_icon.png') }}"
+         alt=""
+         aria-hidden="true"
+         style="height:42px; width:auto; flex-shrink:0; margin:0 0.4rem;">
     <span style="
       background:#ffffff;
       color:#1a6b3a;
@@ -65,7 +56,7 @@
     ">{{ t('done_bridge_label_masssave') }}</span>
   </div>
 
-  {# Mass Save CTA -- styled as a clickable card, not a plain button #}
+  {# "Next Step" card is the CTA itself — clicking the box opens masssave.com/Lawrence. #}
   <a href="{{ masssave_url }}" target="_blank" rel="noopener"
      style="display:block; text-decoration:none; margin-bottom:0.5rem;">
     <div style="
@@ -79,17 +70,20 @@
     "
     onmouseover="this.style.boxShadow='0 6px 18px rgba(26,107,58,0.18)'; this.style.transform='translateY(-2px)';"
     onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)';">
-      <div style="display:flex; align-items:center; gap:0.9rem;">
-        <div style="font-size:2rem; flex-shrink:0;">⚡</div>
-        <div>
-          <div style="font-weight:700; font-size:1.05rem; color:#1a6b3a; margin-bottom:0.2rem;">
-            {{ t('done_masssave_btn') }}
+      <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+        <div style="font-size:2rem; flex-shrink:0; line-height:1;">⚡</div>
+        <div style="flex:1;">
+          <div style="font-weight:700; font-size:1.05rem; color:#1a6b3a; margin-bottom:0.3rem;">
+            {{ t('done_next_step_title') }}
           </div>
-          <div style="font-size:0.84rem; color:#444; line-height:1.4;">
+          <div style="font-size:0.9rem; color:#3a4654; line-height:1.45; margin-bottom:0.35rem;">
+            {{ t('done_next_step_body') }}
+          </div>
+          <div style="font-size:0.82rem; color:#1a6b3a; font-weight:600;">
             masssave.com/Lawrence
           </div>
         </div>
-        <div style="margin-left:auto; font-size:1.3rem; color:#1a6b3a;">›</div>
+        <div style="font-size:1.3rem; color:#1a6b3a; align-self:center;">›</div>
       </div>
     </div>
   </a>
