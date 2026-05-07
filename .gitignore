@@ -28,6 +28,9 @@ venv/
 !static/bridge_icon.png
 
 
+# Local-only Claude session pickup notes
+CLAUDE.md
+
 # System
 __pycache__/
 *.pyc
