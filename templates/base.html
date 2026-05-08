@@ -93,12 +93,16 @@
     /* Ã¢”‚¬Ã¢”‚¬ Main content area Ã¢”‚¬Ã¢”‚¬ */
     /* Narrow column on purpose: matches /start's .sg-wrap (600px) so every    */
     /* step in the registration flow — role, address, intent, contact, done — */
-    /* shares the same compact card width. On phones/narrow tablets the 92vw  */
-    /* lower bound keeps a comfortable side margin.                            */
+    /* shares the same compact card width. 92vw keeps a comfortable side       */
+    /* margin on phones; the 640px cap holds the column tight on desktop. The  */
+    /* old clamp(320px, 92vw, 640px) was forcing main to stay >=320px, so on   */
+    /* a 320px viewport the vertical scrollbar (~16px) pushed the card's right */
+    /* edge off-screen and cropped the rounded corner.                         */
     main {
-      width: clamp(320px, 92vw, 640px);
+      width: min(92vw, 640px);
       margin: 2rem auto;
       padding: 0 1rem;
+      box-sizing: border-box;
     }
     main.wide {
       width: 100%;
