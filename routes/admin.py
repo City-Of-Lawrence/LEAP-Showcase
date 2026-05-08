@@ -177,6 +177,43 @@ def admin_outreach():
             WHERE r.intent IN ('enroll','event')"""
     ).fetchone()
 
+    # Per-campaign rollup -- one row per inviting_event_id, plus a
+    # synthetic "Organic / no campaign" bucket for NULL. Reused at-risk
+    # filter (intent + no enrollment + aged past threshold + outreach
+    # status not enrolled/unreachable) drives the at_risk_now column;
+    # reached and enrolled are independent lifetime tallies.
+    rollup = upin_db().execute(
+        f"""SELECT
+              r.inviting_event_id,
+              e.name       AS event_name,
+              e.event_date AS event_date,
+              COUNT(*)     AS registered,
+              SUM(CASE
+                    WHEN COALESCE(lo.outcome,'') NOT IN ('enrolled','unreachable')
+                     AND (
+                       r.needs_callback = 'yes'
+                       OR (
+                         r.intent IN ('enroll','event')
+                         AND COALESCE(r.mass_save_enrolled,'') = ''
+                         AND r.registered_at < datetime('now', ?)
+                       )
+                     )
+                    THEN 1 ELSE 0
+                  END) AS at_risk_now,
+              SUM(CASE WHEN COALESCE(lo.outcome,'') IN ('reached','enrolled')
+                       THEN 1 ELSE 0 END) AS reached,
+              SUM(CASE WHEN r.mass_save_enrolled = 'yes'
+                        OR COALESCE(lo.outcome,'') = 'enrolled'
+                       THEN 1 ELSE 0 END) AS enrolled
+            FROM registrations r
+            {latest_outreach_join}
+            LEFT JOIN events e ON e.event_id = r.inviting_event_id
+            GROUP BY r.inviting_event_id
+            ORDER BY (r.inviting_event_id IS NULL), e.event_date DESC,
+                     r.inviting_event_id""",
+        (threshold_modifier,),
+    ).fetchall()
+
     return render_template(
         "admin_outreach.html",
         rows=rows,
@@ -186,6 +223,7 @@ def admin_outreach():
         reached_in_flight=summary["reached_in_flight"] or 0,
         enrolled=summary["enrolled"] or 0,
         unreachable=summary["unreachable"] or 0,
+        rollup=rollup,
     )
 
 

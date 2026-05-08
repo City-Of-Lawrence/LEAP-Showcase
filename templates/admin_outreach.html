@@ -220,6 +220,63 @@
   </div>
   {% endif %}
 
+  {# Per-campaign rollup -- skipped if no inviting_event_id data exists. #}
+  {% set _has_campaigns = rollup | selectattr('inviting_event_id') | list | length > 0 %}
+  {% if rollup and _has_campaigns %}
+  <div style="margin-top:2rem;">
+    <h2 style="font-size:1.05rem; color:#1a3a5c; margin-bottom:0.4rem;">
+      Per-campaign rollup
+    </h2>
+    <p style="font-size:0.78rem; color:#666; margin-top:0; margin-bottom:0.5rem;">
+      Conversion by inviting event. <em>At-risk now</em> uses the same
+      threshold as the table above.
+    </p>
+    <table class="admin-table" style="font-size:0.82rem;">
+      <thead>
+        <tr>
+          <th>Campaign</th>
+          <th>Registered</th>
+          <th>At-risk&nbsp;now</th>
+          <th>Reached</th>
+          <th>Enrolled</th>
+          <th>Conv.</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in rollup %}
+        <tr>
+          <td>
+            {% if c['inviting_event_id'] %}
+              <strong>{{ c['event_name'] or '(deleted event #' ~ c['inviting_event_id'] ~ ')' }}</strong>
+              {% if c['event_date'] %}<div style="color:#666; font-size:0.74rem;">{{ c['event_date'] }}</div>{% endif %}
+            {% else %}
+              <span style="color:#888; font-style:italic;">Organic / no campaign</span>
+            {% endif %}
+          </td>
+          <td>{{ c['registered'] }}</td>
+          <td>
+            {% if c['at_risk_now'] %}
+              <span class="tag" style="background:#fde8e6; color:#7a1f1a;">{{ c['at_risk_now'] }}</span>
+            {% else %}0{% endif %}
+          </td>
+          <td>{{ c['reached'] }}</td>
+          <td>
+            {% if c['enrolled'] %}
+              <span class="tag" style="background:#dff0d8; color:#2e6b3e;">{{ c['enrolled'] }}</span>
+            {% else %}0{% endif %}
+          </td>
+          <td>
+            {% if c['registered'] %}
+              {{ ((c['enrolled'] / c['registered']) * 100) | round(0, 'floor') | int }}%
+            {% else %}&mdash;{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
   {# Mark-contacted modal -- single dialog, populated by openMcModal() #}
   <dialog id="mc-modal" class="mc-modal">
     <form method="POST" action="{{ url_for('admin.admin_outreach_log') }}">
