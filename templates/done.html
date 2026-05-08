@@ -1,6 +1,64 @@
 {% extends "base.html" %}
 {% block title %}{{ t('done_title') }} · Lawrence Energy Program{% endblock %}
 
+{% block head %}
+<style>
+  /* Partnership lockup -- two wordmarks joined by the bridge icon. The
+     desktop sizes were tight enough that on viewports <=480px the row
+     wrapped onto two lines, stranding "Mass Save" below the bridge and
+     breaking the bridge metaphor. flex-wrap:nowrap keeps the row intact;
+     the @media block scales the three pieces proportionally so they fit
+     on one line down to ~320px. */
+  .done-lockup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 0 0 1.2rem 0;
+    flex-wrap: nowrap;
+  }
+  .done-lockup-wordmark {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .done-lockup-wordmark--city {
+    background: #1a3a5c;
+    color: #ffffff;
+  }
+  .done-lockup-wordmark--masssave {
+    background: #ffffff;
+    color: #1a6b3a;
+    border: 2px solid #1a6b3a;
+    padding: calc(0.5rem - 2px) calc(0.85rem - 2px);
+  }
+  .done-lockup-bridge {
+    height: 42px;
+    width: auto;
+    flex-shrink: 0;
+    margin: 0 0.4rem;
+  }
+  @media (max-width: 480px) {
+    .done-lockup-wordmark {
+      padding: 0.35rem 0.55rem;
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+    }
+    .done-lockup-wordmark--masssave {
+      padding: calc(0.35rem - 2px) calc(0.55rem - 2px);
+    }
+    .done-lockup-bridge {
+      height: 30px;
+      margin: 0 0.25rem;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="card" style="text-align:center;">
 
@@ -23,37 +81,16 @@
   {# Partnership lockup: two wordmarks literally joined by a bridge — the City of    #}
   {# Lawrence ↔ Mass Save partnership rendered as a crossing, not a hairline. The    #}
   {# image is decorative; the labels carry the meaning, so the <img> is aria-hidden  #}
-  {# and the surrounding container provides the accessible name.                     #}
-  <div style="display:flex; align-items:center; justify-content:center; gap:0;
-              margin: 0 0 1.2rem 0; flex-wrap:wrap;"
+  {# and the surrounding container provides the accessible name. Styles in the head  #}
+  {# block; mobile media query keeps the row from wrapping below ~480px.             #}
+  <div class="done-lockup"
        aria-label="City of Lawrence and Mass Save partnership">
-    <span style="
-      background:#1a3a5c;
-      color:#ffffff;
-      padding:0.5rem 0.85rem;
-      font-size:0.74rem;
-      font-weight:700;
-      letter-spacing:0.09em;
-      text-transform:uppercase;
-      border-radius:3px;
-      white-space:nowrap;
-    ">{{ t('done_bridge_label_city') }}</span>
+    <span class="done-lockup-wordmark done-lockup-wordmark--city">{{ t('done_bridge_label_city') }}</span>
     <img src="{{ url_for('static', filename='bridge_icon.png') }}"
          alt=""
          aria-hidden="true"
-         style="height:42px; width:auto; flex-shrink:0; margin:0 0.4rem;">
-    <span style="
-      background:#ffffff;
-      color:#1a6b3a;
-      border:2px solid #1a6b3a;
-      padding:calc(0.5rem - 2px) calc(0.85rem - 2px);
-      font-size:0.74rem;
-      font-weight:700;
-      letter-spacing:0.09em;
-      text-transform:uppercase;
-      border-radius:3px;
-      white-space:nowrap;
-    ">{{ t('done_bridge_label_masssave') }}</span>
+         class="done-lockup-bridge">
+    <span class="done-lockup-wordmark done-lockup-wordmark--masssave">{{ t('done_bridge_label_masssave') }}</span>
   </div>
 
   {# "Next Step" card is the CTA itself — clicking the box opens masssave.com/Lawrence. #}
