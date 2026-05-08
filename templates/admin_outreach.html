@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% block main_class %}wide{% endblock %}
+{% block title %}Outreach · Lawrence Energy Program{% endblock %}
+
+{% block head %}
+<style>
+  /* Aging row tints. The thresholds are auto-scaled from the
+     at-risk-days setting in the route handler -- yellow at 1x,
+     orange at 2x, red at 4x. */
+  .age-row-yellow td { background: #fff8e1 !important; }
+  .age-row-orange td { background: #ffe9d8 !important; }
+  .age-row-red    td { background: #fde8e6 !important; }
+  .age-row-yellow:hover td { background: #fff3cd !important; }
+  .age-row-orange:hover td { background: #ffd9bf !important; }
+  .age-row-red:hover td    { background: #f8d7d4 !important; }
+
+  /* Summary tiles */
+  .out-summary {
+    display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 0.75rem 0 1rem;
+  }
+  .out-tile {
+    flex: 1; min-width: 150px; background: #fff;
+    border: 1px solid #e0e8f0; border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+  }
+  .out-tile-num {
+    font-size: 1.5rem; font-weight: 800; color: #1a3a5c; line-height: 1;
+  }
+  .out-tile-lbl {
+    font-size: 0.72rem; color: #666; margin-top: 0.25rem;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .out-tile.priority    { border-left: 4px solid #c0392b; }
+  .out-tile.in-flight   { border-left: 4px solid #856404; }
+  .out-tile.enrolled    { border-left: 4px solid #2e6b3e; }
+  .out-tile.unreachable { border-left: 4px solid #999;    }
+
+  /* Contact-link icons (tel/mailto/whatsapp) */
+  .contact-links a {
+    display: inline-block; margin-right: 0.35rem;
+    text-decoration: none; font-size: 1rem; opacity: 0.65;
+    transition: opacity 0.15s;
+  }
+  .contact-links a:hover { opacity: 1; }
+
+  /* Threshold dropdown */
+  .threshold-form select {
+    font-size: 0.85rem; padding: 0.3rem 0.5rem;
+    border: 1px solid #cdd; border-radius: 5px;
+    font-family: inherit;
+  }
+
+  /* Mark-contacted modal */
+  dialog.mc-modal {
+    border: none; border-radius: 10px; padding: 1.5rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    max-width: 480px; width: 92vw;
+  }
+  dialog.mc-modal::backdrop { background: rgba(0,0,0,0.4); }
+  dialog.mc-modal h2 {
+    font-size: 1.05rem; color: #1a3a5c; margin: 0 0 0.75rem;
+  }
+  dialog.mc-modal label {
+    display: block; font-size: 0.8rem; font-weight: 600; color: #444;
+    margin-top: 0.75rem; margin-bottom: 0.25rem;
+  }
+  dialog.mc-modal select,
+  dialog.mc-modal textarea {
+    width: 100%; padding: 0.45rem;
+    border: 1px solid #cdd; border-radius: 5px;
+    font-family: inherit; font-size: 0.88rem;
+    box-sizing: border-box;
+  }
+  dialog.mc-modal textarea { min-height: 64px; resize: vertical; }
+  dialog.mc-modal .mc-actions {
+    display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.5rem;">
+    <div>
+      <h1 style="font-size:1.3rem; color:#1a3a5c;">Needs Outreach</h1>
+      <p style="font-size:0.82rem; color:#666; margin-top:0.2rem;">
+        Residents who registered with intent to enroll but haven&rsquo;t completed Mass&nbsp;Save enrollment within the threshold window. Click <em>Mark contacted</em> after a call/email/WhatsApp to record the outcome.
+      </p>
+    </div>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+      <form method="POST" class="threshold-form"
+            style="display:flex; gap:0.4rem; align-items:center; margin:0;">
+        <label for="t-days" style="font-size:0.78rem; color:#666;">At-risk after</label>
+        <select id="t-days" name="outreach_at_risk_days" onchange="this.form.submit()">
+          {% for d in threshold_choices %}
+          <option value="{{ d }}" {% if d == threshold_days %}selected{% endif %}>
+            {{ d }} day{% if d != 1 %}s{% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </form>
+      <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline"
+         style="font-size:0.85rem; padding:0.4rem 1rem;">&larr; Dashboard</a>
+    </div>
+  </div>
+
+  <div class="out-summary">
+    <div class="out-tile priority">
+      <div class="out-tile-num">{{ needs_outreach }}</div>
+      <div class="out-tile-lbl">Needs outreach now</div>
+    </div>
+    <div class="out-tile in-flight">
+      <div class="out-tile-num">{{ reached_in_flight }}</div>
+      <div class="out-tile-lbl">Reached, awaiting enrollment</div>
+    </div>
+    <div class="out-tile enrolled">
+      <div class="out-tile-num">{{ enrolled }}</div>
+      <div class="out-tile-lbl">Enrolled</div>
+    </div>
+    <div class="out-tile unreachable">
+      <div class="out-tile-num">{{ unreachable }}</div>
+      <div class="out-tile-lbl">Unreachable</div>
+    </div>
+  </div>
+
+  {% if rows %}
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Registered</th>
+        <th>Age</th>
+        <th>Address</th>
+        <th>Role&nbsp;/&nbsp;Intent</th>
+        <th>Status</th>
+        <th>Contact</th>
+        <th>Reach&nbsp;out</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+        {% set age = r['age_days'] or 0 %}
+        {% if   age >= threshold_days * 4 %}{% set agecls = 'age-row-red' %}
+        {% elif age >= threshold_days * 2 %}{% set agecls = 'age-row-orange' %}
+        {% elif age >= threshold_days     %}{% set agecls = 'age-row-yellow' %}
+        {% else %}{% set agecls = '' %}{% endif %}
+        {% set phone_digits = (r['contact_phone'] or '')
+                                | replace(' ','') | replace('-','')
+                                | replace('(','') | replace(')','')
+                                | replace('+','') | replace('.','') %}
+      <tr class="{{ agecls }}">
+        <td>{{ r['id'] }}</td>
+        <td style="white-space:nowrap;">{{ r['registered_at'][:16] }}</td>
+        <td><strong>{{ age }}d</strong></td>
+        <td>
+          {{ r['normalized_address'] or '&mdash;' }}
+          {% if r['service_unit'] %}<br><span style="color:#666; font-size:0.78rem;">{{ r['service_unit'] }}</span>{% endif %}
+        </td>
+        <td style="white-space:nowrap;">
+          {{ r['role'] or '&mdash;' }}<br>
+          {% if r['intent'] == 'enroll' %}<span class="tag tag-enroll">Enroll</span>
+          {% elif r['intent'] == 'event' %}<span class="tag tag-event">Event</span>
+          {% elif r['intent'] %}<span class="tag">{{ r['intent'] }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if r['needs_callback'] == 'yes' %}
+            <span class="tag" style="background:#fff3cd;color:#856404;">📞 Callback</span><br>
+          {% endif %}
+          {% if r['latest_outcome'] == 'reached' %}
+            <span class="tag" style="background:#fff3cd;color:#856404;">Reached</span>
+          {% elif r['latest_outcome'] == 'not_interested' %}
+            <span class="tag" style="background:#eee;color:#666;">Not interested</span>
+          {% elif r['latest_outcome'] %}
+            <span class="tag">{{ r['latest_outcome'] }}</span>
+          {% else %}
+            <span style="color:#999; font-size:0.78rem;">never contacted</span>
+          {% endif %}
+          {% if r['latest_contact_at'] %}
+            <div style="color:#888; font-size:0.72rem; margin-top:0.15rem;">
+              last: {{ r['latest_contact_at'][:16] }}
+            </div>
+          {% endif %}
+        </td>
+        <td>
+          {% if r['contact_name'] %}<div style="font-weight:600;">{{ r['contact_name'] }}</div>{% endif %}
+          {% if r['contact_phone'] %}<div style="font-size:0.76rem; color:#555;">{{ r['contact_phone'] }}</div>{% endif %}
+          {% if r['contact_email'] %}<div style="font-size:0.76rem; color:#555;">{{ r['contact_email'] }}</div>{% endif %}
+        </td>
+        <td class="contact-links" style="white-space:nowrap;">
+          {% if r['contact_phone'] %}
+            <a href="tel:{{ r['contact_phone'] }}" title="Call">📞</a>
+            {% if phone_digits %}
+              <a href="https://wa.me/{{ phone_digits }}" target="_blank" rel="noopener" title="WhatsApp">💬</a>
+            {% endif %}
+          {% endif %}
+          {% if r['contact_email'] %}
+            <a href="mailto:{{ r['contact_email'] }}" title="Email">✉️</a>
+          {% endif %}
+        </td>
+        <td>
+          <button type="button" class="btn btn-secondary"
+                  style="font-size:0.78rem; padding:0.3rem 0.6rem;"
+                  data-reg-id="{{ r['id'] }}"
+                  data-reg-name="{{ r['contact_name'] or r['normalized_address'] or ('Registration #' ~ r['id']) }}"
+                  onclick="openMcModal(this)">
+            Mark contacted
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="background:#dff0d8; border:1px solid #b4d8b4; border-radius:8px;
+              padding:1.25rem; text-align:center; color:#2e6b3e; margin-top:1rem;">
+    <strong>No at-risk registrations.</strong>
+    Everyone in the funnel is within the {{ threshold_days }}-day window or already reached, enrolled, or marked unreachable.
+  </div>
+  {% endif %}
+
+  {# Mark-contacted modal -- single dialog, populated by openMcModal() #}
+  <dialog id="mc-modal" class="mc-modal">
+    <form method="POST" action="{{ url_for('admin.admin_outreach_log') }}">
+      <h2>Mark contacted: <span id="mc-target">&mdash;</span></h2>
+      <input type="hidden" name="registration_id" id="mc-reg-id" value="">
+
+      <label for="mc-channel">Channel</label>
+      <select name="channel" id="mc-channel" required>
+        <option value="call">Call</option>
+        <option value="email">Email</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label for="mc-outcome">Outcome</label>
+      <select name="outcome" id="mc-outcome" required>
+        <option value="reached">Reached &mdash; they engaged</option>
+        <option value="unreachable">Unreachable &mdash; no response</option>
+        <option value="enrolled">Enrolled &mdash; handoff complete</option>
+        <option value="not_interested">Not interested</option>
+      </select>
+
+      <label for="mc-notes">Notes (optional)</label>
+      <textarea name="notes" id="mc-notes"
+                placeholder="What did they say? Any follow-up needed?"></textarea>
+
+      <div class="mc-actions">
+        <button type="button" class="btn btn-outline"
+                style="font-size:0.85rem; padding:0.4rem 0.9rem;"
+                onclick="document.getElementById('mc-modal').close()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-secondary"
+                style="font-size:0.85rem; padding:0.4rem 0.9rem;">
+          Save
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    function openMcModal(btn) {
+      document.getElementById('mc-reg-id').value = btn.dataset.regId;
+      document.getElementById('mc-target').textContent = btn.dataset.regName;
+      document.getElementById('mc-modal').showModal();
+    }
+  </script>
+
+{% endblock %}

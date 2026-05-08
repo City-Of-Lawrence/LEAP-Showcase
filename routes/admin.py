@@ -76,6 +76,148 @@ def admin_dashboard():
 
 
 # ------------------------------------------------------------------
+# Outreach view (Roadmap Area 4 -- Operational Sustainability)
+# ------------------------------------------------------------------
+
+# Threshold-dropdown options surfaced in the page header. Days ints.
+OUTREACH_THRESHOLD_CHOICES = [1, 3, 7, 14]
+
+
+@admin.route("/outreach", methods=["GET", "POST"])
+@admin_required
+def admin_outreach():
+    """At-risk advocate workflow.
+
+    Surfaces the subset of registrations that registered with intent to
+    enroll (or attend an event leading to enrollment), did not complete
+    Mass Save enrollment, and have aged past the configurable
+    ``outreach_at_risk_days`` threshold -- plus anyone with
+    ``needs_callback='yes'`` regardless of age.
+
+    Rows whose latest ``outreach_log.outcome`` is ``enrolled`` or
+    ``unreachable`` drop out of the default view. ``reached`` and
+    ``not_interested`` re-surface once the registration ages forward of
+    its previous contact, so the Advocate gets a follow-up reminder.
+    """
+    # POST: threshold-dropdown change. The Mark-contacted modal posts to
+    # /outreach/log instead, so the only POST that lands here is the
+    # threshold setter.
+    if request.method == "POST":
+        try:
+            n = int(request.form.get("outreach_at_risk_days", "3"))
+            if n not in OUTREACH_THRESHOLD_CHOICES:
+                n = 3
+        except ValueError:
+            n = 3
+        upin_db().execute(
+            "INSERT OR REPLACE INTO settings (key,value) VALUES "
+            "('outreach_at_risk_days',?)",
+            (str(n),),
+        )
+        upin_db().commit()
+        return redirect(url_for("admin.admin_outreach"))
+
+    threshold_days = int(get_setting("outreach_at_risk_days", "3"))
+
+    # The latest outreach_log row per registration -- joined left so
+    # never-contacted registrations show up with NULL latest_outcome.
+    # Index idx_outreach_log_registration makes this O(log n).
+    latest_outreach_join = (
+        "LEFT JOIN ("
+        "  SELECT o.registration_id, o.outcome, o.contacted_at "
+        "  FROM outreach_log o "
+        "  WHERE o.contacted_at = ("
+        "    SELECT MAX(contacted_at) FROM outreach_log "
+        "    WHERE registration_id = o.registration_id"
+        "  )"
+        ") lo ON lo.registration_id = r.id"
+    )
+
+    # At-risk filter as documented above. Parameter for threshold uses
+    # SQLite's datetime modifier syntax so the days value plugs in.
+    threshold_modifier = f"-{threshold_days} days"
+
+    rows = upin_db().execute(
+        f"""SELECT r.id, r.registered_at, r.normalized_address, r.service_unit,
+                   r.role, r.intent, r.mass_save_enrolled, r.needs_callback,
+                   r.contact_name, r.contact_phone, r.contact_email,
+                   r.inviting_event_id,
+                   lo.outcome      AS latest_outcome,
+                   lo.contacted_at AS latest_contact_at,
+                   CAST(julianday('now') - julianday(r.registered_at) AS INTEGER)
+                       AS age_days
+            FROM registrations r
+            {latest_outreach_join}
+            WHERE COALESCE(lo.outcome,'') NOT IN ('enrolled','unreachable')
+              AND (
+                r.needs_callback = 'yes'
+                OR (
+                  r.intent IN ('enroll','event')
+                  AND COALESCE(r.mass_save_enrolled,'') = ''
+                  AND r.registered_at < datetime('now', ?)
+                )
+              )
+            ORDER BY r.registered_at ASC""",
+        (threshold_modifier,),
+    ).fetchall()
+
+    # Header summary tiles, scoped to enroll/event funnel intent.
+    summary = upin_db().execute(
+        f"""SELECT
+              SUM(CASE WHEN COALESCE(lo.outcome,'') = 'reached'
+                        AND COALESCE(r.mass_save_enrolled,'') = ''
+                       THEN 1 ELSE 0 END) AS reached_in_flight,
+              SUM(CASE WHEN COALESCE(lo.outcome,'') = 'enrolled'
+                        OR  r.mass_save_enrolled = 'yes'
+                       THEN 1 ELSE 0 END) AS enrolled,
+              SUM(CASE WHEN COALESCE(lo.outcome,'') = 'unreachable'
+                       THEN 1 ELSE 0 END) AS unreachable
+            FROM registrations r
+            {latest_outreach_join}
+            WHERE r.intent IN ('enroll','event')"""
+    ).fetchone()
+
+    return render_template(
+        "admin_outreach.html",
+        rows=rows,
+        threshold_days=threshold_days,
+        threshold_choices=OUTREACH_THRESHOLD_CHOICES,
+        needs_outreach=len(rows),
+        reached_in_flight=summary["reached_in_flight"] or 0,
+        enrolled=summary["enrolled"] or 0,
+        unreachable=summary["unreachable"] or 0,
+    )
+
+
+@admin.route("/outreach/log", methods=["POST"])
+@admin_required
+def admin_outreach_log():
+    """Insert a row into outreach_log (Mark-contacted modal target)."""
+    try:
+        registration_id = int(request.form["registration_id"])
+    except (KeyError, ValueError):
+        abort(400)
+
+    channel = request.form.get("channel", "")
+    outcome = request.form.get("outcome", "")
+    notes   = (request.form.get("notes") or "").strip() or None
+
+    if channel not in ("call", "email", "whatsapp", "other"):
+        abort(400)
+    if outcome not in ("reached", "unreachable", "enrolled", "not_interested"):
+        abort(400)
+
+    upin_db().execute(
+        "INSERT INTO outreach_log "
+        "(registration_id, contacted_by, channel, outcome, notes) "
+        "VALUES (?, 'admin', ?, ?, ?)",
+        (registration_id, channel, outcome, notes),
+    )
+    upin_db().commit()
+    return redirect(url_for("admin.admin_outreach"))
+
+
+# ------------------------------------------------------------------
 # Zombie queue export
 # ------------------------------------------------------------------
 
