@@ -213,5 +213,28 @@ def ensure_schema():
         )
     """)
     cur.execute("INSERT OR IGNORE INTO settings (key,value) VALUES ('events_to_show','2')")
+    cur.execute("INSERT OR IGNORE INTO settings (key,value) VALUES ('outreach_at_risk_days','3')")
+
+    # Multi-touch outreach record. One row per contact attempt against a
+    # registration. The Advocate's "current outreach state" of any
+    # registration is derived from this table's most-recent row for that
+    # registration_id -- registrations.* is never updated by this flow.
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS outreach_log (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            registration_id INTEGER NOT NULL REFERENCES registrations(id),
+            contacted_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            contacted_by    TEXT NOT NULL DEFAULT 'admin',
+            channel         TEXT NOT NULL
+                                CHECK(channel IN ('call','email','whatsapp','other')),
+            outcome         TEXT NOT NULL
+                                CHECK(outcome IN ('reached','unreachable','enrolled','not_interested')),
+            notes           TEXT
+        )
+    """)
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_outreach_log_registration "
+        "ON outreach_log(registration_id, contacted_at DESC)"
+    )
     conn.commit()
     conn.close()
