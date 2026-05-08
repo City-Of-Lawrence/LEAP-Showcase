@@ -128,6 +128,23 @@
   .leap-tile-upin-msg--ok  { color:#1A3A6B; }
   .leap-tile-upin-msg--err { color:#c0392b; }
 
+  /* Clarity FAQ block — disambiguates "use less energy" (Energy Upgrades)
+     from "pay less for energy" (LEC). Sits below the tile grid. */
+  .leap-clarity {
+    background:#F9F6F0; border-left:3px solid #C8960C; border-radius:8px;
+    padding:18px 22px; margin-top:28px;
+  }
+  .leap-clarity-title {
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
+    letter-spacing:0.10em; text-transform:uppercase; color:#1A3A6B;
+    margin:0 0 8px;
+  }
+  .leap-clarity-body {
+    font-family:'Nunito',sans-serif; font-size:15px; line-height:1.65;
+    color:#2e3a4e; margin:0;
+  }
+  .leap-clarity-body strong { color:#1A3A6B; }
+
   @media (max-width:560px) {
     .leap-badge { padding:8px 12px 8px 18px; gap:10px; top:12%; }
     .leap-badge-text { font-size:14px; }
@@ -213,6 +230,12 @@
         <span class="leap-tile-chevron">&#8250;</span>
       </a>
 
+    </div>
+
+    {# Clarity FAQ — efficiency (Energy Upgrades) vs supply (LEC) #}
+    <div class="leap-clarity" role="region" aria-labelledby="clarity-faq-title">
+      <h2 id="clarity-faq-title" class="leap-clarity-title">{{ t('clarity_faq_title') }}</h2>
+      <p class="leap-clarity-body">{{ t('clarity_faq_body') | safe }}</p>
     </div>
 
   </div>
