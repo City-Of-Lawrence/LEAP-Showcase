@@ -154,35 +154,6 @@
   }
   .help-back a:hover { text-decoration: underline; }
 
-  /* Clarity FAQ block — disambiguates "use less energy" (Energy
-     Upgrades) from "pay less for energy" (LEC). Sits below the tile
-     grid, above the back link. */
-  .help-clarity {
-    background: #ffffff;
-    border-left: 3px solid #C8960C;
-    border-radius: 10px;
-    padding: 20px 24px;
-    margin-bottom: 28px;
-    box-shadow: 0 2px 12px rgba(26,58,107,0.06);
-  }
-  .help-clarity-title {
-    font-family: 'Nunito', sans-serif;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.10em;
-    text-transform: uppercase;
-    color: #1A3A6B;
-    margin: 0 0 8px;
-  }
-  .help-clarity-body {
-    font-family: 'Nunito', sans-serif;
-    font-size: 15px;
-    line-height: 1.65;
-    color: #2e3a4e;
-    margin: 0;
-  }
-  .help-clarity-body strong { color: #1A3A6B; }
-
   @media (max-width: 640px) {
     .help-tiles { grid-template-columns: 1fr; }
     .help-title { font-size: 26px; }
@@ -230,12 +201,6 @@
     </div>
 
   </div>{# /help-tiles #}
-
-  {# Clarity FAQ — efficiency (Energy Upgrades) vs supply (LEC) #}
-  <div class="help-clarity" role="region" aria-labelledby="clarity-faq-title">
-    <h2 id="clarity-faq-title" class="help-clarity-title">{{ t('clarity_faq_title') }}</h2>
-    <p class="help-clarity-body">{{ t('clarity_faq_body') | safe }}</p>
-  </div>
 
   <div class="help-back">
     <a href="{{ url_for('public.index') }}">← {{ t('back_btn') }}</a>
