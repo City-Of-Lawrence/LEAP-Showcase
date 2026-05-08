@@ -154,11 +154,11 @@
         <td style="white-space:nowrap;">{{ r['registered_at'][:16] }}</td>
         <td><strong>{{ age }}d</strong></td>
         <td>
-          {{ r['normalized_address'] or '&mdash;' }}
+          {{ r['normalized_address'] or '—' }}
           {% if r['service_unit'] %}<br><span style="color:#666; font-size:0.78rem;">{{ r['service_unit'] }}</span>{% endif %}
         </td>
         <td style="white-space:nowrap;">
-          {{ r['role'] or '&mdash;' }}<br>
+          {{ r['role'] or '—' }}<br>
           {% if r['intent'] == 'enroll' %}<span class="tag tag-enroll">Enroll</span>
           {% elif r['intent'] == 'event' %}<span class="tag tag-event">Event</span>
           {% elif r['intent'] %}<span class="tag">{{ r['intent'] }}</span>
