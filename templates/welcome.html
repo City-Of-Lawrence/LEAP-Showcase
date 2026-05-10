@@ -156,6 +156,7 @@
     </p>
     <form method="POST" action="{{ url_for('public.save_progress') }}"
           style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:flex-end;">
+      <input type="hidden" name="from_path" value="{{ request.path }}">
       <div style="flex:1; min-width:180px;">
         <label for="resume_email"
                style="font-size:0.8rem; font-weight:600; color:#1a3a5c;">

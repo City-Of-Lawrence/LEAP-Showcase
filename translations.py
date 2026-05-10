@@ -792,6 +792,10 @@ TRANSLATIONS = {
         "en": "Message on WhatsApp",
         "es": "Mensaje por WhatsApp",
     },
+    "pause_prompt_email_label": {
+        "en": "Email the Energy Advocate",
+        "es": "Enviar correo al Asesor de Energía",
+    },
     "pause_prompt_dismiss": {
         "en": "I'm fine, keep going",
         "es": "Estoy bien, continuar",

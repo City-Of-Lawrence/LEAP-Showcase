@@ -382,7 +382,7 @@
 {# pages, search engines), the <dialog> just sits closed.             #}
 {# ─────────────────────────────────────────────────────────────────── #}
 <dialog id="leap-pause-modal"
-        style="border:none; border-radius:10px; padding:1.5rem;
+        style="border:none; border-radius:10px; padding:1.5rem; margin:auto;
                box-shadow:0 12px 40px rgba(0,0,0,0.25);
                max-width:420px; width:92vw;">
   <h2 style="font-size:1.05rem; color:#1a3a5c; margin:0 0 0.5rem;">
@@ -407,6 +407,12 @@
               justify-content:center;">
       💬 {{ t('pause_prompt_whatsapp_label') }}
     </a>
+    {# Design doc called for tel:/mailto:/wa.me, but the City doesn't #}
+    {# have a published Energy Advocate email in this codebase yet.   #}
+    {# Adding mailto: with a guessed address would bounce real        #}
+    {# residents. Tracked as a followup: when Anil confirms the right #}
+    {# address, wire it up here + keep the pause_prompt_email_label   #}
+    {# translation key already in translations.py.                    #}
   </div>
   <div style="text-align:center;">
     <button type="button" onclick="document.getElementById('leap-pause-modal').close()"
