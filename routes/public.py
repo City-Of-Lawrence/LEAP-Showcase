@@ -18,11 +18,41 @@ from helpers import (
     get_prior_registration_summary, save_registration,
     get_upcoming_events, get_event_wards,
     add_event_rsvp, get_existing_rsvps, cancel_event_rsvp,
+    create_partial_token, update_partial_state,
+    restore_partial, delete_partial,
 )
 from translations import t, get_roles, get_intents, get_landlord_intents
 from mailer import send_email_async
 
 public = Blueprint("public", __name__)
+
+
+# ------------------------------------------------------------------
+# Save Progress (Roadmap §2 PR-A2): keep partial_registrations in sync
+# with session state on every funnel POST. Token lives in session under
+# _partial_token; it's set by /save-progress and cleared by /contact
+# completion. The hook is a no-op if no token is active.
+# ------------------------------------------------------------------
+
+@public.after_request
+def _sync_partial_progress(response):
+    token = session.get("_partial_token")
+    if not token or request.method != "POST":
+        return response
+    # last_step is where the user would resume from -- the redirect
+    # target if this POST forwards them, else the path they're on.
+    last_step = request.path
+    if 300 <= response.status_code < 400:
+        loc = response.headers.get("Location")
+        if loc:
+            last_step = loc
+    try:
+        update_partial_state(token, dict(session), last_step)
+    except Exception as e:
+        # Sync is best-effort; never let it break the response.
+        import sys
+        print(f"[partial-sync] update failed: {e}", file=sys.stderr, flush=True)
+    return response
 
 # Read from app config at runtime â€” set by app.py
 def _masssave_url():
@@ -758,6 +788,86 @@ def event_select():
                            zombie_has_contact=zombie_has_contact)
 
 
+@public.route("/save-progress", methods=["POST"])
+def save_progress():
+    """Create a partial_registrations row + email the resume link.
+
+    Posted from the optional form at the bottom of welcome.html. Stores
+    the resulting token in session so the after_request hook keeps the
+    snapshot fresh as the resident advances. Also emails the link via
+    the same mailer module First Touch uses.
+    """
+    if not session.get("account_number"):
+        return redirect(url_for("public.index"))
+
+    contact_email = (request.form.get("contact_email") or "").strip()
+    if not contact_email or "@" not in contact_email:
+        # No email or malformed -- silently bounce back to /welcome.
+        # The form is opt-in; bad input shouldn't stop the funnel.
+        return redirect(url_for("public.welcome"))
+
+    # Drop any prior token for this session before creating a new one.
+    old = session.pop("_partial_token", None)
+    if old:
+        try:
+            delete_partial(old)
+        except Exception:
+            pass
+
+    token = create_partial_token(
+        contact_email=contact_email,
+        contact_phone=request.form.get("contact_phone", "") or "",
+        session_state=dict(session),
+        last_step=url_for("public.welcome"),
+    )
+    session["_partial_token"] = token
+    session["_partial_sent_to"] = contact_email   # feeds the success banner
+
+    # Send the resume-link email (same fire-and-forget pattern as A1).
+    lang   = get_lang()
+    link   = url_for("public.resume_partial", token=token, _external=True)
+    subject = t("email_resume_subject", lang)
+    body    = t("email_resume_body", lang).format(link=link)
+    send_email_async(
+        to_addr=contact_email,
+        subject=subject,
+        body_text=body,
+    )
+
+    return redirect(url_for("public.welcome"))
+
+
+@public.route("/resume/<token>")
+def resume_partial(token):
+    """Restore a saved session snapshot and route the resident to the
+    last_step they reached. If the token is unknown or expired (the
+    helper purges expired rows opportunistically), surface a friendly
+    "this link doesn't work anymore" error instead of silently
+    redirecting somewhere confusing.
+    """
+    result = restore_partial(token)
+    if not result:
+        return render_template(
+            "error.html",
+            message=t("save_progress_invalid_token", get_lang()),
+        ), 410
+    state, last_step = result
+
+    # Replace session contents with the snapshot, keeping language
+    # preference (which lives in the active session, not the snapshot).
+    lang = session.get("lang", "en")
+    session.clear()
+    session["lang"] = lang
+    session.update(state)
+    session["_partial_token"] = token
+
+    # last_step is a relative URL we wrote on save; trust it but
+    # bound it to in-app routes only.
+    if not last_step or not last_step.startswith("/"):
+        last_step = url_for("public.welcome")
+    return redirect(last_step)
+
+
 @public.route("/welcome", methods=["GET", "POST"])
 def welcome():
     """
@@ -976,6 +1086,17 @@ def contact_info():
         # is empty -- residents who only provide phone don't get email.
         _fire_first_touch(contact_email, contact_name,
                           session["account_number"], lang)
+        # Save Progress: registration completed, so the partial token
+        # is no longer useful. Delete the row so the table doesn't keep
+        # a snapshot of completed funnels around. Must run before
+        # session.clear() so the after_request hook doesn't see the
+        # token and try to write an empty session over it.
+        partial_token = session.pop("_partial_token", None)
+        if partial_token:
+            try:
+                delete_partial(partial_token)
+            except Exception:
+                pass
         session.clear()
         session["lang"] = lang
         if is_zombie:

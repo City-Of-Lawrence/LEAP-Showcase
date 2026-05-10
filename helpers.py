@@ -617,3 +617,97 @@ def admin_required(f):
             return redirect(url_for("admin.admin_login"))
         return f(*args, **kwargs)
     return decorated
+
+
+# ------------------------------------------------------------------
+# Save Progress (Roadmap §2 PR-A2)
+# ------------------------------------------------------------------
+# Opaque tokens that let a resident pause mid-funnel and resume from a
+# resume link emailed to them. Storage is partial_registrations
+# (created in schema.py:ensure_schema). Tokens default to a 7-day TTL.
+
+import json
+import secrets
+from datetime import timedelta
+
+PARTIAL_TOKEN_TTL_DAYS = 7
+
+
+def _serialize_session_state(state) -> str:
+    """JSON-encode the session dict, stripping non-funnel keys.
+
+    Flask's session is a SecureCookieSession; iterating it yields the
+    same data as a dict. We drop our own bookkeeping keys (lang,
+    _partial_token) so the snapshot is just the funnel state -- restore
+    pulls them back into a fresh session without polluting it.
+    """
+    skip = {"lang", "_partial_token", "admin_logged_in"}
+    plain = {k: v for k, v in state.items() if k not in skip}
+    return json.dumps(plain, default=str)
+
+
+def create_partial_token(contact_email: str, contact_phone: str,
+                         session_state, last_step: str,
+                         ttl_days: int = PARTIAL_TOKEN_TTL_DAYS) -> str:
+    """Create a partial_registrations row, return the token.
+
+    contact_email is required (the resume link is emailed there).
+    last_step is the relative URL the /resume route redirects to.
+    """
+    token   = secrets.token_urlsafe(24)
+    payload = _serialize_session_state(session_state)
+    expires = (datetime.now(timezone.utc) + timedelta(days=ttl_days)).isoformat(
+        sep=" ", timespec="seconds"
+    )
+    upin_db().execute(
+        "INSERT INTO partial_registrations "
+        "(token, contact_email, contact_phone, session_state, last_step, expires_at) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
+        (token, contact_email, contact_phone or "", payload, last_step, expires),
+    )
+    upin_db().commit()
+    return token
+
+
+def update_partial_state(token: str, session_state, last_step: str) -> bool:
+    """Refresh the snapshot for an existing token. No-op if token unknown."""
+    payload = _serialize_session_state(session_state)
+    cur = upin_db().execute(
+        "UPDATE partial_registrations "
+        "SET session_state = ?, last_step = ? WHERE token = ?",
+        (payload, last_step, token),
+    )
+    upin_db().commit()
+    return cur.rowcount > 0
+
+
+def restore_partial(token: str):
+    """Fetch and decode a partial. Returns (state_dict, last_step) or None.
+
+    Also opportunistically purges any expired rows so the table doesn't
+    grow without bound -- callers don't need a separate cleanup job.
+    """
+    upin_db().execute(
+        "DELETE FROM partial_registrations WHERE expires_at < ?",
+        (datetime.now(timezone.utc).isoformat(sep=" ", timespec="seconds"),),
+    )
+    upin_db().commit()
+    row = upin_db().execute(
+        "SELECT session_state, last_step FROM partial_registrations WHERE token = ?",
+        (token,),
+    ).fetchone()
+    if not row:
+        return None
+    try:
+        state = json.loads(row["session_state"])
+    except (ValueError, TypeError):
+        return None
+    return state, row["last_step"]
+
+
+def delete_partial(token: str) -> None:
+    """Remove a partial -- called when registration completes."""
+    upin_db().execute(
+        "DELETE FROM partial_registrations WHERE token = ?", (token,)
+    )
+    upin_db().commit()

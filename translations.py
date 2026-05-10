@@ -689,6 +689,87 @@ TRANSLATIONS = {
         ),
     },
 
+    # ── Save Progress (Roadmap §2 PR-A2) ─────────────────────────────
+    # Optional opt-in prompt rendered at the bottom of welcome.html plus
+    # the email body sent when a resident opts in. {link} is filled
+    # with the absolute /resume/<token> URL at send time.
+    "save_progress_heading": {
+        "en": "Need to step away?",
+        "es": "¿Necesita detenerse?",
+    },
+    "save_progress_blurb": {
+        "en": "Drop your email and we'll send you a link that picks up "
+              "where you left off. The link works for 7 days.",
+        "es": "Déjenos su correo electrónico y le enviaremos un enlace "
+              "para continuar donde lo dejó. El enlace funciona por 7 días.",
+    },
+    "save_progress_email_label": {
+        "en": "Email address",
+        "es": "Correo electrónico",
+    },
+    "save_progress_email_placeholder": {
+        "en": "you@example.com",
+        "es": "usted@ejemplo.com",
+    },
+    "save_progress_send_btn": {
+        "en": "Email me a resume link →",
+        "es": "Enviarme el enlace →",
+    },
+    "save_progress_sent": {
+        "en": "Resume link sent to {email}. Check your inbox -- the link "
+              "works for 7 days.",
+        "es": "Enlace enviado a {email}. Revise su bandeja de entrada -- "
+              "el enlace funciona por 7 días.",
+    },
+    "save_progress_invalid_token": {
+        "en": "This resume link has expired or doesn't exist. Please "
+              "start over from the homepage.",
+        "es": "Este enlace ha expirado o no existe. Por favor empiece de "
+              "nuevo desde la página de inicio.",
+    },
+    "email_resume_subject": {
+        "en": "Your LEAP resume link",
+        "es": "Su enlace para continuar con LEAP",
+    },
+    "email_resume_body": {
+        "en": (
+            "Hi,\n"
+            "\n"
+            "Here's your link to continue your LEAP registration where "
+            "you left off:\n"
+            "\n"
+            "{link}\n"
+            "\n"
+            "The link works for 7 days. If you didn't request this, you "
+            "can safely ignore this email -- nothing was saved on our "
+            "side that identifies you.\n"
+            "\n"
+            "Questions? Call (978) 315-9255 -- a real human at the City "
+            "of Lawrence is here to help.\n"
+            "\n"
+            "-- The Lawrence Energy Affordability Project (LEAP)\n"
+            "   City of Lawrence, Massachusetts"
+        ),
+        "es": (
+            "Hola,\n"
+            "\n"
+            "Aquí está su enlace para continuar con su registro de LEAP "
+            "donde lo dejó:\n"
+            "\n"
+            "{link}\n"
+            "\n"
+            "El enlace funciona por 7 días. Si no solicitó esto, puede "
+            "ignorar este correo -- no guardamos información que le "
+            "identifique de nuestro lado.\n"
+            "\n"
+            "¿Preguntas? Llame al (978) 315-9255 -- una persona real "
+            "de la Ciudad de Lawrence está aquí para ayudar.\n"
+            "\n"
+            "-- Proyecto de Asequibilidad Energética de Lawrence (LEAP)\n"
+            "   Ciudad de Lawrence, Massachusetts"
+        ),
+    },
+
     # ── error.html ───────────────────────────────────────────────────
     "error_title": {
         "en": "Something Went Wrong",
