@@ -51,3 +51,5 @@ ResetDeployedDbusingConsole.txt
 templates/upload_*.html
 
 !static/lawrence_photo.jpg
+
+!static/leap_logo_round_corners.png
