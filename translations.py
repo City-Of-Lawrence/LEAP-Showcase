@@ -633,6 +633,62 @@ TRANSLATIONS = {
         "es": "o visítenos en el Ayuntamiento.",
     },
 
+    # ── First Touch confirmation email (mailer.py / Roadmap §2 A1) ───
+    # Sent automatically after a successful /contact POST. Plain text
+    # only; SendGrid renders \n as line breaks. Body has a {name}
+    # placeholder filled at send time -- see routes/public.py.
+    "email_first_touch_subject": {
+        "en": "City of Lawrence: We received your LEAP registration",
+        "es": "Ciudad de Lawrence: Recibimos su registro de LEAP",
+    },
+    "email_first_touch_default_name": {
+        "en": "Lawrence resident",
+        "es": "vecino/a de Lawrence",
+    },
+    "email_first_touch_body": {
+        "en": (
+            "Hi {name},\n"
+            "\n"
+            "The City of Lawrence has received your LEAP registration. "
+            "Here's what happens next:\n"
+            "\n"
+            "  1. An Energy Advocate will reach out within 3 business days "
+            "to walk you through your options.\n"
+            "  2. If you haven't heard from us, call (978) 315-9255 -- "
+            "that's a real human at the City of Lawrence, here to help.\n"
+            "\n"
+            "You can also start your Mass Save enrollment any time:\n"
+            "https://www.masssave.com/community-first/lawrence\n"
+            "\n"
+            "Thanks for taking the first step toward affordable energy in "
+            "Lawrence.\n"
+            "\n"
+            "-- The Lawrence Energy Affordability Project (LEAP)\n"
+            "   City of Lawrence, Massachusetts"
+        ),
+        "es": (
+            "Hola {name},\n"
+            "\n"
+            "La Ciudad de Lawrence ha recibido su registro de LEAP. "
+            "Esto es lo que sigue:\n"
+            "\n"
+            "  1. Un Asesor de Energía se comunicará con usted en un plazo "
+            "de 3 días hábiles para guiarle a través de sus opciones.\n"
+            "  2. Si no escucha de nosotros, llame al (978) 315-9255 -- "
+            "es una persona real de la Ciudad de Lawrence, aquí para ayudar.\n"
+            "\n"
+            "También puede comenzar su inscripción con Mass Save en "
+            "cualquier momento:\n"
+            "https://www.masssave.com/community-first/lawrence\n"
+            "\n"
+            "Gracias por dar el primer paso hacia energía asequible en "
+            "Lawrence.\n"
+            "\n"
+            "-- Proyecto de Asequibilidad Energética de Lawrence (LEAP)\n"
+            "   Ciudad de Lawrence, Massachusetts"
+        ),
+    },
+
     # ── error.html ───────────────────────────────────────────────────
     "error_title": {
         "en": "Something Went Wrong",
