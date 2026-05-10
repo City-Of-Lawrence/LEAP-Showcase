@@ -770,6 +770,33 @@ TRANSLATIONS = {
         ),
     },
 
+    # ── Pause prompt (Roadmap §2 PR-A3) ──────────────────────────────
+    # Inactivity nudge -- after the threshold seconds with no
+    # interaction on a funnel page, a modal surfaces with the same
+    # tel:/wa.me/ affordances as the safety-net aside on /done.
+    "pause_prompt_heading": {
+        "en": "Need a hand?",
+        "es": "¿Necesita ayuda?",
+    },
+    "pause_prompt_body": {
+        "en": "Looks like you're paused. The City of Lawrence Energy "
+              "Advocate is one tap away if you have questions.",
+        "es": "Parece que está pausado. El Asesor de Energía de la "
+              "Ciudad de Lawrence está a un toque si tiene preguntas.",
+    },
+    "pause_prompt_call_label": {
+        "en": "Call (978) 315-9255",
+        "es": "Llamar (978) 315-9255",
+    },
+    "pause_prompt_whatsapp_label": {
+        "en": "Message on WhatsApp",
+        "es": "Mensaje por WhatsApp",
+    },
+    "pause_prompt_dismiss": {
+        "en": "I'm fine, keep going",
+        "es": "Estoy bien, continuar",
+    },
+
     # ── error.html ───────────────────────────────────────────────────
     "error_title": {
         "en": "Something Went Wrong",

@@ -373,5 +373,86 @@
   </div>
 </footer>
 
+{# ─────────────────────────────────────────────────────────────────── #}
+{# Pause-prompt modal (Roadmap §2 PR-A3). After ~45s of no input on a #}
+{# funnel page, surfaces a "Need a hand?" modal with the same         #}
+{# tel:/wa.me affordances as the safety-net aside on /done. JS gates  #}
+{# itself off the path so it never shows on /admin, /, /done, /lec.   #}
+{# Modal markup is always present; if the JS doesn't attach (admin    #}
+{# pages, search engines), the <dialog> just sits closed.             #}
+{# ─────────────────────────────────────────────────────────────────── #}
+<dialog id="leap-pause-modal"
+        style="border:none; border-radius:10px; padding:1.5rem;
+               box-shadow:0 12px 40px rgba(0,0,0,0.25);
+               max-width:420px; width:92vw;">
+  <h2 style="font-size:1.05rem; color:#1a3a5c; margin:0 0 0.5rem;">
+    {{ t('pause_prompt_heading') }}
+  </h2>
+  <p style="font-size:0.9rem; color:#3a4654; line-height:1.5; margin:0 0 1rem;">
+    {{ t('pause_prompt_body') }}
+  </p>
+  <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.9rem;">
+    <a href="tel:9783159255"
+       style="display:inline-flex; align-items:center; gap:0.55rem;
+              padding:0.55rem 0.85rem; background:#1a3a5c; color:#fff;
+              border-radius:5px; font-size:0.93rem; font-weight:700;
+              text-decoration:none; justify-content:center;">
+      📞 {{ t('pause_prompt_call_label') }}
+    </a>
+    <a href="https://wa.me/19783159255" target="_blank" rel="noopener"
+       style="display:inline-flex; align-items:center; gap:0.55rem;
+              padding:0.55rem 0.85rem; background:#fff; color:#1a3a5c;
+              border:2px solid #1a3a5c; border-radius:5px;
+              font-size:0.93rem; font-weight:700; text-decoration:none;
+              justify-content:center;">
+      💬 {{ t('pause_prompt_whatsapp_label') }}
+    </a>
+  </div>
+  <div style="text-align:center;">
+    <button type="button" onclick="document.getElementById('leap-pause-modal').close()"
+            style="background:none; border:none; color:#5a6a80; font-size:0.85rem;
+                   cursor:pointer; text-decoration:underline;">
+      {{ t('pause_prompt_dismiss') }}
+    </button>
+  </div>
+</dialog>
+
+<script>
+  (function() {
+    // Only attach on funnel routes -- not landing, not done, not lec,
+    // not admin. Threshold is 45s; once the modal opens (or is
+    // dismissed), don't reopen for this page-view.
+    const FUNNEL_PATTERNS = [
+      /^\/start/, /^\/address/, /^\/welcome/, /^\/intent/, /^\/contact$/,
+      /^\/landlord\//, /^\/events\//, /^\/already-registered/,
+      /^\/save-progress/, /^\/renter\//
+    ];
+    const path = window.location.pathname;
+    if (!FUNNEL_PATTERNS.some(function(rx) { return rx.test(path); })) return;
+
+    var modal = document.getElementById('leap-pause-modal');
+    if (!modal || typeof modal.showModal !== 'function') return;
+
+    var THRESHOLD_MS = 45 * 1000;
+    var timer = null;
+    var shown = false;
+
+    function reset() {
+      if (shown) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function() {
+        if (shown) return;
+        shown = true;
+        try { modal.showModal(); } catch (e) { /* dialog unsupported */ }
+      }, THRESHOLD_MS);
+    }
+
+    ['mousemove', 'keydown', 'scroll', 'touchstart', 'click'].forEach(function(evt) {
+      window.addEventListener(evt, reset, { passive: true });
+    });
+    reset();
+  })();
+</script>
+
 </body>
 </html>
