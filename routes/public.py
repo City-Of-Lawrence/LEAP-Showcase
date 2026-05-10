@@ -9,7 +9,7 @@ from flask import (
 )
 from datetime import datetime, timezone
 
-from schema import upin_db
+from schema import upin_db, DB_UPIN
 from helpers import (
     get_lang, get_setting,
     lookup_by_upin, lookup_property,
@@ -20,6 +20,7 @@ from helpers import (
     add_event_rsvp, get_existing_rsvps, cancel_event_rsvp,
 )
 from translations import t, get_roles, get_intents, get_landlord_intents
+from mailer import send_email_async
 
 public = Blueprint("public", __name__)
 
@@ -856,11 +857,68 @@ def select_intent():
     return redirect(url_for("public.welcome"))
 
 
+def _fire_first_touch(contact_email: str, contact_name: str,
+                      account_number: str, lang: str) -> None:
+    """Fire-and-forget the post-registration confirmation email.
+
+    Skips silently if no contact_email was captured (the form lets a
+    resident submit phone-only). On send failure, the mailer's daemon
+    thread writes a row to outreach_log (channel='email',
+    outcome='unreachable') so the Energy Advocate sees the miss in
+    /admin/outreach and can follow up by phone.
+
+    Failure-callback runs outside the Flask request context, so it
+    opens its own sqlite3 connection -- it cannot use g.upin_db().
+    """
+    if not contact_email or "@" not in contact_email:
+        return
+    name = (contact_name or "").strip() \
+        or t("email_first_touch_default_name", lang)
+    subject = t("email_first_touch_subject", lang)
+    body    = t("email_first_touch_body", lang).format(name=name)
+
+    def _on_failure(result):
+        import sqlite3
+        try:
+            conn = sqlite3.connect(DB_UPIN)
+            row = conn.execute(
+                "SELECT id FROM registrations "
+                "WHERE account_number = ? AND contact_email = ? "
+                "ORDER BY registered_at DESC LIMIT 1",
+                (account_number, contact_email),
+            ).fetchone()
+            if row:
+                conn.execute(
+                    "INSERT INTO outreach_log "
+                    "(registration_id, contacted_by, channel, outcome, notes) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (row[0], "first_touch_auto", "email", "unreachable",
+                     f"Automated First Touch send failed: {result.reason}"),
+                )
+                conn.commit()
+            conn.close()
+        except Exception as e:
+            # Last-ditch logging; never let failure logging crash the thread.
+            import sys
+            print(f"[first-touch] outreach_log write also failed: {e}",
+                  file=sys.stderr, flush=True)
+
+    send_email_async(
+        to_addr=contact_email,
+        subject=subject,
+        body_text=body,
+        on_failure=_on_failure,
+    )
+
+
 @public.route("/contact", methods=["GET", "POST"])
 def contact_info():
     # Special case: address-not-found path â€” no session required
     if request.method == "POST" and request.form.get("_path") == "not_found":
-        street_note = request.form.get("street_note", "").strip()
+        street_note   = request.form.get("street_note",  "").strip()
+        contact_name  = request.form.get("contact_name", "").strip()
+        contact_email = request.form.get("contact_email","").strip()
+        contact_phone = request.form.get("contact_phone","").strip()
         save_registration({
             "account_number":      "NOT_FOUND",
             "upin_used":           "manual",
@@ -874,19 +932,23 @@ def contact_info():
             "mass_save_enrolled":  None,
             "needs_callback":      "yes",
             "event_rsvp_id":       None,
-            "contact_name":        request.form.get("contact_name", "").strip(),
-            "contact_phone":       request.form.get("contact_phone", "").strip(),
-            "contact_email":       request.form.get("contact_email", "").strip(),
+            "contact_name":        contact_name,
+            "contact_phone":       contact_phone,
+            "contact_email":       contact_email,
             "ip_address":          request.remote_addr,
             "pending_upin":        None,
         })
+        _fire_first_touch(contact_email, contact_name, "NOT_FOUND", get_lang())
         return redirect(url_for("public.done"))
 
     if not session.get("account_number"):
         return redirect(url_for("public.index"))
 
     if request.method == "POST":
-        is_zombie = session.get("account_number") == "NOT_FOUND"
+        is_zombie     = session.get("account_number") == "NOT_FOUND"
+        contact_name  = request.form.get("contact_name", "").strip()
+        contact_email = request.form.get("contact_email","").strip()
+        contact_phone = request.form.get("contact_phone","").strip()
         save_registration({
             "account_number":      session["account_number"],
             "upin_used":           session.get("upin_used", "manual"),
@@ -900,15 +962,20 @@ def contact_info():
             "mass_save_enrolled":  session.get("mass_save_enrolled"),
             "needs_callback":      session.get("needs_callback"),
             "event_rsvp_id":       session.get("event_rsvp_id"),
-            "contact_name":        request.form.get("contact_name", "").strip(),
-            "contact_phone":       request.form.get("contact_phone", "").strip(),
-            "contact_email":       request.form.get("contact_email", "").strip(),
+            "contact_name":        contact_name,
+            "contact_phone":       contact_phone,
+            "contact_email":       contact_email,
             "ip_address":          request.remote_addr,
             "pending_upin":        "yes" if is_zombie else None,
             "reported_fuel":       session.get("reported_fuel"),
         })
         lang   = session.get("lang", "en")
         intent = session.get("intent")
+        # Fire automated First Touch BEFORE session.clear() so we still
+        # have language context. Helper is a no-op when contact_email
+        # is empty -- residents who only provide phone don't get email.
+        _fire_first_touch(contact_email, contact_name,
+                          session["account_number"], lang)
         session.clear()
         session["lang"] = lang
         if is_zombie:
