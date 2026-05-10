@@ -269,6 +269,34 @@
     .lec-actions { flex-direction: column; }
     .lec-btn-primary, .lec-btn-secondary { min-width: unset; flex: unset; }
   }
+  /* Narrow phones: at 560px the contact rows still ran past the right
+     edge because .lec-contact-label held a 200px min-width and the
+     long URLs (mass.gov/competitive-electric-supply,
+     colonialpowergroup.com/lawrence) couldn't wrap inside their
+     spans. Stack the label above the value, drop the label min-width,
+     and allow URLs to break anywhere they need to. Also relax the
+     .lec-logo-link min-width so the partner logo card sits inside the
+     viewport instead of forcing horizontal scroll. */
+  @media (max-width: 480px) {
+    .lec-contact-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+    .lec-contact-label { min-width: 0; }
+    .lec-contact-value,
+    .lec-contact-value a {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .lec-logo-link { min-width: 0; padding: 12px 14px; }
+    /* `min-width: unset` resolves to `auto`, which keeps flex items at
+       their intrinsic min-content size and prevents shrink-to-fit
+       inside a narrow parent. Use 0 explicitly so the buttons honor
+       their parent's width. */
+    .lec-btn-primary, .lec-btn-secondary { min-width: 0; }
+    .lec-divider-label { white-space: normal; text-align: center; }
+  }
 </style>
 {% endblock %}
 
