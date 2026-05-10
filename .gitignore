@@ -53,3 +53,6 @@ ResetDeployedDbusingConsole.txt
 ResetDeployedDbusingConsole.txt
 
 templates/upload_*.html
+
+# UX audit working dir (Playwright screenshots — local-only)
+.audit-screenshots/
