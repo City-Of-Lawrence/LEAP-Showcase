@@ -267,6 +267,25 @@ TRANSLATIONS = {
         "es": "Comenzar \u2192",
     },
 
+    # Clarity FAQ block (rendered below the program tiles on
+    # index.html and how_can_we_help.html). Disambiguates "use less
+    # energy" (Energy Upgrades / Mass Save) from "pay less for energy
+    # used" (LEC). Body uses <strong> for the two program names;
+    # templates render with | safe.
+    "clarity_faq_title": {
+        "en": "Which one is for me?",
+        "es": "\u00bfCu\u00e1l es para m\u00ed?",
+    },
+    "clarity_faq_body": {
+        "en": "<strong>Energy Upgrades</strong> help you use less energy. "
+              "<strong>Lawrence Energy Choice</strong> helps you pay less "
+              "for the energy you use. Most families benefit from both.",
+        "es": "Las <strong>Mejoras Energ\u00e9ticas</strong> le ayudan a "
+              "usar menos energ\u00eda. <strong>Lawrence Energy Choice</strong> "
+              "le ayuda a pagar menos por la energ\u00eda que usa. La "
+              "mayor\u00eda de las familias se benefician de ambos programas.",
+    },
+
     # ── lec.html — Lower My Energy Bills interstitial ────────────────
     # Section 1: Know Your Supplier -- framing
     "lec_warning_eyebrow": {
