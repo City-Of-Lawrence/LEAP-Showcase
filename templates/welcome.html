@@ -131,5 +131,51 @@
 
   </form>
 
+  {# Save Progress (Roadmap §2 PR-A2). Optional opt-in: drop email,
+     get a 7-day resume link via email so closing the tab mid-funnel
+     isn't a restart. The success banner replaces the form once a
+     link has been sent in this session. #}
+  {% if session.get('_partial_sent_to') %}
+  <aside style="margin-top:1.6rem; padding:0.9rem 1.05rem;
+                background:#eaf5ed; border:1px solid #b4d8b4;
+                border-left:4px solid #2e7d50; border-radius:4px;
+                font-size:0.86rem; color:#1a3a5c; line-height:1.5;">
+    ✉️ {{ t('save_progress_sent').format(email=session['_partial_sent_to']) }}
+  </aside>
+  {% else %}
+  <aside style="margin-top:1.6rem; padding:0.9rem 1.05rem 1rem;
+                background:#f5f7fa; border:1px solid #c4d2e0;
+                border-left:4px solid #1a3a5c; border-radius:4px;">
+    <div style="color:#1a3a5c; font-size:0.92rem; font-weight:700;
+                margin-bottom:0.35rem;">
+      {{ t('save_progress_heading') }}
+    </div>
+    <p style="font-size:0.85rem; color:#3a4654; line-height:1.5;
+              margin-bottom:0.7rem;">
+      {{ t('save_progress_blurb') }}
+    </p>
+    <form method="POST" action="{{ url_for('public.save_progress') }}"
+          style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:flex-end;">
+      <div style="flex:1; min-width:180px;">
+        <label for="resume_email"
+               style="font-size:0.8rem; font-weight:600; color:#1a3a5c;">
+          {{ t('save_progress_email_label') }}
+        </label>
+        <input type="email" name="contact_email" id="resume_email"
+               placeholder="{{ t('save_progress_email_placeholder') }}"
+               style="width:100%; padding:0.5rem 0.6rem; border:1px solid #bbb;
+                      border-radius:4px; font-size:0.9rem; margin-top:0.2rem;
+                      box-sizing:border-box;">
+      </div>
+      <button type="submit"
+              style="font-size:0.85rem; font-weight:600; color:white;
+                     background:#1a3a5c; border:none; border-radius:4px;
+                     padding:0.5rem 0.9rem; cursor:pointer; white-space:nowrap;">
+        {{ t('save_progress_send_btn') }}
+      </button>
+    </form>
+  </aside>
+  {% endif %}
+
 </div>
 {% endblock %}
