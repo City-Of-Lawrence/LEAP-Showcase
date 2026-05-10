@@ -20,6 +20,7 @@ from helpers import (
     add_event_rsvp, get_existing_rsvps, cancel_event_rsvp,
     create_partial_token, update_partial_state,
     restore_partial, delete_partial,
+    get_or_create_funnel_session_id, log_funnel_event,
 )
 from translations import t, get_roles, get_intents, get_landlord_intents
 from mailer import send_email_async
@@ -52,6 +53,68 @@ def _sync_partial_progress(response):
         # Sync is best-effort; never let it break the response.
         import sys
         print(f"[partial-sync] update failed: {e}", file=sys.stderr, flush=True)
+    return response
+
+
+# ------------------------------------------------------------------
+# Funnel-event logging (Roadmap §2 PR-A3). Records every funnel route
+# transition so the admin /admin/funnel view can show drop-off rates
+# and surface orphaned sessions for outreach. Uses request_started for
+# GETs (the resident landed on this step) and after_request for POSTs
+# (the redirect tells us what comes next). Skips static, language
+# toggles, and admin/resume meta-routes.
+# ------------------------------------------------------------------
+
+# Routes whose path prefixes should NOT generate funnel events. /admin
+# is its own surface; /lang and /resume don't represent funnel steps;
+# /static is asset traffic.
+FUNNEL_LOG_SKIP_PREFIXES = ("/static", "/admin", "/lang", "/resume",
+                             "/save-progress", "/favicon.ico")
+
+
+def _is_funnel_path(path: str) -> bool:
+    if not path or not path.startswith("/"):
+        return False
+    return not any(path.startswith(p) for p in FUNNEL_LOG_SKIP_PREFIXES)
+
+
+@public.before_request
+def _log_funnel_arrival():
+    """Log a GET arrival on a funnel route. Captures the moment a
+    resident sees a step. POST submissions are logged in the
+    after_request hook because we want the redirect target as to_step.
+    """
+    if request.method != "GET" or not _is_funnel_path(request.path):
+        return
+    sid = get_or_create_funnel_session_id()
+    log_funnel_event(
+        session_id=sid,
+        from_step=session.get("_last_funnel_step"),
+        to_step=request.path,
+        user_agent=request.headers.get("User-Agent", ""),
+        partial_token=session.get("_partial_token"),
+    )
+    session["_last_funnel_step"] = request.path
+
+
+@public.after_request
+def _log_funnel_post_redirect(response):
+    """For POSTs that redirect to another funnel step, log the to_step
+    based on the Location header. The matching GET arrival is logged by
+    the next request, so this is just for explicit transitions like
+    'POST /welcome -> 302 /contact'.
+    """
+    if request.method != "POST" or not _is_funnel_path(request.path):
+        return response
+    if not (300 <= response.status_code < 400):
+        return response
+    loc = response.headers.get("Location")
+    if not loc or not _is_funnel_path(loc):
+        return response
+    # The GET-side hook will log the arrival; we just update last_step
+    # so the next from_step is accurate even if the redirect target
+    # isn't a funnel route.
+    session["_last_funnel_step"] = request.path
     return response
 
 # Read from app config at runtime â€” set by app.py

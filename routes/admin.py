@@ -819,6 +819,85 @@ def admin_events_import():
 
 
 # ------------------------------------------------------------------
+# Funnel analytics (Roadmap §2 PR-A3 -- Drop-off observability)
+# ------------------------------------------------------------------
+
+@admin.route("/funnel")
+@admin_required
+def admin_funnel():
+    """Drop-off observability for the registration funnel.
+
+    Two views in one page:
+      1. Step counts -- distinct sessions that reached each funnel
+         route in the lookback window. Eyeball the deltas to spot
+         the biggest drop-offs.
+      2. Orphans -- sessions that started but never reached /done,
+         with a "last seen" timestamp and resume-token reference if
+         Save Progress was active. Each row is an outreach lead.
+    """
+    try:
+        days = max(1, min(90, int(request.args.get("days", "7"))))
+    except ValueError:
+        days = 7
+
+    # Step counts: distinct sessions that hit each to_step in window.
+    step_counts = upin_db().execute(
+        """SELECT to_step, COUNT(DISTINCT session_id) AS sessions
+           FROM funnel_events
+           WHERE occurred_at >= datetime('now', ?)
+           GROUP BY to_step
+           ORDER BY sessions DESC""",
+        (f"-{days} days",),
+    ).fetchall()
+
+    # Orphans: sessions whose latest event isn't /done and is older
+    # than 30 minutes (so we don't catch active visitors). Limit to 50
+    # rows so the page stays readable without paging.
+    orphans = upin_db().execute(
+        """SELECT fe.session_id,
+                  MAX(fe.occurred_at) AS last_at,
+                  (SELECT to_step FROM funnel_events
+                   WHERE session_id = fe.session_id
+                   ORDER BY occurred_at DESC LIMIT 1) AS last_step,
+                  (SELECT partial_token FROM funnel_events
+                   WHERE session_id = fe.session_id
+                     AND partial_token IS NOT NULL
+                   ORDER BY occurred_at DESC LIMIT 1) AS partial_token
+           FROM funnel_events fe
+           WHERE fe.occurred_at >= datetime('now', ?)
+           GROUP BY fe.session_id
+           HAVING last_step != '/done'
+              AND last_at < datetime('now', '-30 minutes')
+           ORDER BY last_at DESC
+           LIMIT 50""",
+        (f"-{days} days",),
+    ).fetchall()
+
+    total_sessions = upin_db().execute(
+        """SELECT COUNT(DISTINCT session_id)
+           FROM funnel_events
+           WHERE occurred_at >= datetime('now', ?)""",
+        (f"-{days} days",),
+    ).fetchone()[0]
+    completed = upin_db().execute(
+        """SELECT COUNT(DISTINCT session_id)
+           FROM funnel_events
+           WHERE occurred_at >= datetime('now', ?)
+             AND to_step = '/done'""",
+        (f"-{days} days",),
+    ).fetchone()[0]
+
+    return render_template(
+        "admin_funnel.html",
+        step_counts=step_counts,
+        orphans=orphans,
+        days=days,
+        total_sessions=total_sessions,
+        completed=completed,
+    )
+
+
+# ------------------------------------------------------------------
 # Settings
 # ------------------------------------------------------------------
 

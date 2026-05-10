@@ -259,5 +259,32 @@ def ensure_schema():
         "CREATE INDEX IF NOT EXISTS idx_partial_registrations_expires "
         "ON partial_registrations(expires_at)"
     )
+
+    # Drop-off analytics (Roadmap §2 PR-A3). One row per funnel-route
+    # transition. session_id is an opaque per-browser-session UUID so
+    # the admin can correlate steps without a real user identity.
+    # partial_token, when present, lets us tie an orphaned funnel
+    # session to its emailed resume link (handy for "people we sent a
+    # link to who never came back").
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS funnel_events (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id    TEXT NOT NULL,
+            occurred_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            from_step     TEXT,
+            to_step       TEXT NOT NULL,
+            user_agent    TEXT,
+            partial_token TEXT
+        )
+    """)
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_funnel_events_session "
+        "ON funnel_events(session_id, occurred_at)"
+    )
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_funnel_events_step "
+        "ON funnel_events(to_step, occurred_at)"
+    )
+
     conn.commit()
     conn.close()

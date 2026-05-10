@@ -711,3 +711,41 @@ def delete_partial(token: str) -> None:
         "DELETE FROM partial_registrations WHERE token = ?", (token,)
     )
     upin_db().commit()
+
+
+# ------------------------------------------------------------------
+# Drop-off analytics (Roadmap §2 PR-A3)
+# ------------------------------------------------------------------
+# Per-session funnel-step transitions; admin uses these to see where
+# residents drop off and to surface orphaned sessions for outreach.
+
+def get_or_create_funnel_session_id() -> str:
+    """Return the opaque per-browser-session id, creating one if absent.
+
+    Stored under session["_funnel_sid"]. Lives for the whole browser
+    session (cleared by session.clear() at /contact completion or
+    /resume restoration). New visitors and resumed visitors each get a
+    fresh id; that's the right grain for the drop-off table.
+    """
+    sid = session.get("_funnel_sid")
+    if not sid:
+        sid = secrets.token_urlsafe(16)
+        session["_funnel_sid"] = sid
+    return sid
+
+
+def log_funnel_event(session_id: str, from_step, to_step: str,
+                     user_agent: str = "", partial_token=None) -> None:
+    """Insert a funnel_events row. Best-effort; never raises."""
+    try:
+        upin_db().execute(
+            "INSERT INTO funnel_events "
+            "(session_id, from_step, to_step, user_agent, partial_token) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (session_id, from_step, to_step, user_agent[:300] if user_agent else "",
+             partial_token),
+        )
+        upin_db().commit()
+    except Exception as e:
+        import sys
+        print(f"[funnel-events] log failed: {e}", file=sys.stderr, flush=True)
