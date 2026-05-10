@@ -855,19 +855,29 @@ def event_select():
 def save_progress():
     """Create a partial_registrations row + email the resume link.
 
-    Posted from the optional form at the bottom of welcome.html. Stores
-    the resulting token in session so the after_request hook keeps the
-    snapshot fresh as the resident advances. Also emails the link via
-    the same mailer module First Touch uses.
+    Posted from the optional aside surfaced on funnel pages (currently
+    /address/street and /welcome -- the design doc placed this "right
+    after /role" so the earlier surface catches drop-off where it's
+    highest). The hidden from_path form field tells us which step to
+    return to after they click the resume link; we validate it's a
+    relative in-app URL only.
+
+    Requires at least a session role -- it's pointless to save a
+    session that doesn't even know what kind of resident this is.
+    Beyond that, whatever state exists at save time is what gets
+    snapshotted; the after_request hook keeps it fresh as the
+    resident advances.
     """
-    if not session.get("account_number"):
+    if not session.get("role") and not session.get("account_number"):
         return redirect(url_for("public.index"))
 
     contact_email = (request.form.get("contact_email") or "").strip()
     if not contact_email or "@" not in contact_email:
-        # No email or malformed -- silently bounce back to /welcome.
-        # The form is opt-in; bad input shouldn't stop the funnel.
-        return redirect(url_for("public.welcome"))
+        # No email or malformed -- silently bounce back to where they
+        # came from. The form is opt-in; bad input shouldn't stop the
+        # funnel.
+        return redirect(_safe_from_path(request.form.get("from_path"),
+                                        url_for("public.welcome")))
 
     # Drop any prior token for this session before creating a new one.
     old = session.pop("_partial_token", None)
@@ -877,11 +887,13 @@ def save_progress():
         except Exception:
             pass
 
+    return_to = _safe_from_path(request.form.get("from_path"),
+                                url_for("public.welcome"))
     token = create_partial_token(
         contact_email=contact_email,
         contact_phone=request.form.get("contact_phone", "") or "",
         session_state=dict(session),
-        last_step=url_for("public.welcome"),
+        last_step=return_to,
     )
     session["_partial_token"] = token
     session["_partial_sent_to"] = contact_email   # feeds the success banner
@@ -897,7 +909,27 @@ def save_progress():
         body_text=body,
     )
 
-    return redirect(url_for("public.welcome"))
+    return redirect(return_to)
+
+
+def _safe_from_path(raw, fallback: str) -> str:
+    """Sanitize a form-supplied from_path into a safe in-app redirect.
+
+    Rejects anything that isn't a single leading slash + ASCII path
+    (no protocol, no host, no protocol-relative). Defends against an
+    attacker crafting a save-progress form that bounces residents to
+    an external URL after submit.
+    """
+    if not raw or not isinstance(raw, str):
+        return fallback
+    if not raw.startswith("/") or raw.startswith("//"):
+        return fallback
+    # Strip control chars / newlines that could enable header injection
+    # via Location even though Flask's redirect() already escapes.
+    cleaned = raw.split("?", 1)[0].split("#", 1)[0]
+    if any(ord(c) < 0x20 for c in cleaned):
+        return fallback
+    return cleaned
 
 
 @public.route("/resume/<token>")
