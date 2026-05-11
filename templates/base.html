@@ -3,11 +3,20 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{% block title %}Lawrence Energy Affordability Project (LEAP) Ã¢‚¬” DEMO{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='Lawrence-Seal.png') }}"/>
+  <title>{% block title %}Lawrence Energy Affordability Project (LEAP) — DEMO{% endblock %}</title>
   <style>
-    /* Ã¢”‚¬Ã¢”‚¬ Reset & base Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Reset & base —— */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; max-width: 100vw; overflow-x: hidden; }
+
+    /* Visually hide content but keep it accessible to screen readers.
+       Used for labels that are present in the design via card titles or
+       placeholders but aren't repeated as visible <label> text. */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
     body {
       font-family: "Segoe UI", Arial, sans-serif;
       background: #f4f6f8;
@@ -15,7 +24,7 @@
       min-height: 100vh;
     }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Header Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Header —— */
     header {
       background: #1a3a5c;   /* Lawrence dark navy */
       color: white;
@@ -69,7 +78,7 @@
       }
     }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Seal link Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Seal link —— */
     .seal-link {
       display: inline-block;
       flex-shrink: 0;
@@ -79,7 +88,7 @@
     }
     .seal-link:hover { opacity: 0.8; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Progress bar Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Progress bar —— */
     .progress-bar {
       background: #d0dce8;
       height: 6px;
@@ -90,7 +99,7 @@
       transition: width 0.3s ease;
     }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Main content area Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Main content area —— */
     /* Narrow column on purpose: matches /start's .sg-wrap (600px) so every    */
     /* step in the registration flow — role, address, intent, contact, done — */
     /* shares the same compact card width. 92vw keeps a comfortable side       */
@@ -134,7 +143,7 @@
       line-height: 1.5;
     }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Forms Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Forms —— */
     label {
       display: block;
       font-weight: 600;
@@ -154,7 +163,7 @@
     }
     input:focus { outline: none; border-color: #1a3a5c; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Radio / choice cards Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Radio / choice cards —— */
     .choices { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.4rem; }
     .choice-label {
       display: flex;
@@ -175,9 +184,15 @@
     }
     input[type="radio"] { display: none; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Buttons Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Buttons ——
+       min-height 44px keeps mobile touch targets above WCAG 2.5.5
+       and Apple HIG. inline-flex + center alignment lets us bump
+       min-height without breaking text vertical-centering. */
     .btn {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
       padding: 0.7rem 1.8rem;
       border: none;
       border-radius: 5px;
@@ -195,7 +210,7 @@
     .btn-outline:hover { background: #f0f4f8; }
     .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Address card Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Address card —— */
     .address-card {
       background: #e8f4ec;
       border: 1px solid #9ecfaa;
@@ -206,7 +221,7 @@
     .address-card .addr-main { font-size: 1.1rem; font-weight: 700; color: #1a3a5c; }
     .address-card .addr-meta { font-size: 0.85rem; color: #555; margin-top: 0.3rem; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Search results Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Search results —— */
     .result-list { list-style: none; margin-top: 0.8rem; }
     .result-list li {
       border-bottom: 1px solid #eee;
@@ -220,7 +235,7 @@
     .result-list li a:hover { text-decoration: underline; }
     .result-list .meta { font-size: 0.82rem; color: #777; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Alert / error Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Alert / error —— */
     .alert {
       padding: 0.75rem 1rem;
       border-radius: 5px;
@@ -230,7 +245,7 @@
     .alert-error { background: #fde8e6; border: 1px solid #e8a09a; color: #7a1f1a; }
     .alert-info  { background: #e8f0f8; border: 1px solid #9ab8d8; color: #1a3a5c; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Step indicator Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Step indicator —— */
     .steps {
       display: flex;
       gap: 0;
@@ -260,7 +275,7 @@
     .step.active::before { background: #c8392b; color: white; }
     .step.done::before   { background: #2e7d50; color: white; content: "\2714"; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Footer Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Footer —— */
     footer {
       text-align: center;
       padding: 1.5rem;
@@ -268,7 +283,7 @@
       color: #888;
     }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Admin table Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Admin table —— */
     .admin-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; table-layout: auto; }
     .admin-table th {
       background: #1a3a5c; color: white;
@@ -300,7 +315,7 @@
 <body>
 
 <header>
-  {# Seal Ã¢‚¬” mid-flow pages get a confirmation dialog, home and done pages go straight home #}
+  {# Seal — mid-flow pages get a confirmation dialog, home and done pages go straight home #}
   {% if progress is defined %}
   <a href="{{ url_for('public.index') }}" class="seal-link"
      onclick="return confirm('{{ t('seal_confirm_msg') }}')">
@@ -320,7 +335,7 @@
     <div class="program-name">Lawrence Energy Affordability Project (LEAP)</div>
   </div>
 
-  {# Language toggle Ã¢‚¬” hidden on admin pages #}
+  {# Language toggle — hidden on admin pages #}
   {% if not request.path.startswith('/admin') %}
   <div style="margin-left:auto; flex-shrink:0; text-align:right;">
     {% set lang = session.get('lang', 'en') %}

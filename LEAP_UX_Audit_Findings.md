@@ -109,7 +109,34 @@ Verified against `routes/public.py` and `routes/admin.py` render_template calls 
 
 ## Triage summary
 
-(Populated after Phase 1 audit pass completes.)
+**Audit pass status (2026-05-10):** PARTIAL — 6 of 35 routes swept (`/`, `/lec`, `/choose-path`, `/start`, `/start/small-business`-redirect, `/address/street`, `/renter/login`). Remaining 29 routes (most auth-gated public flow + all admin) deferred to a continuation session.
+
+**Findings logged: 11 (across the 6 routes swept) + 1 informational (intentional pause-prompt behavior).**
+
+| Severity | Responsive | Polish | A11y | Copy-bugs | Total |
+|----------|-----------|--------|------|-----------|-------|
+| S0       | 1         | 0      | 0    | 0         | 1     |
+| S1       | 1         | 0      | 1    | 2         | 4     |
+| S2       | 1         | 4      | 0    | 1         | 6     |
+
+**Why global fixes are jumping the queue:** Several S1 findings live in `base.html` or shared partials and affect every page in the app. Fixing them before completing the remaining audit pass reduces noise (otherwise every subsequent page would re-flag the same global issue) and gives the remaining audit a clean baseline. This is a deliberate deviation from the plan's strict per-unit ordering; documented here so the audit trail explains the reorder.
+
+**Global fixes batch (next commit):**
+- Finding 1 (favicon 404) — copy-bugs, S2
+- Finding 5 (double-arrow back link) — copy-bugs, S1, 3+ templates
+- Finding 10 (base.html title mojibake) — copy-bugs, S1
+- Finding 8 + 9 (Search and Email-me button touch targets at 320) — responsive, S0+S1
+- Finding 4 (unlabeled UPIN input on choose-path) — a11y, S1
+- Finding 3 (LEC overflow at 320) — responsive, S2
+
+**Deferred to later passes (polish, subjective):**
+- Finding 2 (lone chevron card pattern) — polish, S2 — needs design judgment
+- Finding 6 (inconsistent role-tile subtitles) — polish, S2
+- Finding 7 (orphan 5th tile on /start grid) — polish, S2
+
+**Not actionable in this audit (intentional or external):**
+- Finding 11 (pause prompt empty mailto + text-link dismiss) — flagged as `intentional` per CLAUDE.md
+- Global Finding B (DEMO banner intermittent clipping) — to re-verify during fixes; possibly a misread
 
 ## Findings
 
@@ -122,8 +149,8 @@ Tested at 320, 768, 1440. No horizontal scroll, no overflowing elements, no smal
 - **Viewport(s):** all (console error fires on every page load app-wide)
 - **Category:** copy-bugs
 - **Severity:** S2
-- **Status:** open
-- **Notes:** Every page load logs `Failed to load resource: 404` in the console for `/favicon.ico`. Affects every page in the app, not just the homepage. Fix options: (a) add a `static/favicon.ico` asset (city seal as ICO would be the obvious pick), (b) add a no-op Flask route returning 204, or (c) `<link rel="icon" href="data:,">` in `base.html` to suppress. Option (a) is correct civic design — a city site should have a favicon.
+- **Status:** fixed-in-global-batch (2026-05-10)
+- **Fix:** Added `<link rel="icon" type="image/png" href="{{ url_for('static', filename='Lawrence-Seal.png') }}"/>` in `base.html` head. Browser uses the city seal as favicon; the spurious `/favicon.ico` request is suppressed because the link tag declares the icon explicitly. Verified: 0 console errors on /choose-path after the change.
 
 ### `/lec` (lec.html)
 
@@ -131,11 +158,12 @@ Tested at 320, 1440. No `MBLU`, lang=en, no missing alt.
 
 #### Finding 3: `lec-logo-link` and `lec-btn-secondary` overflow viewport at 320px
 - **Where:** `templates/lec.html` (Colonial Power Group logo card + "← Back to Home" button)
-- **Viewport(s):** 320 (need to verify at 360 / 280-foldable; clean at 1440)
+- **Viewport(s):** 320 (clean at 1440)
 - **Category:** responsive
 - **Severity:** S2
-- **Status:** open
-- **Notes:** Both elements are 5px wider than the 320px viewport. Page-level `overflow-x: hidden` on `<body>` clips the excess so users don't see horizontal scroll, but the elements are technically miscut. Likely a `padding` or `width` that doesn't shrink at narrowest mobile. Fix: tighten side padding or use `width: 100%` with `box-sizing: border-box`.
+- **Status:** fixed-in-global-batch (2026-05-10)
+- **Root cause:** The Colonial logo is natively 1338×377px. CSS rendered it at `height: 72px; width: auto` which scaled it to 256px wide — wider than the parent `.lec-actions` container at narrow viewports. The image forced `.lec-logo-link` to overflow. Similar shape on `.lec-btn-secondary` (intrinsic text width).
+- **Fix:** Added `max-width: 100%; height: auto` on `.lec-logo-link img` inside the existing `@media (max-width: 480px)` block. Also added `max-width: 100%` to `.lec-btn-primary, .lec-btn-secondary`. Verified at 320: both elements now 230px wide (fits parent), no overflow.
 
 #### Finding 2: Lone `›` chevron at bottom of each program tile
 - **Where:** `templates/index.html:230,238,246` — `<span class="leap-tile-chevron">&#8250;</span>`
@@ -156,16 +184,17 @@ Tested at 320, 1440. No horizontal scroll. Layout cleanly stacks at 320.
 - **Viewport(s):** all
 - **Category:** a11y
 - **Severity:** S1
-- **Status:** open
-- **Notes:** The UPIN entry input on the "Have a Letter or UPIN?" card has only a placeholder ("e.g. ABCD123XY") — no `<label for="upin">`. Screen readers won't announce a field name; placeholder text disappears once the user types. Tap-on-label-to-focus also doesn't work. Fix: add a visible `<label for="upin">` (translation key likely already in place — check `index_have_upin_title` use), or at minimum `aria-label`.
+- **Status:** fixed-in-global-batch (2026-05-10)
+- **Fix:** Added `<label for="upin" class="sr-only">{{ t('index_upin_label') }}</label>` immediately before the input. Also added a reusable `.sr-only` utility class to `base.html` so future a11y labels can use the same pattern (visually hidden, screen-reader-announceable). Verified via Playwright: `input.labels.length === 1` and `labelText === "Enter Your UPIN"`.
 
 #### Finding 5: Double-arrow back link "← ← Back"
-- **Where:** `templates/choose_path.html:148` — `<a>&#8592; {{ t('back_btn') }}</a>` (also `templates/how_can_we_help.html:206`, `templates/already_rsvpd.html:65`)
+- **Where:** 5 templates (`choose_path.html:148`, `how_can_we_help.html:206`, `already_rsvpd.html:65`, `start_generic.html:157`, `event_select.html:146`) — all prepended `←` or `&#8592;`/`&#x2190;` to `{{ t('back_btn') }}`
 - **Viewport(s):** all
 - **Category:** copy-bugs
 - **Severity:** S1
-- **Status:** open
-- **Notes:** The `back_btn` translation already includes a leading `←` (en: `"← Back"`, es: `"← Atrás"`). Three templates additionally prepend their own `←`, producing `← ← Back` / `← ← Atrás`. Fix: remove the template-side arrow on all three templates (single source of truth in translation). Verify `start_generic.html` and any other templates using `t('back_btn')` for the same drift.
+- **Status:** fixed-in-global-batch (2026-05-10)
+- **Root cause:** The `back_btn` translation already includes a leading `←` (en: `"← Back"`, es: `"← Atrás"`). Five templates additionally prepended their own `←`, producing `← ← Back` / `← ← Atrás`.
+- **Fix:** Removed the template-side prepended arrow in all 5 templates. Translation now owns the arrow as the single source of truth. Verified on /choose-path: back link renders as `← Back` (single arrow).
 
 ---
 
@@ -196,20 +225,22 @@ Tested at 320, 1440. No horizontal scroll, no overflowing elements.
 Tested at 320, 1440. Reached via `/start/small-business`. Clean at 1440; touch-target issues at 320.
 
 #### Finding 8: "Search →" button is 41px tall at 320 (touch target < 44)
-- **Where:** `templates/address_street.html` — primary submit button
-- **Viewport(s):** 320 (need to verify at 360 / 375 / 414)
+- **Where:** `templates/base.html` — `.btn` shared rule used by all primary/secondary/outline buttons
+- **Viewport(s):** 320 (all .btn instances app-wide)
 - **Category:** responsive
 - **Severity:** S1
-- **Status:** open
-- **Notes:** WCAG 2.5.5 / Apple HIG recommend ≥ 44px touch targets on mobile. 41px is close but under. Likely caused by `padding` that doesn't scale at narrow widths. Fix: bump button vertical padding or set `min-height: 44px` on `.btn-primary` and equivalents at ≤ 768.
+- **Status:** fixed-in-global-batch (2026-05-10)
+- **Fix:** Bumped `.btn` to `display: inline-flex; align-items: center; justify-content: center; min-height: 44px` in `base.html`. inline-flex centering preserves text vertical alignment when min-height kicks in. Verified at 320 on /address/street: `Search →` 44px, `← Back` 48px. Affects every `.btn` in the app — clean baseline for the rest of the audit.
 
 #### Finding 9: "Email me a resume link →" button is 30px tall at 320 (touch target severely under)
-- **Where:** `templates/address_street.html` — the Save Progress aside button (added in Roadmap §2 A2)
-- **Viewport(s):** 320 (need to verify at 360 / 375)
+- **Where:** `templates/address_street.html:177-182` AND `templates/welcome.html:171-176` (Save Progress aside, two copies)
+- **Viewport(s):** 320 (both submit buttons)
 - **Category:** responsive
 - **Severity:** S0
-- **Status:** open
-- **Notes:** The Save Progress aside's submit is only 30px tall at 320 — significantly fails the touch target minimum. The button has tighter padding than the primary submit. Per `feedback_test_locally_before_push.md`, this slipped through because the §2 A2 PR mobile-tested at 375+ but not 320. Fix: same as Finding 8 — `min-height: 44px` and adjust padding/font-size for narrow viewports.
+- **Status:** fixed-in-global-batch (2026-05-10)
+- **Root cause:** Save Progress aside submit had `padding: 0.45rem 0.8rem; font-size: 0.83rem` (or `0.5rem 0.9rem; 0.85rem` in welcome.html) — well under the 44px minimum. The button uses inline styles instead of `.btn`, so the `.btn` shared fix doesn't reach it.
+- **Fix:** Bumped both inline-styled submits to `padding: 0.7rem 1rem; min-height: 44px; font-size: 0.88rem`. Verified at 320 on /address/street: `Email me a resume link →` is now 44px tall.
+- **Followup:** the inline styles on these two Save Progress asides should eventually be extracted to a `.btn-compact` or similar class so future Save Progress instances don't drift again. Out of scope for this batch.
 
 ---
 
@@ -220,12 +251,13 @@ Tested at 1440 only (pause prompt fired before 320 sweep; pause prompt itself ca
 Page is publicly reachable; UPIN entry form is straightforward.
 
 #### Finding 10: Page title shows UTF-8 mojibake instead of em-dash
-- **Where:** `templates/base.html` (default title block) — affects every page that doesn't define its own `{% block title %}` override
+- **Where:** `templates/base.html` (default title block + 14 CSS comment dividers + 2 Jinja comments) — affects every page that falls back to the default title
 - **Viewport(s):** all (title bar)
 - **Category:** copy-bugs
 - **Severity:** S1
-- **Status:** open
-- **Notes:** `renter_login.html` does not define a `{% block title %}` override, so it falls back to base.html's default title. The default title contains a corrupted em-dash: the bytes `c3 a2 e2 80 9a c2 ac e2 80 9d` (or similar Windows-1252-misread-as-UTF-8 garbage) where a single `—` should be. Visible to every user as: `Lawrence Energy Affordability Project (LEAP) Ã¢‚¬" DEMO`. Fix: replace the corrupted bytes in base.html title with a proper em-dash (or use HTML entity `&mdash;`). Also audit base.html CSS comments for the same mojibake (saw `Ã¢"‚¬Ã¢"‚¬ Reset & base Ã¢"‚¬Ã¢"‚¬` earlier — affects the comment headers).
+- **Status:** fixed-in-global-batch (2026-05-10)
+- **Root cause:** Two mojibake patterns. (a) `Ã¢‚¬"` (5 chars) where a single `—` em-dash should be — in the title and Jinja comments. (b) `Ã¢"‚¬Ã¢"‚¬` (10 chars) where `——` should be — in CSS comment dividers (16 of them). Originally UTF-8 em-dash bytes read as Windows-1252 and re-encoded as UTF-8 produced this drift.
+- **Fix:** Two `Edit replace_all` passes on `base.html`: `Ã¢"‚¬Ã¢"‚¬` → `——`, then `Ã¢‚¬"` → `—`. Confirmed no remaining mojibake bytes (`Ã¢|Ã‚|‚¬` grep returns no matches). Verified on /renter/login title: `Lawrence Energy Affordability Project (LEAP) — DEMO` (clean em-dash).
 
 #### Finding 11: Pause prompt fires after 45s of inactivity (intentional, confirmed working)
 - **Where:** `base.html` — pause prompt modal (from Roadmap §2 A3)

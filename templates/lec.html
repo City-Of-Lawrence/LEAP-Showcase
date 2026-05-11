@@ -290,11 +290,16 @@
       word-break: break-word;
     }
     .lec-logo-link { min-width: 0; padding: 12px 14px; }
+    /* Colonial logo natural dimensions are 1338x377; rendering at
+       72px height = 256px width, which forces .lec-logo-link to
+       overflow .lec-actions on viewports below ~290px. Cap the
+       image at the card's interior width and let height scale. */
+    .lec-logo-link img { max-width: 100%; height: auto; }
     /* `min-width: unset` resolves to `auto`, which keeps flex items at
        their intrinsic min-content size and prevents shrink-to-fit
        inside a narrow parent. Use 0 explicitly so the buttons honor
        their parent's width. */
-    .lec-btn-primary, .lec-btn-secondary { min-width: 0; }
+    .lec-btn-primary, .lec-btn-secondary { min-width: 0; max-width: 100%; }
     .lec-divider-label { white-space: normal; text-align: center; }
   }
 </style>
