@@ -28,10 +28,10 @@
   <form method="POST" action="{{ url_for('public.address_not_found_confirm') }}">
 
     <div style="margin-bottom:1rem;">
-      <label style="font-weight:600; font-size:0.9rem; color:#1a3a5c; display:block; margin-bottom:0.3rem;">
+      <label for="manual_address" style="font-weight:600; font-size:0.9rem; color:#1a3a5c; display:block; margin-bottom:0.3rem;">
         {{ t('notfound_confirm_address_label') }}
       </label>
-      <input type="text" name="manual_address"
+      <input type="text" id="manual_address" name="manual_address"
              value="{{ prefill_address }}"
              placeholder="{{ t('notfound_confirm_address_placeholder') }}"
              required
@@ -40,10 +40,10 @@
     </div>
 
     <div style="margin-bottom:1.4rem;">
-      <label style="font-weight:600; font-size:0.9rem; color:#1a3a5c; display:block; margin-bottom:0.3rem;">
+      <label for="manual_unit" style="font-weight:600; font-size:0.9rem; color:#1a3a5c; display:block; margin-bottom:0.3rem;">
         {{ t('notfound_confirm_unit_label') }}
       </label>
-      <input type="text" name="manual_unit"
+      <input type="text" id="manual_unit" name="manual_unit"
              placeholder="{{ t('notfound_confirm_unit_placeholder') }}"
              style="width:100%; padding:0.65rem 0.8rem; border:1px solid #ccc;
                     border-radius:6px; font-size:0.95rem; box-sizing:border-box;">

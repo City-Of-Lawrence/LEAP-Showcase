@@ -67,8 +67,8 @@ Verified against `routes/public.py` and `routes/admin.py` render_template calls 
 - [x] `/welcome` → `welcome.html`
 - [x] `/address/street` → `address_street.html` (reached via /start/small-business redirect)
 - [x] `/address/pick` → `address_pick.html`
-- [ ] `/address/not-found` → `address_not_found.html`
-- [ ] `/address/not-found-confirm` → `address_not_found_confirm.html`
+- [~] `/address/not-found` → `address_not_found.html` — flow now skips this; submitting a non-matching street goes directly to `/address/not-found-confirm`. Template static-reviewed; not reachable in current flow.
+- [x] `/address/not-found-confirm` → `address_not_found_confirm.html`
 - [ ] `/select-address` → `confirm_address.html`
 - [ ] `/role` → `role.html`
 - [x] `/landlord/units` → `landlord_units.html`
@@ -367,7 +367,26 @@ No new findings.
 - **Viewport(s):** all
 - **Category:** a11y
 - **Severity:** S2
-- **Status:** open
-- **Notes:** The "Wards Targeted (select all that apply)" label groups 6 checkboxes (A-F). It's wrapped as a plain `<label>` without a `for` attribute (it can't have one — it's a group label, not bound to a single input). For correct a11y semantics, this should be `<fieldset><legend>Wards Targeted ...</legend>...</fieldset>`. Each checkbox already has implicit label association via its own wrapping `<label>`, so the per-input affordance is fine. Only the group-label semantics need fixing. Small change, low risk.
+- **Status:** fixed-in-third-batch (2026-05-10)
+- **Fix:** Wrapped the wards group in `<fieldset>` with `<legend>` carrying the "Wards Targeted (select all that apply)" text. Removed default fieldset border/padding via inline styles to preserve the existing visual. Per-checkbox `<label>` wrappers still provide individual associations.
+
+### `/address/not-found-confirm` (address_not_found_confirm.html)
+Reached by submitting a non-matching street from /address/street. The /address/not-found template is no longer reachable in the current flow (the not-found path now jumps directly to the confirm page with the submitted street prefilled).
+
+#### Finding 18: Manual address + unit inputs have visible labels but no `<label for>` association
+- **Where:** `templates/address_not_found_confirm.html:30-49` — `<input name="manual_address">` and `<input name="manual_unit">` had no `id` attribute, so the sibling `<label>` elements (without `for`) provided visual labels only
+- **Viewport(s):** all
+- **Category:** a11y
+- **Severity:** S1
+- **Status:** fixed-in-third-batch (2026-05-10)
+- **Fix:** Added `id="manual_address"` and `id="manual_unit"` to the inputs; added matching `for="manual_address"` and `for="manual_unit"` to the labels. Verified via Playwright: `inputsUnlabeled: []` after the change.
+
+#### Finding 19 (informational): Fourth step-indicator variant on /address/not-found-confirm
+- **Where:** `templates/address_not_found_confirm.html:7-12`
+- **Viewport(s):** all
+- **Category:** (informational — adds to F13)
+- **Severity:** N/A
+- **Status:** open (part of F13 step-indicator consolidation)
+- **Notes:** This page uses a fourth variant: 3 pill-style tag chips (`✓ Role`, `✓ Street`, `Address`) instead of the 5-circle indicator most other flow pages use. Different both in number of steps and visual style. Documented here as additional evidence for F13 — when the step-indicator consolidation PR happens, this page should be brought into alignment too (or kept distinct if the abbreviated 3-step view is intentional for this branching).
 
 
