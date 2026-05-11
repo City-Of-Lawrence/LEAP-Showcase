@@ -64,23 +64,23 @@ Verified against `routes/public.py` and `routes/admin.py` render_template calls 
 - [x] `/start/small-business` → redirects to `/address/street` (single-role bypass)
 - [x] `/renter/login` → `renter_login.html`
 - [ ] `/welcome-back` → `welcome_back.html`
-- [ ] `/welcome` → `welcome.html`
+- [x] `/welcome` → `welcome.html`
 - [x] `/address/street` → `address_street.html` (reached via /start/small-business redirect)
-- [ ] `/address/pick` → `address_pick.html`
+- [x] `/address/pick` → `address_pick.html`
 - [ ] `/address/not-found` → `address_not_found.html`
 - [ ] `/address/not-found-confirm` → `address_not_found_confirm.html`
 - [ ] `/select-address` → `confirm_address.html`
 - [ ] `/role` → `role.html`
-- [ ] `/landlord/units` → `landlord_units.html`
+- [x] `/landlord/units` → `landlord_units.html`
 - [ ] `/landlord/units/confirm` → `landlord_units_confirm.html`
 - [ ] `/landlord/returning` → `landlord_repeat.html`
-- [ ] `/landlord/events` → `landlord_events.html`
-- [ ] `/landlord/intent` → `intent.html` (landlord branch)
+- [x] `/landlord/events` → `landlord_events.html`
+- [x] `/landlord/intent` → `intent.html` (landlord branch)
 - [ ] `/intent` → `intent.html` (renter branch)
-- [ ] `/events/select` → `event_select.html`
+- [x] `/events/select` → `event_select.html`
 - [ ] `/already-registered` → `already_rsvpd.html`
-- [ ] `/contact` → `contact.html`
-- [ ] `/done` → `done.html`
+- [x] `/contact` → `contact.html`
+- [x] `/done` → `done.html`
 - [ ] `/renter/pending` → `zombie_holding.html`
 - [x] `/register` (error states) → `error.html` — clean at 1440 (UPIN-not-in-demo-DB error state). The intentional Flask 404 response status logs a console "error" but it's semantically correct (resource not found).
 
@@ -280,5 +280,80 @@ Already captured as Finding 1. Reiterating: this fires a console error on every 
 ### Global Finding B: Possible DEMO SITE banner clipping at narrow viewports
 
 I observed truncated "DEMO SIT" in the choose-path 320 screenshot, but a re-eval on `/start` at 320 showed the banner not clipped (`clipped: false`, full text "DEMO SITE"). May have been a misread of the tiny font at 320, or the clipping is intermittent (e.g., depending on flag emoji width affecting the lang-toggle width). To re-verify during Unit 1 fixes by re-screenshotting choose-path at 320 with a fresh evaluate.
+
+---
+
+## Second-pass findings (from session continuation 2026-05-10)
+
+### `/address/pick` (address_pick.html)
+Reached via Renter → Andover/Exeter street search. Clean at 1440: 5-step progress, "Select Your Address" heading, well-labeled `<select>` of 189 addresses, two action buttons. No overflow, no MBLU, no unlabeled inputs.
+
+#### Finding 12: Duplicate address entries in `<select>`
+- **Where:** `routes/public.py` address-lookup logic (data layer) — surfaces in `templates/address_pick.html` rendering
+- **Viewport(s):** all (data-driven, not viewport-dependent)
+- **Category:** copy-bugs
+- **Severity:** S2
+- **Status:** open
+- **Notes:** The `<select>` shows entries like `1 EXETER ST LAWRENCE MA 01843` AND `1 EXETER ST, LAWRENCE, MA 01843` (with commas) as two separate options pointing to the same `account_number = "0041 0000 0001 A"`. Same account, different display strings — confusing for the user. Likely the Outreach_Master_Unified and Assessment_L_Parcels rows have format-variant addresses that aren't normalized. Fix is non-trivial (data normalization in the lookup query). Flagging for follow-up; not in this audit's scope.
+
+### `/welcome` (welcome.html, renter path with 1 EXETER ST)
+Clean at 1440. 5-step progress (Role, Street, Address, Intent active, Contact) consistent with /address/street. Three intent option cards. Save Progress aside at bottom (now with the 44px button from the global fix).
+
+No new findings on this page beyond what's already covered.
+
+### `/events/select` (event_select.html, empty state)
+
+#### Finding 13: Step indicator inconsistency — labels and order drift across pages
+- **Where:** `templates/event_select.html` (step indicator) — compare to other flow pages
+- **Viewport(s):** all
+- **Category:** copy-bugs (also touches polish/consistency)
+- **Severity:** S1
+- **Status:** open
+- **Notes:** The 5-step progress indicator should be consistent across the flow. Found three different variants:
+  - **Variant A** (renter path, most pages): `Role / Street / Address / Intent / Contact`
+  - **Variant B** (event_select.html only): `Address / Role / Intent / Event / Contact` — reordered, "Street" dropped, "Event" added
+  - **Variant C** (landlord_events.html only): `Address / Role / Property / Intent / Contact` — reordered, "Street" replaced with "Property"
+
+  Users navigating multi-step flows get disoriented when steps relabel between pages. Fix: pick one canonical label set per role-path and apply consistently. Best done as one focused PR touching the {{ t('step_*') }} translation keys or template-side label macros. Out of scope for this audit's quick-win fixes.
+
+### `/contact` (contact.html, post-events)
+Clean at 1440. Step indicator matches Variant A (Role/Street/Address/Intent/Contact). Three properly-labeled form fields (Name, Phone, Email) with privacy disclosure. Finish + Skip buttons.
+
+No new findings on this page.
+
+### `/done` (done.html)
+
+#### Finding 14: "Questions? Call the City at" trails off without a phone number
+- **Where:** `templates/done.html` — final trailing line
+- **Viewport(s):** all
+- **Category:** copy-bugs
+- **Severity:** S2
+- **Status:** open
+- **Notes:** The done page has a `Need help with the Mass Save site?` card with phone number (978) 315-9255 + WhatsApp icon, then below that a separate line reading "Questions? Call the City at" — and nothing follows. Reads like a string concatenation broke or a variable wasn't filled. The phone number is already visible just above, so the line is also redundant. Two fix options: (a) remove the orphan line entirely, (b) complete the sentence with the City Hall phone (different from EA phone). Check `done.html` for the source — likely a translation key followed by a `{{ city_phone }}` variable that's not in context.
+
+### `/landlord/units` (landlord_units.html)
+
+#### Finding 15: Minus button shows `ˆ’` instead of `−` (mojibake)
+- **Where:** `templates/landlord_units.html:30` — `<button>ˆ'</button>` (U+02C6 modifier-circumflex + U+2019 right-single-quote)
+- **Viewport(s):** all
+- **Category:** copy-bugs
+- **Severity:** S1
+- **Status:** fixed-in-second-batch (2026-05-10)
+- **Fix:** Replaced `ˆ'` with `−` (U+2212, math minus). Matches the visual weight of the `+` companion button. Verified at 1440 after Flask reload.
+
+### `/landlord/events` (landlord_events.html, empty state)
+
+#### Finding 16: Empty-state copy promises a "callback below" that isn't visible
+- **Where:** `templates/landlord_events.html` (empty-state alert text)
+- **Viewport(s):** all
+- **Category:** copy-bugs
+- **Severity:** S2
+- **Status:** open
+- **Notes:** Alert text reads: "No sessions are currently scheduled. Check back soon — we add new sessions regularly. You can still enroll directly with Mass Save or request a callback below." But the page only has a Continue button below — no callback request form is shown on this page. The text seems to assume content that doesn't render. Either the page is missing a callback section, or the copy should be revised. Compare to `/events/select` which has a similar empty-state but with consistent copy.
+
+### `/landlord/intent` (intent.html, landlord branch)
+Step indicator matches Variant A (Role/Street/Address/Intent/Contact). Three labeled choice cards. Clean trust callout: "Remember: Official enrollment happens at masssave.com/Lawrence. The City's registration is separate and optional." Well-designed.
+
+No new findings.
 
 
