@@ -57,20 +57,22 @@
         <option value="lec"            {% if current_audience == 'lec'            %}selected{% endif %}>LEC -- Lawrence Energy Choice</option>
       </select>
 
-      <label>Wards Targeted <span style="font-weight:400; color:#777;">(select all that apply)</span></label>
-      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.4rem;">
-        {% for w in ['A','B','C','D','E','F'] %}
-        <label style="display:flex; align-items:center; gap:0.4rem;
-                       padding:0.4rem 0.8rem; border:2px solid #dde3ea;
-                       border-radius:5px; cursor:pointer; font-size:0.92rem;"
-               id="ward_label_{{ w }}">
-          <input type="checkbox" name="wards" value="{{ w }}"
-                 {% if w in wards %}checked{% endif %}
-                 onchange="updateWardStyle('{{ w }}')">
-          Ward {{ w }}
-        </label>
-        {% endfor %}
-      </div>
+      <fieldset style="border:none; padding:0; margin:0 0 1.4rem 0;">
+        <legend style="padding:0; font-weight:600;">Wards Targeted <span style="font-weight:400; color:#777;">(select all that apply)</span></legend>
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem;">
+          {% for w in ['A','B','C','D','E','F'] %}
+          <label style="display:flex; align-items:center; gap:0.4rem;
+                         padding:0.4rem 0.8rem; border:2px solid #dde3ea;
+                         border-radius:5px; cursor:pointer; font-size:0.92rem;"
+                 id="ward_label_{{ w }}">
+            <input type="checkbox" name="wards" value="{{ w }}"
+                   {% if w in wards %}checked{% endif %}
+                   onchange="updateWardStyle('{{ w }}')">
+            Ward {{ w }}
+          </label>
+          {% endfor %}
+        </div>
+      </fieldset>
 
       <div class="btn-row">
         <button type="submit" class="btn btn-primary">

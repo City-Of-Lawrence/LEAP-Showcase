@@ -1205,8 +1205,8 @@ TRANSLATIONS = {
         "es": "No, gracias, omitir los eventos",
     },
     "levents_no_events_alert": {
-        "en": "No sessions are currently scheduled. Check back soon — we add new sessions regularly. You can still enroll directly with Mass Save or request a callback below.",
-        "es": "No hay sesiones programadas actualmente. Vuelva pronto — agregamos nuevas sesiones regularmente. Puede inscribirse directamente con Mass Save o solicitar una llamada abajo.",
+        "en": "No sessions are currently scheduled. Check back soon — we add new sessions regularly. You can still enroll directly with Mass Save.",
+        "es": "No hay sesiones programadas actualmente. Vuelva pronto — agregamos nuevas sesiones regularmente. Puede inscribirse directamente con Mass Save.",
     },
     "levents_section_b_prompt": {
         "en": "What would you like to do next?",
