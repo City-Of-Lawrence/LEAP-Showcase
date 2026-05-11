@@ -41,21 +41,31 @@ Do not "fix" these — they're intentional:
 - **Empty `mailto:` on the pause prompt** in `base.html`. Waiting on Anil to supply an Energy Advocate email. Translation key `pause_prompt_email_label` is already in place for one-line wire-up later.
 - **`admin_events_PATCH.html`** template is not referenced in any `render_template(...)` call as of 2026-05-10 — likely dead code from a prior iteration. Flag for cleanup, do not audit.
 
+### Screenshot interpretation note (Playwright)
+
+The Playwright headless Chromium doesn't bundle emoji color fonts. Screenshots will show emoji as either the underlying Unicode characters or empty boxes. In particular:
+- The lang toggle `🇩🇴 Español` (Dominican flag) renders in screenshots as `DO Español`. Real users with normal browsers see the flag.
+- The English toggle `🇺🇸 English` renders as `US English` in screenshots.
+- The footer demo disclaimer's `⚠️` renders as `⚠` (no color).
+- Emoji icons on home tiles (🏠 / 🏪 / ⚡) may render in basic glyph form rather than color.
+
+Do not flag emoji rendering differences as findings unless they suggest a real user-facing issue.
+
 ## Route checklist
 
 Verified against `routes/public.py` and `routes/admin.py` render_template calls on 2026-05-10. POST-only handlers, file-download routes, redirect routes, and pure JSON endpoints are excluded.
 
 ### Public flow (25 pages)
 
-- [ ] `/` → `index.html`
-- [ ] `/lec` → `lec.html`
-- [ ] `/choose-path` → `choose_path.html`
-- [ ] `/start` → `start_generic.html`
-- [ ] `/start/small-business` → `start_generic.html` (alt entry)
-- [ ] `/renter/login` → `renter_login.html`
+- [x] `/` → `index.html`
+- [x] `/lec` → `lec.html`
+- [x] `/choose-path` → `choose_path.html`
+- [x] `/start` → `start_generic.html`
+- [x] `/start/small-business` → redirects to `/address/street` (single-role bypass)
+- [x] `/renter/login` → `renter_login.html`
 - [ ] `/welcome-back` → `welcome_back.html`
 - [ ] `/welcome` → `welcome.html`
-- [ ] `/address/street` → `address_street.html`
+- [x] `/address/street` → `address_street.html` (reached via /start/small-business redirect)
 - [ ] `/address/pick` → `address_pick.html`
 - [ ] `/address/not-found` → `address_not_found.html`
 - [ ] `/address/not-found-confirm` → `address_not_found_confirm.html`
@@ -103,4 +113,138 @@ Verified against `routes/public.py` and `routes/admin.py` render_template calls 
 
 ## Findings
 
-(Appear here as the audit progresses, grouped by route.)
+### `/` (index.html)
+
+Tested at 320, 768, 1440. No horizontal scroll, no overflowing elements, no small touch targets at any width. All three hero images have alt text. `<html lang="en">` set.
+
+#### Finding 1: `/favicon.ico` returns 404
+- **Where:** server-side; no favicon asset shipped in `static/`
+- **Viewport(s):** all (console error fires on every page load app-wide)
+- **Category:** copy-bugs
+- **Severity:** S2
+- **Status:** open
+- **Notes:** Every page load logs `Failed to load resource: 404` in the console for `/favicon.ico`. Affects every page in the app, not just the homepage. Fix options: (a) add a `static/favicon.ico` asset (city seal as ICO would be the obvious pick), (b) add a no-op Flask route returning 204, or (c) `<link rel="icon" href="data:,">` in `base.html` to suppress. Option (a) is correct civic design — a city site should have a favicon.
+
+### `/lec` (lec.html)
+
+Tested at 320, 1440. No `MBLU`, lang=en, no missing alt.
+
+#### Finding 3: `lec-logo-link` and `lec-btn-secondary` overflow viewport at 320px
+- **Where:** `templates/lec.html` (Colonial Power Group logo card + "← Back to Home" button)
+- **Viewport(s):** 320 (need to verify at 360 / 280-foldable; clean at 1440)
+- **Category:** responsive
+- **Severity:** S2
+- **Status:** open
+- **Notes:** Both elements are 5px wider than the 320px viewport. Page-level `overflow-x: hidden` on `<body>` clips the excess so users don't see horizontal scroll, but the elements are technically miscut. Likely a `padding` or `width` that doesn't shrink at narrowest mobile. Fix: tighten side padding or use `width: 100%` with `box-sizing: border-box`.
+
+#### Finding 2: Lone `›` chevron at bottom of each program tile
+- **Where:** `templates/index.html:230,238,246` — `<span class="leap-tile-chevron">&#8250;</span>`
+- **Viewport(s):** all
+- **Category:** polish
+- **Severity:** S2
+- **Status:** open
+- **Notes:** Each of the three program tiles ends with a small standalone `›` glyph at the bottom. The tile is wrapped in `<a class="leap-tile">` so the whole card is clickable, and the chevron is intended as the affordance. But visually the chevron floats with no accompanying "Learn more" text and at quick glance reads as a stray character rather than a call to action. Same pattern appears on `choose_path.html:142` (`.cp-card-chevron`) and `start_generic.html` role tiles. Two fix options: (a) add `Learn more ›` text alongside, (b) move chevron inline beside the tile heading. Civic-design preference: option (a), since it's more obviously an action.
+
+---
+
+### `/choose-path` (choose_path.html)
+
+Tested at 320, 1440. No horizontal scroll. Layout cleanly stacks at 320.
+
+#### Finding 4: UPIN input has no `<label>`
+- **Where:** `templates/choose_path.html:127-130` — `<input type="text" id="upin" name="upin" placeholder="...">`
+- **Viewport(s):** all
+- **Category:** a11y
+- **Severity:** S1
+- **Status:** open
+- **Notes:** The UPIN entry input on the "Have a Letter or UPIN?" card has only a placeholder ("e.g. ABCD123XY") — no `<label for="upin">`. Screen readers won't announce a field name; placeholder text disappears once the user types. Tap-on-label-to-focus also doesn't work. Fix: add a visible `<label for="upin">` (translation key likely already in place — check `index_have_upin_title` use), or at minimum `aria-label`.
+
+#### Finding 5: Double-arrow back link "← ← Back"
+- **Where:** `templates/choose_path.html:148` — `<a>&#8592; {{ t('back_btn') }}</a>` (also `templates/how_can_we_help.html:206`, `templates/already_rsvpd.html:65`)
+- **Viewport(s):** all
+- **Category:** copy-bugs
+- **Severity:** S1
+- **Status:** open
+- **Notes:** The `back_btn` translation already includes a leading `←` (en: `"← Back"`, es: `"← Atrás"`). Three templates additionally prepend their own `←`, producing `← ← Back` / `← ← Atrás`. Fix: remove the template-side arrow on all three templates (single source of truth in translation). Verify `start_generic.html` and any other templates using `t('back_btn')` for the same drift.
+
+---
+
+### `/start` (start_generic.html)
+
+Tested at 320, 1440. No horizontal scroll, no overflowing elements.
+
+#### Finding 6: Inconsistent role-tile subtitles
+- **Where:** `templates/start_generic.html` (5 role tiles: Renter, I Own & Live in My Home, Landlord, Property Manager, Small Business)
+- **Viewport(s):** all
+- **Category:** polish
+- **Severity:** S2
+- **Status:** open
+- **Notes:** Only one of the five role tiles has a subtitle ("Single-family home" under "I Own & Live in My Home"). The others have only a title. This visual inconsistency reads as a missing item rather than an intentional distinction. Fix options: (a) add subtitles to all 5 tiles, (b) remove the lone subtitle, (c) make subtitles optional via a deliberate pattern (some tiles have it, others don't — but then add a visual rhythm that explains why).
+
+#### Finding 7: "Small Business" tile orphaned in 5-tile grid at desktop
+- **Where:** `templates/start_generic.html` (5 tiles in a 2-column grid at desktop → 4 + 1 lonely)
+- **Viewport(s):** 768+ (at 320 they stack vertically — fine)
+- **Category:** polish
+- **Severity:** S2
+- **Status:** open
+- **Notes:** At tablet/desktop, the 5 role tiles render as 2-column grid producing a final orphaned tile in its own row. Options: (a) use 3 columns at wider widths (5 = 3 + 2), (b) collapse Small Business into a different entry point (the `/start/small-business` route exists already as a direct-link), (c) center the orphan visually.
+
+---
+
+### `/address/street` (address_street.html)
+
+Tested at 320, 1440. Reached via `/start/small-business`. Clean at 1440; touch-target issues at 320.
+
+#### Finding 8: "Search →" button is 41px tall at 320 (touch target < 44)
+- **Where:** `templates/address_street.html` — primary submit button
+- **Viewport(s):** 320 (need to verify at 360 / 375 / 414)
+- **Category:** responsive
+- **Severity:** S1
+- **Status:** open
+- **Notes:** WCAG 2.5.5 / Apple HIG recommend ≥ 44px touch targets on mobile. 41px is close but under. Likely caused by `padding` that doesn't scale at narrow widths. Fix: bump button vertical padding or set `min-height: 44px` on `.btn-primary` and equivalents at ≤ 768.
+
+#### Finding 9: "Email me a resume link →" button is 30px tall at 320 (touch target severely under)
+- **Where:** `templates/address_street.html` — the Save Progress aside button (added in Roadmap §2 A2)
+- **Viewport(s):** 320 (need to verify at 360 / 375)
+- **Category:** responsive
+- **Severity:** S0
+- **Status:** open
+- **Notes:** The Save Progress aside's submit is only 30px tall at 320 — significantly fails the touch target minimum. The button has tighter padding than the primary submit. Per `feedback_test_locally_before_push.md`, this slipped through because the §2 A2 PR mobile-tested at 375+ but not 320. Fix: same as Finding 8 — `min-height: 44px` and adjust padding/font-size for narrow viewports.
+
+---
+
+### `/renter/login` (renter_login.html)
+
+Tested at 1440 only (pause prompt fired before 320 sweep; pause prompt itself captured in screenshot).
+
+Page is publicly reachable; UPIN entry form is straightforward.
+
+#### Finding 10: Page title shows UTF-8 mojibake instead of em-dash
+- **Where:** `templates/base.html` (default title block) — affects every page that doesn't define its own `{% block title %}` override
+- **Viewport(s):** all (title bar)
+- **Category:** copy-bugs
+- **Severity:** S1
+- **Status:** open
+- **Notes:** `renter_login.html` does not define a `{% block title %}` override, so it falls back to base.html's default title. The default title contains a corrupted em-dash: the bytes `c3 a2 e2 80 9a c2 ac e2 80 9d` (or similar Windows-1252-misread-as-UTF-8 garbage) where a single `—` should be. Visible to every user as: `Lawrence Energy Affordability Project (LEAP) Ã¢‚¬" DEMO`. Fix: replace the corrupted bytes in base.html title with a proper em-dash (or use HTML entity `&mdash;`). Also audit base.html CSS comments for the same mojibake (saw `Ã¢"‚¬Ã¢"‚¬ Reset & base Ã¢"‚¬Ã¢"‚¬` earlier — affects the comment headers).
+
+#### Finding 11: Pause prompt fires after 45s of inactivity (intentional, confirmed working)
+- **Where:** `base.html` — pause prompt modal (from Roadmap §2 A3)
+- **Viewport(s):** all
+- **Category:** (informational — not a bug)
+- **Severity:** N/A
+- **Status:** intentional
+- **Notes:** Caught the modal firing during the audit sweep. Modal shows "Need a hand? Looks like you're paused. The City of Lawrence Energy Advocate is one tap away…" with three actions: Call, WhatsApp, "I'm fine, keep going". Per CLAUDE.md, the `mailto:` is intentionally absent until Anil supplies an EA email. **"I'm fine, keep going" is rendered as a text link rather than a styled button** — flagging as a follow-up polish question (is this intentional de-emphasis of the dismiss, or should it be a tertiary button?). Not actioning until clarified.
+
+---
+
+## Global findings (affect multiple pages via shared partials)
+
+### Global Finding A: `/favicon.ico` returns 404 on every page
+
+Already captured as Finding 1. Reiterating: this fires a console error on every page load app-wide.
+
+### Global Finding B: Possible DEMO SITE banner clipping at narrow viewports
+
+I observed truncated "DEMO SIT" in the choose-path 320 screenshot, but a re-eval on `/start` at 320 showed the banner not clipped (`clipped: false`, full text "DEMO SITE"). May have been a misread of the tiny font at 320, or the clipping is intermittent (e.g., depending on flag emoji width affecting the lang-toggle width). To re-verify during Unit 1 fixes by re-screenshotting choose-path at 320 with a fresh evaluate.
+
+
