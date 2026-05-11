@@ -4,7 +4,7 @@
 {% block content %}
 <div style="max-width:540px; margin:0 auto; padding:1rem 0;">
 
-  {# ”—€ Step indicator ”—€ #}
+  {# —— Step indicator —— #}
   <div style="display:flex; gap:0.4rem; margin-bottom:1.5rem; font-size:0.78rem; flex-wrap:wrap;">
     <span class="tag" style="background:#dff0d8; color:#2e6b3e;">✓ {{ t('step_role') }}</span>
     <span class="tag" style="background:#dff0d8; color:#2e6b3e;">✓ {{ t('step_street') }}</span>
@@ -18,13 +18,13 @@
     {{ t('notfound_confirm_subtitle') }}
   </p>
 
-  {# ”—€ Alert ”—€ #}
+  {# —— Alert —— #}
   <div style="background:#fff8e1; border:1px solid #f9a825; border-radius:8px;
               padding:0.85rem 1rem; margin-bottom:1.3rem; font-size:0.88rem; color:#5a3e00;">
     {{ t('notfound_confirm_alert') }}
   </div>
 
-  {# ”—€ Form ”—€ #}
+  {# —— Form —— #}
   <form method="POST" action="{{ url_for('public.address_not_found_confirm') }}">
 
     <div style="margin-bottom:1rem;">
