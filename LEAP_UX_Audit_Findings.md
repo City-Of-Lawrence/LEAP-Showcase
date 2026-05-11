@@ -86,18 +86,18 @@ Verified against `routes/public.py` and `routes/admin.py` render_template calls 
 
 ### Admin flow (10 pages)
 
-- [~] `/admin/login` → `admin_login.html` — live audit at 1440 (no auth needed), then static review for rest. Clean: labeled password input, simple form, no markup issues.
-- [~] `/admin/` → `admin.html` — static-reviewed
-- [~] `/admin/outreach` → `admin_outreach.html` — static-reviewed
-- [~] `/admin/events` → `admin_events.html` — static-reviewed (head only)
-- [~] `/admin/events/new` → `admin_event_form.html` — static-reviewed in full; clean labels
-- [~] `/admin/events/<id>/edit` → `admin_event_form.html` (same template)
-- [~] `/admin/events/<id>/attendees` → `admin_event_attendees.html` — static-reviewed
-- [~] `/admin/funnel` → `admin_funnel.html` — static-reviewed
-- [~] `/admin/settings` → `admin_settings.html` — static-reviewed
-- [~] `/admin/import/leap_registrations` → `admin_import_xdb.html` — static-reviewed
+- [x] `/admin/login` → `admin_login.html` — clean
+- [x] `/admin/` → `admin.html` — clean dashboard, empty state, no markup issues
+- [x] `/admin/outreach` → `admin_outreach.html` — clean, 4-tile summary + threshold dropdown + dashboard button + empty state
+- [x] `/admin/events` → `admin_events.html` — clean, action button row + empty state
+- [x] `/admin/events/new` → `admin_event_form.html` — clean; verified fieldset/legend a11y fix is live
+- [~] `/admin/events/<id>/edit` → `admin_event_form.html` — same template; not reachable without an existing event
+- [~] `/admin/events/<id>/attendees` → `admin_event_attendees.html` — static-reviewed; needs existing event
+- [x] `/admin/funnel` → `admin_funnel.html` — clean observability dashboard with tiles + step counts table + orphans list
+- [x] `/admin/settings` → `admin_settings.html` — clean
+- [x] `/admin/import/leap_registrations` → `admin_import_xdb.html` — clean restore-DB page
 
-**Note**: live admin login was blocked because the local Flask defaults `ADMIN_PASSWORD` to `leapadmin2026`, but the user supplied the Render production password `#$CoLDemoIs0ver$`. Attempts to restart Flask with the env var override didn't propagate cleanly through the bash quoting layer. Static template review covers markup-level rubric items (a11y labels, alt text, MBLU, mojibake, structural issues) without requiring auth. Visual polish and per-viewport responsive checks on admin pages are deferred to a session that has a working ADMIN_PASSWORD match.
+**Resolved blocker**: live admin login unblocked once Flask was restarted via PowerShell with `$env:ADMIN_PASSWORD = '#$CoLDemoIs0ver$'` (bash env-var passthrough was the culprit; the PowerShell syntax propagated the dollar-sign-heavy value correctly). Eight of ten admin pages live-audited at 1440. The two event-detail pages (`edit`, `attendees`) require an existing event row — template static review covered them.
 
 ### Excluded routes (verified, intentional)
 
@@ -279,9 +279,9 @@ Page is publicly reachable; UPIN entry form is straightforward.
 
 Already captured as Finding 1. Reiterating: this fires a console error on every page load app-wide.
 
-### Global Finding B: Possible DEMO SITE banner clipping at narrow viewports
+### Global Finding B: Possible DEMO SITE banner clipping at narrow viewports — RESOLVED (not a real issue)
 
-I observed truncated "DEMO SIT" in the choose-path 320 screenshot, but a re-eval on `/start` at 320 showed the banner not clipped (`clipped: false`, full text "DEMO SITE"). May have been a misread of the tiny font at 320, or the clipping is intermittent (e.g., depending on flag emoji width affecting the lang-toggle width). To re-verify during Unit 1 fixes by re-screenshotting choose-path at 320 with a fresh evaluate.
+Re-checked at 320 with fresh eval: banner right=294, header right=305, full text "DEMO SITE" renders. My earlier "DEMO SIT" reading on choose-path was a misread of the very small font. No actual clipping. **Status: resolved, no fix needed.**
 
 ---
 
