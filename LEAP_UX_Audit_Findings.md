@@ -82,7 +82,7 @@ Verified against `routes/public.py` and `routes/admin.py` render_template calls 
 - [ ] `/contact` → `contact.html`
 - [ ] `/done` → `done.html`
 - [ ] `/renter/pending` → `zombie_holding.html`
-- [ ] `/register` (error states) → `error.html`
+- [x] `/register` (error states) → `error.html` — clean at 1440 (UPIN-not-in-demo-DB error state). The intentional Flask 404 response status logs a console "error" but it's semantically correct (resource not found).
 
 ### Admin flow (10 pages)
 
@@ -109,9 +109,11 @@ Verified against `routes/public.py` and `routes/admin.py` render_template calls 
 
 ## Triage summary
 
-**Audit pass status (2026-05-10):** PARTIAL — 6 of 35 routes swept (`/`, `/lec`, `/choose-path`, `/start`, `/start/small-business`-redirect, `/address/street`, `/renter/login`). Remaining 29 routes (most auth-gated public flow + all admin) deferred to a continuation session.
+**Audit pass status (2026-05-10):** PARTIAL — 7 of 35 routes swept (`/`, `/lec`, `/choose-path`, `/start`, `/start/small-business`-redirect, `/address/street`, `/renter/login`, `/register`→`error.html`). Remaining 28 routes (most auth-gated public flow + all admin) deferred to a continuation session.
 
-**Findings logged: 11 (across the 6 routes swept) + 1 informational (intentional pause-prompt behavior).**
+**Blocker for the auth-gated continuation:** the test UPINs documented in `Test UPINS.txt` aren't present in the tracked `upinmgmt_render.sqlite` demo DB — `/register?upin=UFUZLQJERV` returns "This UPIN is not valid." Next session needs either (a) UPINs that exist in the demo DB (query the SQLite directly), or (b) traverse via the address-search flow which doesn't require a pre-issued UPIN.
+
+**Findings logged: 11 (across 7 routes swept) + 1 informational (intentional pause-prompt behavior).** Of these, 6 are now `fixed-in-global-batch` and pushed (commit `c5c2ab8`).
 
 | Severity | Responsive | Polish | A11y | Copy-bugs | Total |
 |----------|-----------|--------|------|-----------|-------|
