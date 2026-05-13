@@ -25,7 +25,12 @@ venv/
 !static/lawrence_photo.png
 !static/lec_logo.png
 !static/colonial_logo.png
+!static/bridge_icon.png
+!static/lawrence_photo.jpg
+!static/leap_logo_round_corners.png
 
+# Local-only Claude session pickup notes
+CLAUDE.md
 
 # System
 __pycache__/
@@ -44,12 +49,7 @@ qr_exports/
 *.code-workspace
 ResetDeployedDbusingConsole.txt
 
-*.lnk
-*.code-workspace
-ResetDeployedDbusingConsole.txt
-
 templates/upload_*.html
 
-!static/lawrence_photo.jpg
-
-!static/leap_logo_round_corners.png
+# UX audit working dir (Playwright screenshots — local-only)
+.audit-screenshots/
