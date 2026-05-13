@@ -9,7 +9,7 @@ from flask import (
 )
 from datetime import datetime, timezone
 
-from schema import upin_db
+from schema import upin_db, DB_UPIN
 from helpers import (
     get_lang, get_setting,
     lookup_by_upin, lookup_property,
@@ -18,10 +18,104 @@ from helpers import (
     get_prior_registration_summary, save_registration,
     get_upcoming_events, get_event_wards,
     add_event_rsvp, get_existing_rsvps, cancel_event_rsvp,
+    create_partial_token, update_partial_state,
+    restore_partial, delete_partial,
+    get_or_create_funnel_session_id, log_funnel_event,
 )
 from translations import t, get_roles, get_intents, get_landlord_intents
+from mailer import send_email_async
 
 public = Blueprint("public", __name__)
+
+
+# ------------------------------------------------------------------
+# Save Progress (Roadmap §2 PR-A2): keep partial_registrations in sync
+# with session state on every funnel POST. Token lives in session under
+# _partial_token; it's set by /save-progress and cleared by /contact
+# completion. The hook is a no-op if no token is active.
+# ------------------------------------------------------------------
+
+@public.after_request
+def _sync_partial_progress(response):
+    token = session.get("_partial_token")
+    if not token or request.method != "POST":
+        return response
+    # last_step is where the user would resume from -- the redirect
+    # target if this POST forwards them, else the path they're on.
+    last_step = request.path
+    if 300 <= response.status_code < 400:
+        loc = response.headers.get("Location")
+        if loc:
+            last_step = loc
+    try:
+        update_partial_state(token, dict(session), last_step)
+    except Exception as e:
+        # Sync is best-effort; never let it break the response.
+        import sys
+        print(f"[partial-sync] update failed: {e}", file=sys.stderr, flush=True)
+    return response
+
+
+# ------------------------------------------------------------------
+# Funnel-event logging (Roadmap §2 PR-A3). Records every funnel route
+# transition so the admin /admin/funnel view can show drop-off rates
+# and surface orphaned sessions for outreach. Uses request_started for
+# GETs (the resident landed on this step) and after_request for POSTs
+# (the redirect tells us what comes next). Skips static, language
+# toggles, and admin/resume meta-routes.
+# ------------------------------------------------------------------
+
+# Routes whose path prefixes should NOT generate funnel events. /admin
+# is its own surface; /lang and /resume don't represent funnel steps;
+# /static is asset traffic.
+FUNNEL_LOG_SKIP_PREFIXES = ("/static", "/admin", "/lang", "/resume",
+                             "/save-progress", "/favicon.ico")
+
+
+def _is_funnel_path(path: str) -> bool:
+    if not path or not path.startswith("/"):
+        return False
+    return not any(path.startswith(p) for p in FUNNEL_LOG_SKIP_PREFIXES)
+
+
+@public.before_request
+def _log_funnel_arrival():
+    """Log a GET arrival on a funnel route. Captures the moment a
+    resident sees a step. POST submissions are logged in the
+    after_request hook because we want the redirect target as to_step.
+    """
+    if request.method != "GET" or not _is_funnel_path(request.path):
+        return
+    sid = get_or_create_funnel_session_id()
+    log_funnel_event(
+        session_id=sid,
+        from_step=session.get("_last_funnel_step"),
+        to_step=request.path,
+        user_agent=request.headers.get("User-Agent", ""),
+        partial_token=session.get("_partial_token"),
+    )
+    session["_last_funnel_step"] = request.path
+
+
+@public.after_request
+def _log_funnel_post_redirect(response):
+    """For POSTs that redirect to another funnel step, log the to_step
+    based on the Location header. The matching GET arrival is logged by
+    the next request, so this is just for explicit transitions like
+    'POST /welcome -> 302 /contact'.
+    """
+    if request.method != "POST" or not _is_funnel_path(request.path):
+        return response
+    if not (300 <= response.status_code < 400):
+        return response
+    loc = response.headers.get("Location")
+    if not loc or not _is_funnel_path(loc):
+        return response
+    # The GET-side hook will log the arrival; we just update last_step
+    # so the next from_step is accurate even if the redirect target
+    # isn't a funnel route.
+    session["_last_funnel_step"] = request.path
+    return response
 
 # Read from app config at runtime â€” set by app.py
 def _masssave_url():
@@ -757,6 +851,118 @@ def event_select():
                            zombie_has_contact=zombie_has_contact)
 
 
+@public.route("/save-progress", methods=["POST"])
+def save_progress():
+    """Create a partial_registrations row + email the resume link.
+
+    Posted from the optional aside surfaced on funnel pages (currently
+    /address/street and /welcome -- the design doc placed this "right
+    after /role" so the earlier surface catches drop-off where it's
+    highest). The hidden from_path form field tells us which step to
+    return to after they click the resume link; we validate it's a
+    relative in-app URL only.
+
+    Requires at least a session role -- it's pointless to save a
+    session that doesn't even know what kind of resident this is.
+    Beyond that, whatever state exists at save time is what gets
+    snapshotted; the after_request hook keeps it fresh as the
+    resident advances.
+    """
+    if not session.get("role") and not session.get("account_number"):
+        return redirect(url_for("public.index"))
+
+    contact_email = (request.form.get("contact_email") or "").strip()
+    if not contact_email or "@" not in contact_email:
+        # No email or malformed -- silently bounce back to where they
+        # came from. The form is opt-in; bad input shouldn't stop the
+        # funnel.
+        return redirect(_safe_from_path(request.form.get("from_path"),
+                                        url_for("public.welcome")))
+
+    # Drop any prior token for this session before creating a new one.
+    old = session.pop("_partial_token", None)
+    if old:
+        try:
+            delete_partial(old)
+        except Exception:
+            pass
+
+    return_to = _safe_from_path(request.form.get("from_path"),
+                                url_for("public.welcome"))
+    token = create_partial_token(
+        contact_email=contact_email,
+        contact_phone=request.form.get("contact_phone", "") or "",
+        session_state=dict(session),
+        last_step=return_to,
+    )
+    session["_partial_token"] = token
+    session["_partial_sent_to"] = contact_email   # feeds the success banner
+
+    # Send the resume-link email (same fire-and-forget pattern as A1).
+    lang   = get_lang()
+    link   = url_for("public.resume_partial", token=token, _external=True)
+    subject = t("email_resume_subject", lang)
+    body    = t("email_resume_body", lang).format(link=link)
+    send_email_async(
+        to_addr=contact_email,
+        subject=subject,
+        body_text=body,
+    )
+
+    return redirect(return_to)
+
+
+def _safe_from_path(raw, fallback: str) -> str:
+    """Sanitize a form-supplied from_path into a safe in-app redirect.
+
+    Rejects anything that isn't a single leading slash + ASCII path
+    (no protocol, no host, no protocol-relative). Defends against an
+    attacker crafting a save-progress form that bounces residents to
+    an external URL after submit.
+    """
+    if not raw or not isinstance(raw, str):
+        return fallback
+    if not raw.startswith("/") or raw.startswith("//"):
+        return fallback
+    # Strip control chars / newlines that could enable header injection
+    # via Location even though Flask's redirect() already escapes.
+    cleaned = raw.split("?", 1)[0].split("#", 1)[0]
+    if any(ord(c) < 0x20 for c in cleaned):
+        return fallback
+    return cleaned
+
+
+@public.route("/resume/<token>")
+def resume_partial(token):
+    """Restore a saved session snapshot and route the resident to the
+    last_step they reached. If the token is unknown or expired (the
+    helper purges expired rows opportunistically), surface a friendly
+    "this link doesn't work anymore" error instead of silently
+    redirecting somewhere confusing.
+    """
+    result = restore_partial(token)
+    if not result:
+        return render_template(
+            "error.html",
+            message=t("save_progress_invalid_token", get_lang()),
+        ), 410
+    state, last_step = result
+
+    # Replace session contents with the snapshot, keeping language
+    # preference (which lives in the active session, not the snapshot).
+    lang = session.get("lang", "en")
+    session.clear()
+    session["lang"] = lang
+    session.update(state)
+    session["_partial_token"] = token
+
+    # last_step is a relative URL we wrote on save; trust it but
+    # bound it to in-app routes only.
+    if not last_step or not last_step.startswith("/"):
+        last_step = url_for("public.welcome")
+    return redirect(last_step)
+
+
 @public.route("/welcome", methods=["GET", "POST"])
 def welcome():
     """
@@ -856,11 +1062,68 @@ def select_intent():
     return redirect(url_for("public.welcome"))
 
 
+def _fire_first_touch(contact_email: str, contact_name: str,
+                      account_number: str, lang: str) -> None:
+    """Fire-and-forget the post-registration confirmation email.
+
+    Skips silently if no contact_email was captured (the form lets a
+    resident submit phone-only). On send failure, the mailer's daemon
+    thread writes a row to outreach_log (channel='email',
+    outcome='unreachable') so the Energy Advocate sees the miss in
+    /admin/outreach and can follow up by phone.
+
+    Failure-callback runs outside the Flask request context, so it
+    opens its own sqlite3 connection -- it cannot use g.upin_db().
+    """
+    if not contact_email or "@" not in contact_email:
+        return
+    name = (contact_name or "").strip() \
+        or t("email_first_touch_default_name", lang)
+    subject = t("email_first_touch_subject", lang)
+    body    = t("email_first_touch_body", lang).format(name=name)
+
+    def _on_failure(result):
+        import sqlite3
+        try:
+            conn = sqlite3.connect(DB_UPIN)
+            row = conn.execute(
+                "SELECT id FROM registrations "
+                "WHERE account_number = ? AND contact_email = ? "
+                "ORDER BY registered_at DESC LIMIT 1",
+                (account_number, contact_email),
+            ).fetchone()
+            if row:
+                conn.execute(
+                    "INSERT INTO outreach_log "
+                    "(registration_id, contacted_by, channel, outcome, notes) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (row[0], "first_touch_auto", "email", "unreachable",
+                     f"Automated First Touch send failed: {result.reason}"),
+                )
+                conn.commit()
+            conn.close()
+        except Exception as e:
+            # Last-ditch logging; never let failure logging crash the thread.
+            import sys
+            print(f"[first-touch] outreach_log write also failed: {e}",
+                  file=sys.stderr, flush=True)
+
+    send_email_async(
+        to_addr=contact_email,
+        subject=subject,
+        body_text=body,
+        on_failure=_on_failure,
+    )
+
+
 @public.route("/contact", methods=["GET", "POST"])
 def contact_info():
     # Special case: address-not-found path â€” no session required
     if request.method == "POST" and request.form.get("_path") == "not_found":
-        street_note = request.form.get("street_note", "").strip()
+        street_note   = request.form.get("street_note",  "").strip()
+        contact_name  = request.form.get("contact_name", "").strip()
+        contact_email = request.form.get("contact_email","").strip()
+        contact_phone = request.form.get("contact_phone","").strip()
         save_registration({
             "account_number":      "NOT_FOUND",
             "upin_used":           "manual",
@@ -874,19 +1137,23 @@ def contact_info():
             "mass_save_enrolled":  None,
             "needs_callback":      "yes",
             "event_rsvp_id":       None,
-            "contact_name":        request.form.get("contact_name", "").strip(),
-            "contact_phone":       request.form.get("contact_phone", "").strip(),
-            "contact_email":       request.form.get("contact_email", "").strip(),
+            "contact_name":        contact_name,
+            "contact_phone":       contact_phone,
+            "contact_email":       contact_email,
             "ip_address":          request.remote_addr,
             "pending_upin":        None,
         })
+        _fire_first_touch(contact_email, contact_name, "NOT_FOUND", get_lang())
         return redirect(url_for("public.done"))
 
     if not session.get("account_number"):
         return redirect(url_for("public.index"))
 
     if request.method == "POST":
-        is_zombie = session.get("account_number") == "NOT_FOUND"
+        is_zombie     = session.get("account_number") == "NOT_FOUND"
+        contact_name  = request.form.get("contact_name", "").strip()
+        contact_email = request.form.get("contact_email","").strip()
+        contact_phone = request.form.get("contact_phone","").strip()
         save_registration({
             "account_number":      session["account_number"],
             "upin_used":           session.get("upin_used", "manual"),
@@ -900,15 +1167,31 @@ def contact_info():
             "mass_save_enrolled":  session.get("mass_save_enrolled"),
             "needs_callback":      session.get("needs_callback"),
             "event_rsvp_id":       session.get("event_rsvp_id"),
-            "contact_name":        request.form.get("contact_name", "").strip(),
-            "contact_phone":       request.form.get("contact_phone", "").strip(),
-            "contact_email":       request.form.get("contact_email", "").strip(),
+            "contact_name":        contact_name,
+            "contact_phone":       contact_phone,
+            "contact_email":       contact_email,
             "ip_address":          request.remote_addr,
             "pending_upin":        "yes" if is_zombie else None,
             "reported_fuel":       session.get("reported_fuel"),
         })
         lang   = session.get("lang", "en")
         intent = session.get("intent")
+        # Fire automated First Touch BEFORE session.clear() so we still
+        # have language context. Helper is a no-op when contact_email
+        # is empty -- residents who only provide phone don't get email.
+        _fire_first_touch(contact_email, contact_name,
+                          session["account_number"], lang)
+        # Save Progress: registration completed, so the partial token
+        # is no longer useful. Delete the row so the table doesn't keep
+        # a snapshot of completed funnels around. Must run before
+        # session.clear() so the after_request hook doesn't see the
+        # token and try to write an empty session over it.
+        partial_token = session.pop("_partial_token", None)
+        if partial_token:
+            try:
+                delete_partial(partial_token)
+            except Exception:
+                pass
         session.clear()
         session["lang"] = lang
         if is_zombie:

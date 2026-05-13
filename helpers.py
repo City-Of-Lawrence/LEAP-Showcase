@@ -542,7 +542,10 @@ def get_upcoming_events(role: str = "", limit: int = 2):
            ORDER BY e.event_date, e.event_time""",
         [today] + audiences
     ).fetchall()
-    available = [r for r in rows if r["rsvp_count"] < r["capacity"]]
+    # Defensive: capacity should always be set (NOT NULL DEFAULT 50 in schema), but
+    # legacy rows imported from an earlier schema may have NULL — treat as full so
+    # the event doesn't surface to residents until capacity is corrected by staff.
+    available = [r for r in rows if (r["rsvp_count"] or 0) < (r["capacity"] or 0)]
     return available[:limit]
 
 def get_event_wards(event_id):
@@ -614,3 +617,135 @@ def admin_required(f):
             return redirect(url_for("admin.admin_login"))
         return f(*args, **kwargs)
     return decorated
+
+
+# ------------------------------------------------------------------
+# Save Progress (Roadmap §2 PR-A2)
+# ------------------------------------------------------------------
+# Opaque tokens that let a resident pause mid-funnel and resume from a
+# resume link emailed to them. Storage is partial_registrations
+# (created in schema.py:ensure_schema). Tokens default to a 7-day TTL.
+
+import json
+import secrets
+from datetime import timedelta
+
+PARTIAL_TOKEN_TTL_DAYS = 7
+
+
+def _serialize_session_state(state) -> str:
+    """JSON-encode the session dict, stripping non-funnel keys.
+
+    Flask's session is a SecureCookieSession; iterating it yields the
+    same data as a dict. We drop our own bookkeeping keys (lang,
+    _partial_token) so the snapshot is just the funnel state -- restore
+    pulls them back into a fresh session without polluting it.
+    """
+    skip = {"lang", "_partial_token", "admin_logged_in"}
+    plain = {k: v for k, v in state.items() if k not in skip}
+    return json.dumps(plain, default=str)
+
+
+def create_partial_token(contact_email: str, contact_phone: str,
+                         session_state, last_step: str,
+                         ttl_days: int = PARTIAL_TOKEN_TTL_DAYS) -> str:
+    """Create a partial_registrations row, return the token.
+
+    contact_email is required (the resume link is emailed there).
+    last_step is the relative URL the /resume route redirects to.
+    """
+    token   = secrets.token_urlsafe(24)
+    payload = _serialize_session_state(session_state)
+    expires = (datetime.now(timezone.utc) + timedelta(days=ttl_days)).isoformat(
+        sep=" ", timespec="seconds"
+    )
+    upin_db().execute(
+        "INSERT INTO partial_registrations "
+        "(token, contact_email, contact_phone, session_state, last_step, expires_at) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
+        (token, contact_email, contact_phone or "", payload, last_step, expires),
+    )
+    upin_db().commit()
+    return token
+
+
+def update_partial_state(token: str, session_state, last_step: str) -> bool:
+    """Refresh the snapshot for an existing token. No-op if token unknown."""
+    payload = _serialize_session_state(session_state)
+    cur = upin_db().execute(
+        "UPDATE partial_registrations "
+        "SET session_state = ?, last_step = ? WHERE token = ?",
+        (payload, last_step, token),
+    )
+    upin_db().commit()
+    return cur.rowcount > 0
+
+
+def restore_partial(token: str):
+    """Fetch and decode a partial. Returns (state_dict, last_step) or None.
+
+    Also opportunistically purges any expired rows so the table doesn't
+    grow without bound -- callers don't need a separate cleanup job.
+    """
+    upin_db().execute(
+        "DELETE FROM partial_registrations WHERE expires_at < ?",
+        (datetime.now(timezone.utc).isoformat(sep=" ", timespec="seconds"),),
+    )
+    upin_db().commit()
+    row = upin_db().execute(
+        "SELECT session_state, last_step FROM partial_registrations WHERE token = ?",
+        (token,),
+    ).fetchone()
+    if not row:
+        return None
+    try:
+        state = json.loads(row["session_state"])
+    except (ValueError, TypeError):
+        return None
+    return state, row["last_step"]
+
+
+def delete_partial(token: str) -> None:
+    """Remove a partial -- called when registration completes."""
+    upin_db().execute(
+        "DELETE FROM partial_registrations WHERE token = ?", (token,)
+    )
+    upin_db().commit()
+
+
+# ------------------------------------------------------------------
+# Drop-off analytics (Roadmap §2 PR-A3)
+# ------------------------------------------------------------------
+# Per-session funnel-step transitions; admin uses these to see where
+# residents drop off and to surface orphaned sessions for outreach.
+
+def get_or_create_funnel_session_id() -> str:
+    """Return the opaque per-browser-session id, creating one if absent.
+
+    Stored under session["_funnel_sid"]. Lives for the whole browser
+    session (cleared by session.clear() at /contact completion or
+    /resume restoration). New visitors and resumed visitors each get a
+    fresh id; that's the right grain for the drop-off table.
+    """
+    sid = session.get("_funnel_sid")
+    if not sid:
+        sid = secrets.token_urlsafe(16)
+        session["_funnel_sid"] = sid
+    return sid
+
+
+def log_funnel_event(session_id: str, from_step, to_step: str,
+                     user_agent: str = "", partial_token=None) -> None:
+    """Insert a funnel_events row. Best-effort; never raises."""
+    try:
+        upin_db().execute(
+            "INSERT INTO funnel_events "
+            "(session_id, from_step, to_step, user_agent, partial_token) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (session_id, from_step, to_step, user_agent[:300] if user_agent else "",
+             partial_token),
+        )
+        upin_db().commit()
+    except Exception as e:
+        import sys
+        print(f"[funnel-events] log failed: {e}", file=sys.stderr, flush=True)

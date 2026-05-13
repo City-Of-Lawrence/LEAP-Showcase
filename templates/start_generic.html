@@ -40,6 +40,18 @@
     display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:32px;
   }
 
+  /* When an odd number of roles leaves a single orphan in the last row,    */
+  /* span both columns and recenter at single-cell width so it doesn't read */
+  /* as left-anchored. Scoped above the 480px single-column breakpoint so   */
+  /* it never shrinks the orphan to half-width on mobile.                   */
+  @media (min-width: 481px) {
+    .sg-roles > .sg-role-card:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      width: calc(50% - 7px);
+    }
+  }
+
   /* Hidden radio -- card click submits form */
   .sg-roles input[type="radio"] { display:none; }
 
@@ -142,7 +154,7 @@
   </form>
 
   <div class="sg-back">
-    <a href="{{ url_for('public.choose_path') }}">&#8592; {{ t('back_btn') }}</a>
+    <a href="{{ url_for('public.choose_path') }}">{{ t('back_btn') }}</a>
   </div>
 
 </div>

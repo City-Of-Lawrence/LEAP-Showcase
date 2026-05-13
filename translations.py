@@ -267,6 +267,25 @@ TRANSLATIONS = {
         "es": "Comenzar \u2192",
     },
 
+    # Clarity FAQ block (rendered below the program tiles on
+    # index.html and how_can_we_help.html). Disambiguates "use less
+    # energy" (Energy Upgrades / Mass Save) from "pay less for energy
+    # used" (LEC). Body uses <strong> for the two program names;
+    # templates render with | safe.
+    "clarity_faq_title": {
+        "en": "Which one is for me?",
+        "es": "\u00bfCu\u00e1l es para m\u00ed?",
+    },
+    "clarity_faq_body": {
+        "en": "<strong>Energy Upgrades</strong> help you use less energy. "
+              "<strong>Lawrence Energy Choice</strong> helps you pay less "
+              "for the energy you use. Most families benefit from both.",
+        "es": "Las <strong>Mejoras Energ\u00e9ticas</strong> le ayudan a "
+              "usar menos energ\u00eda. <strong>Lawrence Energy Choice</strong> "
+              "le ayuda a pagar menos por la energ\u00eda que usa. La "
+              "mayor\u00eda de las familias se benefician de ambos programas.",
+    },
+
     # ── lec.html — Lower My Energy Bills interstitial ────────────────
     # Section 1: Know Your Supplier -- framing
     "lec_warning_eyebrow": {
@@ -566,12 +585,36 @@ TRANSLATIONS = {
 
     # ── done.html ────────────────────────────────────────────────────
     "done_title": {
-        "en": "You're All Set!",
-        "es": "¡Todo Listo!",
+        "en": "Registration Complete: Now, Complete Your Official Enrollment",
+        "es": "Registro Completo: Ahora, Complete su Inscripción Oficial",
     },
     "done_subtitle": {
-        "en": "Thank you for registering with the Lawrence Energy Affordability Project (LEAP). A City staff member may follow up if you requested assistance.",
-        "es": "Gracias por registrarse con el Proyecto de Asequibilidad Energética de Lawrence (LEAP). Un miembro del personal de la Ciudad puede darle seguimiento si solicitó asistencia.",
+        "en": "The City of Lawrence is still with you. Mass Save handles the next step, and we're tracking your progress to make sure nothing falls through.",
+        "es": "La Ciudad de Lawrence sigue con usted. Mass Save maneja el próximo paso, y estamos siguiendo su progreso para asegurar que nada se quede atrás.",
+    },
+    "done_safety_net_title": {
+        "en": "Need help with the Mass Save site?",
+        "es": "¿Necesita ayuda con el sitio de Mass Save?",
+    },
+    "done_safety_net_body": {
+        "en": "If anything is unclear or you can't finish the form, your Energy Advocate is here to help.",
+        "es": "Si algo no está claro o no puede completar el formulario, su Asesor de Energía está aquí para ayudar.",
+    },
+    "done_advocate_phone": {
+        "en": "(978) 315-9255",
+        "es": "(978) 315-9255",
+    },
+    "done_advocate_whatsapp_aria": {
+        "en": "Message your Energy Advocate on WhatsApp",
+        "es": "Envíe un mensaje a su Asesor de Energía por WhatsApp",
+    },
+    "done_bridge_label_city": {
+        "en": "City of Lawrence",
+        "es": "Ciudad de Lawrence",
+    },
+    "done_bridge_label_masssave": {
+        "en": "Mass Save®",
+        "es": "Mass Save®",
     },
     "done_next_step_title": {
         "en": "Next step: Get Started with Energy-Saving Upgrades",
@@ -581,10 +624,6 @@ TRANSLATIONS = {
         "en": "Go to Lawrence's Mass Save partnership page to learn about no-cost energy upgrades. It's no-cost and takes about 5 minutes to get started.",
         "es": "Visite la página de asociación de Mass Save de Lawrence para conocer las mejoras de energía sin costo. Es sin costo y toma unos 5 minutos para comenzar.",
     },
-    "done_masssave_btn": {
-        "en": "Get Started with Energy-Saving Upgrades \u2192",
-        "es": "Comenzar con las Mejoras de Ahorro Energ\u00e9tico \u2192",
-    },
     "done_questions": {
         "en": "Questions? Call the City at",
         "es": "¿Preguntas? Llame a la Ciudad al",
@@ -592,6 +631,174 @@ TRANSLATIONS = {
     "done_or_visit": {
         "en": "or visit City Hall.",
         "es": "o visítenos en el Ayuntamiento.",
+    },
+
+    # ── First Touch confirmation email (mailer.py / Roadmap §2 A1) ───
+    # Sent automatically after a successful /contact POST. Plain text
+    # only; SendGrid renders \n as line breaks. Body has a {name}
+    # placeholder filled at send time -- see routes/public.py.
+    "email_first_touch_subject": {
+        "en": "City of Lawrence: We received your LEAP registration",
+        "es": "Ciudad de Lawrence: Recibimos su registro de LEAP",
+    },
+    "email_first_touch_default_name": {
+        "en": "Lawrence resident",
+        "es": "vecino/a de Lawrence",
+    },
+    "email_first_touch_body": {
+        "en": (
+            "Hi {name},\n"
+            "\n"
+            "The City of Lawrence has received your LEAP registration. "
+            "Here's what happens next:\n"
+            "\n"
+            "  1. An Energy Advocate will reach out within 3 business days "
+            "to walk you through your options.\n"
+            "  2. If you haven't heard from us, call (978) 315-9255 -- "
+            "that's a real human at the City of Lawrence, here to help.\n"
+            "\n"
+            "You can also start your Mass Save enrollment any time:\n"
+            "https://www.masssave.com/community-first/lawrence\n"
+            "\n"
+            "Thanks for taking the first step toward affordable energy in "
+            "Lawrence.\n"
+            "\n"
+            "-- The Lawrence Energy Affordability Project (LEAP)\n"
+            "   City of Lawrence, Massachusetts"
+        ),
+        "es": (
+            "Hola {name},\n"
+            "\n"
+            "La Ciudad de Lawrence ha recibido su registro de LEAP. "
+            "Esto es lo que sigue:\n"
+            "\n"
+            "  1. Un Asesor de Energía se comunicará con usted en un plazo "
+            "de 3 días hábiles para guiarle a través de sus opciones.\n"
+            "  2. Si no escucha de nosotros, llame al (978) 315-9255 -- "
+            "es una persona real de la Ciudad de Lawrence, aquí para ayudar.\n"
+            "\n"
+            "También puede comenzar su inscripción con Mass Save en "
+            "cualquier momento:\n"
+            "https://www.masssave.com/community-first/lawrence\n"
+            "\n"
+            "Gracias por dar el primer paso hacia energía asequible en "
+            "Lawrence.\n"
+            "\n"
+            "-- Proyecto de Asequibilidad Energética de Lawrence (LEAP)\n"
+            "   Ciudad de Lawrence, Massachusetts"
+        ),
+    },
+
+    # ── Save Progress (Roadmap §2 PR-A2) ─────────────────────────────
+    # Optional opt-in prompt rendered at the bottom of welcome.html plus
+    # the email body sent when a resident opts in. {link} is filled
+    # with the absolute /resume/<token> URL at send time.
+    "save_progress_heading": {
+        "en": "Need to step away?",
+        "es": "¿Necesita detenerse?",
+    },
+    "save_progress_blurb": {
+        "en": "Drop your email and we'll send you a link that picks up "
+              "where you left off. The link works for 7 days.",
+        "es": "Déjenos su correo electrónico y le enviaremos un enlace "
+              "para continuar donde lo dejó. El enlace funciona por 7 días.",
+    },
+    "save_progress_email_label": {
+        "en": "Email address",
+        "es": "Correo electrónico",
+    },
+    "save_progress_email_placeholder": {
+        "en": "you@example.com",
+        "es": "usted@ejemplo.com",
+    },
+    "save_progress_send_btn": {
+        "en": "Email me a resume link →",
+        "es": "Enviarme el enlace →",
+    },
+    "save_progress_sent": {
+        "en": "Resume link sent to {email}. Check your inbox -- the link "
+              "works for 7 days.",
+        "es": "Enlace enviado a {email}. Revise su bandeja de entrada -- "
+              "el enlace funciona por 7 días.",
+    },
+    "save_progress_invalid_token": {
+        "en": "This resume link has expired or doesn't exist. Please "
+              "start over from the homepage.",
+        "es": "Este enlace ha expirado o no existe. Por favor empiece de "
+              "nuevo desde la página de inicio.",
+    },
+    "email_resume_subject": {
+        "en": "Your LEAP resume link",
+        "es": "Su enlace para continuar con LEAP",
+    },
+    "email_resume_body": {
+        "en": (
+            "Hi,\n"
+            "\n"
+            "Here's your link to continue your LEAP registration where "
+            "you left off:\n"
+            "\n"
+            "{link}\n"
+            "\n"
+            "The link works for 7 days. If you didn't request this, you "
+            "can safely ignore this email -- nothing was saved on our "
+            "side that identifies you.\n"
+            "\n"
+            "Questions? Call (978) 315-9255 -- a real human at the City "
+            "of Lawrence is here to help.\n"
+            "\n"
+            "-- The Lawrence Energy Affordability Project (LEAP)\n"
+            "   City of Lawrence, Massachusetts"
+        ),
+        "es": (
+            "Hola,\n"
+            "\n"
+            "Aquí está su enlace para continuar con su registro de LEAP "
+            "donde lo dejó:\n"
+            "\n"
+            "{link}\n"
+            "\n"
+            "El enlace funciona por 7 días. Si no solicitó esto, puede "
+            "ignorar este correo -- no guardamos información que le "
+            "identifique de nuestro lado.\n"
+            "\n"
+            "¿Preguntas? Llame al (978) 315-9255 -- una persona real "
+            "de la Ciudad de Lawrence está aquí para ayudar.\n"
+            "\n"
+            "-- Proyecto de Asequibilidad Energética de Lawrence (LEAP)\n"
+            "   Ciudad de Lawrence, Massachusetts"
+        ),
+    },
+
+    # ── Pause prompt (Roadmap §2 PR-A3) ──────────────────────────────
+    # Inactivity nudge -- after the threshold seconds with no
+    # interaction on a funnel page, a modal surfaces with the same
+    # tel:/wa.me/ affordances as the safety-net aside on /done.
+    "pause_prompt_heading": {
+        "en": "Need a hand?",
+        "es": "¿Necesita ayuda?",
+    },
+    "pause_prompt_body": {
+        "en": "Looks like you're paused. The City of Lawrence Energy "
+              "Advocate is one tap away if you have questions.",
+        "es": "Parece que está pausado. El Asesor de Energía de la "
+              "Ciudad de Lawrence está a un toque si tiene preguntas.",
+    },
+    "pause_prompt_call_label": {
+        "en": "Call (978) 315-9255",
+        "es": "Llamar (978) 315-9255",
+    },
+    "pause_prompt_whatsapp_label": {
+        "en": "Message on WhatsApp",
+        "es": "Mensaje por WhatsApp",
+    },
+    "pause_prompt_email_label": {
+        "en": "Email the Energy Advocate",
+        "es": "Enviar correo al Asesor de Energía",
+    },
+    "pause_prompt_dismiss": {
+        "en": "I'm fine, keep going",
+        "es": "Estoy bien, continuar",
     },
 
     # ── error.html ───────────────────────────────────────────────────
@@ -998,8 +1205,8 @@ TRANSLATIONS = {
         "es": "No, gracias, omitir los eventos",
     },
     "levents_no_events_alert": {
-        "en": "No sessions are currently scheduled. Check back soon — we add new sessions regularly. You can still enroll directly with Mass Save or request a callback below.",
-        "es": "No hay sesiones programadas actualmente. Vuelva pronto — agregamos nuevas sesiones regularmente. Puede inscribirse directamente con Mass Save o solicitar una llamada abajo.",
+        "en": "No sessions are currently scheduled. Check back soon — we add new sessions regularly. You can still enroll directly with Mass Save.",
+        "es": "No hay sesiones programadas actualmente. Vuelva pronto — agregamos nuevas sesiones regularmente. Puede inscribirse directamente con Mass Save.",
     },
     "levents_section_b_prompt": {
         "en": "What would you like to do next?",

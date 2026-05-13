@@ -213,5 +213,78 @@ def ensure_schema():
         )
     """)
     cur.execute("INSERT OR IGNORE INTO settings (key,value) VALUES ('events_to_show','2')")
+    cur.execute("INSERT OR IGNORE INTO settings (key,value) VALUES ('outreach_at_risk_days','3')")
+
+    # Multi-touch outreach record. One row per contact attempt against a
+    # registration. The Advocate's "current outreach state" of any
+    # registration is derived from this table's most-recent row for that
+    # registration_id -- registrations.* is never updated by this flow.
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS outreach_log (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            registration_id INTEGER NOT NULL REFERENCES registrations(id),
+            contacted_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            contacted_by    TEXT NOT NULL DEFAULT 'admin',
+            channel         TEXT NOT NULL
+                                CHECK(channel IN ('call','email','whatsapp','other')),
+            outcome         TEXT NOT NULL
+                                CHECK(outcome IN ('reached','unreachable','enrolled','not_interested')),
+            notes           TEXT
+        )
+    """)
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_outreach_log_registration "
+        "ON outreach_log(registration_id, contacted_at DESC)"
+    )
+
+    # Save Progress (Roadmap §2 PR-A2). Holds an opaque token + the
+    # snapshot of session state at the latest funnel step the resident
+    # reached. /resume/<token> restores that snapshot so a resident who
+    # got distracted can come back without restarting. The session_state
+    # is JSON; it's the dict() of the Flask session at save time. Rows
+    # expire on their own clock (default 7 days) and are purged
+    # opportunistically on /resume hits -- no separate cleanup job.
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS partial_registrations (
+            token         TEXT PRIMARY KEY,
+            contact_email TEXT NOT NULL,
+            contact_phone TEXT,
+            session_state TEXT NOT NULL,
+            last_step     TEXT NOT NULL,
+            created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            expires_at    TIMESTAMP NOT NULL
+        )
+    """)
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_partial_registrations_expires "
+        "ON partial_registrations(expires_at)"
+    )
+
+    # Drop-off analytics (Roadmap §2 PR-A3). One row per funnel-route
+    # transition. session_id is an opaque per-browser-session UUID so
+    # the admin can correlate steps without a real user identity.
+    # partial_token, when present, lets us tie an orphaned funnel
+    # session to its emailed resume link (handy for "people we sent a
+    # link to who never came back").
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS funnel_events (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id    TEXT NOT NULL,
+            occurred_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            from_step     TEXT,
+            to_step       TEXT NOT NULL,
+            user_agent    TEXT,
+            partial_token TEXT
+        )
+    """)
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_funnel_events_session "
+        "ON funnel_events(session_id, occurred_at)"
+    )
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_funnel_events_step "
+        "ON funnel_events(to_step, occurred_at)"
+    )
+
     conn.commit()
     conn.close()

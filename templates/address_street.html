@@ -143,5 +143,47 @@
   </div>
   {% endif %}
 
+  {# Save Progress (Roadmap §2 PR-A2). Same opt-in offered on /welcome,
+     surfaced here too because the design doc placed it "right after
+     /role" -- this page is the first step after role selection, where
+     funnel drop-off is highest. Hidden once a token has been sent in
+     this session (the success banner appears on /welcome instead). #}
+  {% if not session.get('_partial_sent_to') %}
+  <aside style="margin-top:1.6rem; padding:0.85rem 1rem 0.95rem;
+                background:#f5f7fa; border:1px solid #c4d2e0;
+                border-left:4px solid #1a3a5c; border-radius:4px;">
+    <div style="color:#1a3a5c; font-size:0.9rem; font-weight:700;
+                margin-bottom:0.3rem;">
+      {{ t('save_progress_heading') }}
+    </div>
+    <p style="font-size:0.82rem; color:#3a4654; line-height:1.5;
+              margin-bottom:0.65rem;">
+      {{ t('save_progress_blurb') }}
+    </p>
+    <form method="POST" action="{{ url_for('public.save_progress') }}"
+          style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:flex-end;">
+      <input type="hidden" name="from_path" value="{{ request.path }}">
+      <div style="flex:1; min-width:180px;">
+        <label for="resume_email_street"
+               style="font-size:0.78rem; font-weight:600; color:#1a3a5c;">
+          {{ t('save_progress_email_label') }}
+        </label>
+        <input type="email" name="contact_email" id="resume_email_street"
+               placeholder="{{ t('save_progress_email_placeholder') }}"
+               style="width:100%; padding:0.45rem 0.55rem; border:1px solid #bbb;
+                      border-radius:4px; font-size:0.88rem; margin-top:0.2rem;
+                      box-sizing:border-box;">
+      </div>
+      <button type="submit"
+              style="font-size:0.88rem; font-weight:600; color:white;
+                     background:#1a3a5c; border:none; border-radius:4px;
+                     padding:0.7rem 1rem; min-height:44px; cursor:pointer;
+                     white-space:nowrap;">
+        {{ t('save_progress_send_btn') }}
+      </button>
+    </form>
+  </aside>
+  {% endif %}
+
 </div>
 {% endblock %}

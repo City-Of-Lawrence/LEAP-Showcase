@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block main_class %}wide{% endblock %}
+{% block title %}Funnel · Lawrence Energy Program{% endblock %}
+
+{% block head %}
+<style>
+  /* Summary tiles -- matches the outreach view's card pattern. */
+  .funnel-summary {
+    display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 0.75rem 0 1rem;
+  }
+  .funnel-tile {
+    flex: 1; min-width: 150px; background: #fff;
+    border: 1px solid #e0e8f0; border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+  }
+  .funnel-tile-num {
+    font-size: 1.5rem; font-weight: 800; color: #1a3a5c; line-height: 1;
+  }
+  .funnel-tile-lbl {
+    font-size: 0.72rem; color: #666; margin-top: 0.25rem;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .funnel-tile.entered    { border-left: 4px solid #1a3a5c; }
+  .funnel-tile.completed  { border-left: 4px solid #2e6b3e; }
+  .funnel-tile.conv       { border-left: 4px solid #C8960C; }
+
+  /* Step bar -- visual cue alongside the count column. Width is
+     proportional to the largest count so the busiest step is full. */
+  .step-bar-cell { width: 220px; }
+  .step-bar {
+    display: inline-block; height: 12px; background: #c4d2e0;
+    border-radius: 2px; vertical-align: middle;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.5rem;">
+    <div>
+      <h1 style="font-size:1.3rem; color:#1a3a5c;">Funnel observability</h1>
+      <p style="font-size:0.82rem; color:#666; margin-top:0.2rem;">
+        Per-step traffic and orphaned sessions for the last
+        <strong>{{ days }}</strong>&nbsp;days. Step counts are distinct
+        browsers; orphans are sessions that started but never reached
+        <code>/done</code> and have been idle &gt; 30&nbsp;min.
+      </p>
+    </div>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+      <form method="GET" style="display:flex; gap:0.4rem; align-items:center; margin:0;">
+        <label for="days-select" style="font-size:0.78rem; color:#666;">Lookback</label>
+        <select id="days-select" name="days" onchange="this.form.submit()"
+                style="font-size:0.85rem; padding:0.3rem 0.5rem;
+                       border:1px solid #cdd; border-radius:5px;">
+          {% for d in [1, 7, 30, 90] %}
+          <option value="{{ d }}" {% if d == days %}selected{% endif %}>
+            {{ d }} day{% if d != 1 %}s{% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </form>
+      <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline"
+         style="font-size:0.85rem; padding:0.4rem 1rem;">&larr; Dashboard</a>
+    </div>
+  </div>
+
+  <div class="funnel-summary">
+    <div class="funnel-tile entered">
+      <div class="funnel-tile-num">{{ total_sessions }}</div>
+      <div class="funnel-tile-lbl">Sessions started</div>
+    </div>
+    <div class="funnel-tile completed">
+      <div class="funnel-tile-num">{{ completed }}</div>
+      <div class="funnel-tile-lbl">Reached /done</div>
+    </div>
+    <div class="funnel-tile conv">
+      <div class="funnel-tile-num">
+        {% if total_sessions %}
+          {{ ((completed / total_sessions) * 100) | round(0, 'floor') | int }}%
+        {% else %}&mdash;{% endif %}
+      </div>
+      <div class="funnel-tile-lbl">Funnel conversion</div>
+    </div>
+    <div class="funnel-tile">
+      <div class="funnel-tile-num">{{ orphans | length }}</div>
+      <div class="funnel-tile-lbl">Orphans (last 50)</div>
+    </div>
+  </div>
+
+  <h2 style="font-size:1.05rem; color:#1a3a5c; margin-top:1.2rem; margin-bottom:0.4rem;">
+    Step counts
+  </h2>
+  {% if step_counts %}
+  {% set max_sessions = step_counts | map(attribute='sessions') | max %}
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Funnel step</th>
+        <th>Distinct sessions</th>
+        <th>Volume</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in step_counts %}
+      <tr>
+        <td><code>{{ s['to_step'] }}</code></td>
+        <td>{{ s['sessions'] }}</td>
+        <td class="step-bar-cell">
+          <span class="step-bar"
+                style="width:{{ ((s['sessions'] / max_sessions) * 200) | round(0, 'floor') | int }}px;"></span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert alert-info">
+    No funnel events recorded in the last {{ days }} days.
+    Walk a registration to start populating the table.
+  </div>
+  {% endif %}
+
+  <h2 style="font-size:1.05rem; color:#1a3a5c; margin-top:1.6rem; margin-bottom:0.4rem;">
+    Orphaned sessions
+  </h2>
+  <p style="font-size:0.78rem; color:#666; margin-top:0; margin-bottom:0.5rem;">
+    Sessions that started but didn&rsquo;t reach <code>/done</code>.
+    Idle &gt; 30&nbsp;min. <em>Resume token</em> means the resident
+    opted into Save Progress &mdash; you can pull the email from the
+    <code>partial_registrations</code> table to follow up directly.
+  </p>
+  {% if orphans %}
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Session</th>
+        <th>Last step</th>
+        <th>Last seen</th>
+        <th>Resume token?</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for o in orphans %}
+      <tr>
+        <td><code style="font-size:0.72rem;">{{ o['session_id'][:16] }}…</code></td>
+        <td><code>{{ o['last_step'] }}</code></td>
+        <td style="white-space:nowrap;">{{ o['last_at'][:16] }}</td>
+        <td>
+          {% if o['partial_token'] %}
+            <span class="tag" style="background:#dff0d8;color:#2e6b3e;">Yes</span>
+            <code style="font-size:0.7rem; color:#888;">{{ o['partial_token'][:10] }}…</code>
+          {% else %}
+            <span style="color:#999; font-size:0.78rem;">no</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="background:#dff0d8; border:1px solid #b4d8b4; border-radius:8px;
+              padding:1.25rem; text-align:center; color:#2e6b3e; margin-top:1rem;">
+    <strong>No orphaned sessions.</strong>
+    Either everyone completed or no one started in the last {{ days }} days.
+  </div>
+  {% endif %}
+
+{% endblock %}

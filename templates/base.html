@@ -3,10 +3,20 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{% block title %}Lawrence Energy Affordability Project (LEAP) Ã¢‚¬” DEMO{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='Lawrence-Seal.png') }}"/>
+  <title>{% block title %}Lawrence Energy Affordability Project (LEAP) — DEMO{% endblock %}</title>
   <style>
-    /* Ã¢”‚¬Ã¢”‚¬ Reset & base Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Reset & base —— */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; max-width: 100vw; overflow-x: hidden; }
+
+    /* Visually hide content but keep it accessible to screen readers.
+       Used for labels that are present in the design via card titles or
+       placeholders but aren't repeated as visible <label> text. */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
     body {
       font-family: "Segoe UI", Arial, sans-serif;
       background: #f4f6f8;
@@ -14,7 +24,7 @@
       min-height: 100vh;
     }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Header Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Header —— */
     header {
       background: #1a3a5c;   /* Lawrence dark navy */
       color: white;
@@ -43,8 +53,32 @@
       header .program-name { display: none; }
       .seal-link img { height: 60px !important; width: 60px !important; }
     }
+    /* Narrow phones (iPhone SE / iPhone Pro). At 600px the header sizes
+       were still wide enough that "Ciudad de Lawrence" wrapped onto
+       three lines (one word per line) and the longer Spanish demo
+       banner ("SITIO DE DEMOSTRACIÓN") overflowed past the right edge.
+       Tighten everything proportionally so the ribbon stays a clean
+       single row down to 320px. !important here matches the pattern
+       already used at the 600px breakpoint -- the lang toggle and
+       demo banner carry their colors as inline styles, which would
+       otherwise win over class rules. */
+    @media (max-width: 480px) {
+      header { padding: 0.6rem 0.65rem; gap: 0.45rem; }
+      header .city-name { font-size: 0.95rem; line-height: 1.15; }
+      .seal-link img { height: 44px !important; width: 44px !important; }
+      header .lang-toggle {
+        font-size: 0.68rem !important;
+        padding: 0.2rem 0.45rem !important;
+        letter-spacing: 0 !important;
+      }
+      header .demo-banner {
+        font-size: 0.65rem !important;
+        margin-top: 0.28rem !important;
+        letter-spacing: 0 !important;
+      }
+    }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Seal link Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Seal link —— */
     .seal-link {
       display: inline-block;
       flex-shrink: 0;
@@ -54,7 +88,7 @@
     }
     .seal-link:hover { opacity: 0.8; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Progress bar Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Progress bar —— */
     .progress-bar {
       background: #d0dce8;
       height: 6px;
@@ -65,18 +99,28 @@
       transition: width 0.3s ease;
     }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Main content area Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Main content area —— */
+    /* Narrow column on purpose: matches /start's .sg-wrap (600px) so every    */
+    /* step in the registration flow — role, address, intent, contact, done — */
+    /* shares the same compact card width. 92vw keeps a comfortable side       */
+    /* margin on phones; the 640px cap holds the column tight on desktop. The  */
+    /* old clamp(320px, 92vw, 640px) was forcing main to stay >=320px, so on   */
+    /* a 320px viewport the vertical scrollbar (~16px) pushed the card's right */
+    /* edge off-screen and cropped the rounded corner.                         */
     main {
-      max-width: 640px;
+      width: min(92vw, 640px);
       margin: 2rem auto;
       padding: 0 1rem;
+      box-sizing: border-box;
     }
     main.wide {
+      width: 100%;
       max-width: 100%;
       margin: 1.5rem 0;
       padding: 0 1.5rem;
     }
     main.full-bleed {
+      width: 100%;
       max-width: 100%;
       margin: 0;
       padding: 0;
@@ -99,7 +143,7 @@
       line-height: 1.5;
     }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Forms Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Forms —— */
     label {
       display: block;
       font-weight: 600;
@@ -119,7 +163,7 @@
     }
     input:focus { outline: none; border-color: #1a3a5c; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Radio / choice cards Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Radio / choice cards —— */
     .choices { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.4rem; }
     .choice-label {
       display: flex;
@@ -140,9 +184,15 @@
     }
     input[type="radio"] { display: none; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Buttons Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Buttons ——
+       min-height 44px keeps mobile touch targets above WCAG 2.5.5
+       and Apple HIG. inline-flex + center alignment lets us bump
+       min-height without breaking text vertical-centering. */
     .btn {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
       padding: 0.7rem 1.8rem;
       border: none;
       border-radius: 5px;
@@ -160,7 +210,7 @@
     .btn-outline:hover { background: #f0f4f8; }
     .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Address card Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Address card —— */
     .address-card {
       background: #e8f4ec;
       border: 1px solid #9ecfaa;
@@ -171,7 +221,7 @@
     .address-card .addr-main { font-size: 1.1rem; font-weight: 700; color: #1a3a5c; }
     .address-card .addr-meta { font-size: 0.85rem; color: #555; margin-top: 0.3rem; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Search results Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Search results —— */
     .result-list { list-style: none; margin-top: 0.8rem; }
     .result-list li {
       border-bottom: 1px solid #eee;
@@ -185,7 +235,7 @@
     .result-list li a:hover { text-decoration: underline; }
     .result-list .meta { font-size: 0.82rem; color: #777; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Alert / error Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Alert / error —— */
     .alert {
       padding: 0.75rem 1rem;
       border-radius: 5px;
@@ -195,7 +245,7 @@
     .alert-error { background: #fde8e6; border: 1px solid #e8a09a; color: #7a1f1a; }
     .alert-info  { background: #e8f0f8; border: 1px solid #9ab8d8; color: #1a3a5c; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Step indicator Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Step indicator —— */
     .steps {
       display: flex;
       gap: 0;
@@ -225,7 +275,7 @@
     .step.active::before { background: #c8392b; color: white; }
     .step.done::before   { background: #2e7d50; color: white; content: "\2714"; }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Footer Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Footer —— */
     footer {
       text-align: center;
       padding: 1.5rem;
@@ -233,7 +283,7 @@
       color: #888;
     }
 
-    /* Ã¢”‚¬Ã¢”‚¬ Admin table Ã¢”‚¬Ã¢”‚¬ */
+    /* —— Admin table —— */
     .admin-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; table-layout: auto; }
     .admin-table th {
       background: #1a3a5c; color: white;
@@ -269,7 +319,7 @@
 </div>
 
 <header>
-  {# Seal Ã¢‚¬” mid-flow pages get a confirmation dialog, home and done pages go straight home #}
+  {# Seal — mid-flow pages get a confirmation dialog, home and done pages go straight home #}
   {% if progress is defined %}
   <a href="{{ url_for('public.index') }}" class="seal-link"
      onclick="return confirm('{{ t('seal_confirm_msg') }}')">
@@ -289,12 +339,13 @@
     <div class="program-name">Lawrence Energy Affordability Project (LEAP)</div>
   </div>
 
-  {# Language toggle Ã¢‚¬” hidden on admin pages #}
+  {# Language toggle — hidden on admin pages #}
   {% if not request.path.startswith('/admin') %}
   <div style="margin-left:auto; flex-shrink:0; text-align:right;">
     {% set lang = session.get('lang', 'en') %}
     {% if lang == 'en' %}
     <a href="{{ url_for('public.set_language', lang='es') }}"
+       class="lang-toggle"
        style="color:white; font-size:0.85rem; font-weight:700;
               border:1px solid rgba(255,255,255,0.5); border-radius:4px;
               padding:0.3rem 0.75rem; text-decoration:none;
@@ -302,13 +353,15 @@
        title="Switch to Spanish">&#x1F1E9;&#x1F1F4;&nbsp;Espa&ntilde;ol</a>
     {% else %}
     <a href="{{ url_for('public.set_language', lang='en') }}"
+       class="lang-toggle"
        style="color:white; font-size:0.85rem; font-weight:700;
               border:1px solid rgba(255,255,255,0.5); border-radius:4px;
               padding:0.3rem 0.75rem; text-decoration:none;
               white-space:nowrap; letter-spacing:0.04em;"
        title="Switch to English">&#x1F1FA;&#x1F1F8;&nbsp;English</a>
     {% endif %}
-    <div style="margin-top:0.4rem; font-size:1.05rem; font-weight:800;
+    <div class="demo-banner"
+         style="margin-top:0.4rem; font-size:1.05rem; font-weight:800;
                 color:#FF8C00; letter-spacing:0.05em;">
       {{ t('demo_banner') }}
     </div>
@@ -338,6 +391,93 @@
     &copy; 2026 City of Lawrence, Massachusetts
   </div>
 </footer>
+
+{# ─────────────────────────────────────────────────────────────────── #}
+{# Pause-prompt modal (Roadmap §2 PR-A3). After ~45s of no input on a #}
+{# funnel page, surfaces a "Need a hand?" modal with the same         #}
+{# tel:/wa.me affordances as the safety-net aside on /done. JS gates  #}
+{# itself off the path so it never shows on /admin, /, /done, /lec.   #}
+{# Modal markup is always present; if the JS doesn't attach (admin    #}
+{# pages, search engines), the <dialog> just sits closed.             #}
+{# ─────────────────────────────────────────────────────────────────── #}
+<dialog id="leap-pause-modal"
+        style="border:none; border-radius:10px; padding:1.5rem; margin:auto;
+               box-shadow:0 12px 40px rgba(0,0,0,0.25);
+               max-width:420px; width:92vw;">
+  <h2 style="font-size:1.05rem; color:#1a3a5c; margin:0 0 0.5rem;">
+    {{ t('pause_prompt_heading') }}
+  </h2>
+  <p style="font-size:0.9rem; color:#3a4654; line-height:1.5; margin:0 0 1rem;">
+    {{ t('pause_prompt_body') }}
+  </p>
+  <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.9rem;">
+    <a href="tel:9783159255"
+       style="display:inline-flex; align-items:center; gap:0.55rem;
+              padding:0.55rem 0.85rem; background:#1a3a5c; color:#fff;
+              border-radius:5px; font-size:0.93rem; font-weight:700;
+              text-decoration:none; justify-content:center;">
+      📞 {{ t('pause_prompt_call_label') }}
+    </a>
+    <a href="https://wa.me/19783159255" target="_blank" rel="noopener"
+       style="display:inline-flex; align-items:center; gap:0.55rem;
+              padding:0.55rem 0.85rem; background:#fff; color:#1a3a5c;
+              border:2px solid #1a3a5c; border-radius:5px;
+              font-size:0.93rem; font-weight:700; text-decoration:none;
+              justify-content:center;">
+      💬 {{ t('pause_prompt_whatsapp_label') }}
+    </a>
+    {# Design doc called for tel:/mailto:/wa.me, but the City doesn't #}
+    {# have a published Energy Advocate email in this codebase yet.   #}
+    {# Adding mailto: with a guessed address would bounce real        #}
+    {# residents. Tracked as a followup: when Anil confirms the right #}
+    {# address, wire it up here + keep the pause_prompt_email_label   #}
+    {# translation key already in translations.py.                    #}
+  </div>
+  <div style="text-align:center;">
+    <button type="button" onclick="document.getElementById('leap-pause-modal').close()"
+            style="background:none; border:none; color:#5a6a80; font-size:0.85rem;
+                   cursor:pointer; text-decoration:underline;">
+      {{ t('pause_prompt_dismiss') }}
+    </button>
+  </div>
+</dialog>
+
+<script>
+  (function() {
+    // Only attach on funnel routes -- not landing, not done, not lec,
+    // not admin. Threshold is 45s; once the modal opens (or is
+    // dismissed), don't reopen for this page-view.
+    const FUNNEL_PATTERNS = [
+      /^\/start/, /^\/address/, /^\/welcome/, /^\/intent/, /^\/contact$/,
+      /^\/landlord\//, /^\/events\//, /^\/already-registered/,
+      /^\/save-progress/, /^\/renter\//
+    ];
+    const path = window.location.pathname;
+    if (!FUNNEL_PATTERNS.some(function(rx) { return rx.test(path); })) return;
+
+    var modal = document.getElementById('leap-pause-modal');
+    if (!modal || typeof modal.showModal !== 'function') return;
+
+    var THRESHOLD_MS = 45 * 1000;
+    var timer = null;
+    var shown = false;
+
+    function reset() {
+      if (shown) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function() {
+        if (shown) return;
+        shown = true;
+        try { modal.showModal(); } catch (e) { /* dialog unsupported */ }
+      }, THRESHOLD_MS);
+    }
+
+    ['mousemove', 'keydown', 'scroll', 'touchstart', 'click'].forEach(function(evt) {
+      window.addEventListener(evt, reset, { passive: true });
+    });
+    reset();
+  })();
+</script>
 
 </body>
 </html>
